@@ -36,6 +36,7 @@ const Navbar = () => {
                 >
                   {item.name}
                   <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
+                  |
                 </a> 
               ))}
             </div>
