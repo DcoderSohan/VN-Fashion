@@ -6,6 +6,7 @@ const navItems = [
   { name: "About", href: "#about" },
   { name: "Services", href: "#services" },
   { name: "Gallery", href: "#gallery" },
+  { name: "Contact", href: "#contact" },
 ];
 
 const Navbar = () => {
@@ -21,8 +22,8 @@ const Navbar = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
-              <span className="text-2xl font-bold text-blue-600 tracking-tight">
-                VN Fashion
+              <span className="text-3xl font-bold text-blue-600 tracking-tight font-Poppins">
+                <a href="/">VN FASHION</a>
               </span>
             </div>
 
@@ -36,8 +37,7 @@ const Navbar = () => {
                 >
                   {item.name}
                   <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
-                  |
-                </a> 
+                </a>
               ))}
             </div>
 
@@ -45,13 +45,13 @@ const Navbar = () => {
             <div className="md:hidden">
               <button
                 onClick={toggleMenu}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 text-xl"
                 aria-label="Toggle menu"
               >
                 {isOpen ? (
-                  <X className="h-7 w-7" />
+                  "Close"
                 ) : (
-                  <Menu className="h-7 w-7" />
+                  "Menu"
                 )}
               </button>
             </div>
@@ -68,99 +68,42 @@ const Navbar = () => {
           onClick={() => setIsOpen(false)}
         ></div>
         <div
-          className={`fixed top-0 right-0 w-64 h-full bg-white shadow-lg z-30 transform transition-transform duration-300 ease-in-out
+          className={`fixed left-0 top-0 w-full h-full z-30 flex flex-col md:hidden transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] 
+            bg-white
             ${isOpen ? "translate-x-0" : "translate-x-full"}
-          md:hidden`}
+          `}
+          style={{ transformOrigin: "top right" }}
         >
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-6 py-4 border-b">
-              <span className="text-xl font-bold text-blue-600">
-                VN Fashion
-              </span>
-              <button
-                onClick={toggleMenu}
-                className="text-gray-700 hover:text-blue-600 focus:outline-none"
-                aria-label="Close menu"
-              >
-                <X className="h-7 w-7" />
-              </button>
-            </div>
-            <nav className="flex-1 flex flex-col gap-2 px-6 py-6">
-              {navItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition-colors duration-200 text-lg"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.name}
-                </a>
-              ))}
-            </nav>
+          <div className="flex items-center justify-between px-6 py-4 border-b">
+            <span className="text-4xl font-bold text-blue-600">VN Fashion</span>
+            <button
+              onClick={toggleMenu}
+              className="text-gray-700 text-xl"
+              aria-label="Close menu"
+            >
+              Close
+            </button>
           </div>
+          <nav className="flex-1 flex flex-col gap-4 px-6 py-10 items-center justify-center animate-fade-in">
+            {navItems.map((item, idx) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition-colors duration-200 text-4xl font-semibold"
+                onClick={() => setIsOpen(false)}
+                style={{
+                  transitionDelay: `${isOpen ? idx * 60 + 100 : 0}ms`,
+                  opacity: isOpen ? 1 : 0,
+                  transform: isOpen ? "translateY(0)" : "translateY(20px)",
+                  transitionProperty: "opacity, transform",
+                }}
+              >
+                {item.name}
+              </a>
+            ))}
+          </nav>
         </div>
       </nav>
-
-      {/* Demo content */}
-      <div className="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
-          <section
-            id="home"
-            className="min-h-screen flex items-center justify-center bg-blue-50 rounded-lg"
-          >
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                Home Section
-              </h1>
-              <p className="text-lg text-gray-600">
-                This is the home section content.
-              </p>
-            </div>
-          </section>
-
-          <section
-            id="about"
-            className="min-h-screen flex items-center justify-center bg-green-50 rounded-lg"
-          >
-            <div className="text-center">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                About Section
-              </h2>
-              <p className="text-lg text-gray-600">
-                This is the about section content.
-              </p>
-            </div>
-          </section>
-
-          <section
-            id="services"
-            className="min-h-screen flex items-center justify-center bg-purple-50 rounded-lg"
-          >
-            <div className="text-center">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Services Section
-              </h2>
-              <p className="text-lg text-gray-600">
-                This is the services section content.
-              </p>
-            </div>
-          </section>
-
-          <section
-            id="gallery"
-            className="min-h-screen flex items-center justify-center bg-yellow-50 rounded-lg"
-          >
-            <div className="text-center">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Gallery Section
-              </h2>
-              <p className="text-lg text-gray-600">
-                This is the gallery section content.
-              </p>
-            </div>
-          </section>
-        </div>
-      </div>
     </div>
   );
 };
