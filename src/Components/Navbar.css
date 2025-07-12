@@ -1,0 +1,23 @@
+/* src/Components/Navbar.css */
+@keyframes morph-border {
+  0% {
+    border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+  }
+  25% {
+    border-radius: 60% 40% 40% 60% / 60% 60% 40% 40%;
+  }
+  50% {
+    border-radius: 40% 60% 60% 40% / 60% 40% 40% 60%;
+  }
+  75% {
+    border-radius: 60% 40% 40% 60% / 40% 60% 60% 40%;
+  }
+  100% {
+    border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+  }
+}
+
+.morphing-square {
+  animation: morph-border 3s infinite ease-in-out;
+  transition: border-radius 0.5s;
+}

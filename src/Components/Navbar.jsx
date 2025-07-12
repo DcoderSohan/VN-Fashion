@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
+import "./Navbar.css";
 
 const navItems = [
   { name: "Home", href: "#home" },
@@ -23,7 +24,22 @@ const Navbar = () => {
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
               <span className="text-3xl font-bold text-blue-600 tracking-tight font-Poppins">
-                <a href="/">VN FASHION</a>
+                <a
+                  href="/"
+                  className="flex items-center text-3xl text-gray-300 font-Tourney gap-2"
+                >
+                  <div
+                    className="morphing-square flex items-center justify-center bg-black shadow-lg"
+                    style={{
+                      width: 56, // 56px (tailwind w-14)
+                      height: 56, // 56px (tailwind h-14)
+                      overflow: "hidden",
+                    }}
+                  >
+                    <img src="/VN.png" alt="VN Fashion Logo" width={40} height={40} />
+                  </div>
+                  <span>VN FASHION</span>
+                </a>
               </span>
             </div>
 
@@ -33,7 +49,7 @@ const Navbar = () => {
                 <a
                   key={item.name}
                   href={item.href}
-                  className="relative group text-gray-700 hover:text-blue-600 px-3 py-2 text-base font-medium transition-colors duration-200"
+                  className="relative group text-gray-700 px-3 py-2 text-base font-medium transition-colors duration-200"
                 >
                   {item.name}
                   <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
@@ -48,11 +64,7 @@ const Navbar = () => {
                 className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 text-xl"
                 aria-label="Toggle menu"
               >
-                {isOpen ? (
-                  "Close"
-                ) : (
-                  "Menu"
-                )}
+                {isOpen ? <X size={28} /> : "Menu"}
               </button>
             </div>
           </div>
@@ -75,13 +87,28 @@ const Navbar = () => {
           style={{ transformOrigin: "top right" }}
         >
           <div className="flex items-center justify-between px-6 py-4 border-b">
-            <span className="text-4xl font-bold text-blue-600">VN Fashion</span>
+            <a
+              href="/"
+              className="flex items-center text-3xl text-gray-300 font-Tourney gap-2"
+            >
+              <div
+                className="morphing-square flex items-center justify-center bg-black"
+                style={{
+                  width: 56, // 56px (tailwind w-14)
+                  height: 56, // 56px (tailwind h-14)
+                  overflow: "hidden",
+                }}
+              >
+                <img src="/VN.png" alt="VN Fashion Logo" width={40} height={40} />
+              </div>
+              <span>VN FASHION</span>
+            </a>
             <button
               onClick={toggleMenu}
               className="text-gray-700 text-xl"
               aria-label="Close menu"
             >
-              Close
+              <X size={28} />
             </button>
           </div>
           <nav className="flex-1 flex flex-col gap-4 px-6 py-10 items-center justify-center animate-fade-in">
