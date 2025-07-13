@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import "./Navbar.css";
 
 const navItems = [
-  { name: "Home", href: "#home" },
+  { name: "Home", href: "/" },
   { name: "About", href: "#about" },
   { name: "Services", href: "#services" },
   { name: "Gallery", href: "#gallery" },
@@ -16,6 +16,29 @@ const Navbar = () => {
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
 
+  // Smooth scroll handler
+  const handleNavClick = (e, href) => {
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth" });
+        setIsOpen(false); // Close mobile menu if open
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   return (
     <div>
       <nav className="fixed w-full z-20 border-b border-gray-200 py-2">
@@ -23,10 +46,10 @@ const Navbar = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
-              <span className="text-3xl font-bold text-blue-600 tracking-tight font-Poppins">
+              <span className="text-3xl font-semibold text-blue-600 tracking-tight font-Poppins">
                 <a
                   href="/"
-                  className="flex items-center text-3xl text-gray-300 font-Tourney gap-2"
+                  className="flex items-center text-3xl text-black font-Unbounded gap-2"
                 >
                   <div
                     className="morphing-square flex items-center justify-center bg-black shadow-lg"
@@ -50,6 +73,7 @@ const Navbar = () => {
                   key={item.name}
                   href={item.href}
                   className="relative group text-gray-700 px-3 py-2 text-base font-medium transition-colors duration-200"
+                  onClick={(e) => handleNavClick(e, item.href)}
                 >
                   {item.name}
                   <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
@@ -63,25 +87,30 @@ const Navbar = () => {
                 onClick={toggleMenu}
                 className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 text-xl"
                 aria-label="Toggle menu"
+                aria-expanded={isOpen}
+                aria-controls="mobile-menu"
               >
-                {isOpen ? <X size={28} /> : "Menu"}
+                {isOpen ? <X size={28} /> : <Menu size={28} />}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
+        {/* Mobile Navigation Overlay */}
         <div
-          className={`fixed inset-0 z-10 bg-black bg-opacity-30 transition-opacity duration-300 ${
+          className={`fixed inset-0 z-30 bg-black bg-opacity-30 transition-opacity duration-300 ${
             isOpen
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           }`}
           onClick={() => setIsOpen(false)}
+          style={{ touchAction: "none" }}
         ></div>
+        {/* Mobile Navigation Menu */}
         <div
-          className={`fixed left-0 top-0 w-full h-full z-30 flex flex-col md:hidden transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] 
-            bg-white
+          id="mobile-menu"
+          className={`fixed right-0 top-0 w-4/5 max-w-xs h-full z-40 flex flex-col md:hidden transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] 
+            bg-white shadow-lg
             ${isOpen ? "translate-x-0" : "translate-x-full"}
           `}
           style={{ transformOrigin: "top right" }}
@@ -89,7 +118,7 @@ const Navbar = () => {
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <a
               href="/"
-              className="flex items-center text-3xl text-gray-300 font-Tourney gap-2"
+              className="flex items-center text-3xl text-black gap-2 font-semibold"
             >
               <div
                 className="morphing-square flex items-center justify-center bg-black"
@@ -116,8 +145,8 @@ const Navbar = () => {
               <a
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition-colors duration-200 text-4xl font-semibold"
-                onClick={() => setIsOpen(false)}
+                className="text-gray-700 px-3 py-2 rounded transition-colors duration-200 text-2xl"
+                onClick={(e) => handleNavClick(e, item.href)}
                 style={{
                   transitionDelay: `${isOpen ? idx * 60 + 100 : 0}ms`,
                   opacity: isOpen ? 1 : 0,

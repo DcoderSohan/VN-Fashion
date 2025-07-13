@@ -1,0 +1,103 @@
+.morphing-square {
+  /* Example size, adjust as needed */
+  width: 80vw;
+  height: 80vh;
+  overflow: hidden;
+  /* Animation */
+  animation: morph 8s infinite alternate ease-in-out;
+}
+
+@keyframes morph {
+  0% {
+    border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+  }
+  25% {
+    border-radius: 60% 40% 40% 60% / 60% 60% 40% 40%;
+  }
+  50% {
+    border-radius: 40% 60% 60% 40% / 60% 40% 40% 60%;
+  }
+  75% {
+    border-radius: 60% 40% 40% 60% / 40% 60% 60% 40%;
+  }
+  100% {
+    border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+  }
+}
+
+.right.morphing-square-bg {
+  width: 700px;
+  height: 700px;
+  background-image: url('../../HeroBg.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.2;
+  animation: morph-radius 6s infinite alternate;
+  border-radius: 40% 60% 70% 30% / 30% 40% 60% 70%;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes morph-radius {
+  0% {
+    border-radius: 40% 60% 70% 30% / 30% 40% 60% 70%;
+  }
+  50% {
+    border-radius: 70% 30% 40% 60% / 60% 70% 30% 40%;
+  }
+  100% {
+    border-radius: 40% 60% 70% 30% / 30% 40% 60% 70%;
+  }
+}
+
+.left {
+  position: absolute;
+  z-index: 2;
+  width: 95%;
+}
+
+.about-info-animate {
+  animation: fadeInUp 2s ease;
+  position: relative;
+  z-index: 2;
+  color: #222;
+  background: rgba(255,255,255,0.7);
+  padding: 2rem;
+  border-radius: 1rem;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Container positioning for overlay effect */
+.container {
+  background: rgba(255, 255, 255, 0.15); /* semi-transparent white */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+@media (max-width:600px) {
+    .container {
+        position: relative;
+        min-height: 300px;
+        min-width: 400px;
+      }
+    .right.morphing-square-bg {
+        width: 400px;
+        height: 400px;
+        overflow: hidden;
+    } 
+    .left{
+        width: 100%;
+    }
+}
