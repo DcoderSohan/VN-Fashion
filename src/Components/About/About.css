@@ -1,7 +1,7 @@
 .morphing-square {
   /* Example size, adjust as needed */
-  width: 80vw;
-  height: 80vh;
+  width: 70vw;
+  height: 70vh;
   overflow: hidden;
   /* Animation */
   animation: morph 8s infinite alternate ease-in-out;
@@ -26,8 +26,8 @@
 }
 
 .right.morphing-square-bg {
-  width: 700px;
-  height: 700px;
+  width: 300px;
+  height: 500px;
   background-image: url('../../HeroBg.jpg');
   background-size: cover;
   background-position: center;
@@ -61,7 +61,6 @@
   position: relative;
   z-index: 2;
   color: #222;
-  background: rgba(255,255,255,0.7);
   padding: 2rem;
   border-radius: 1rem;
 }
@@ -74,6 +73,57 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Responsive font and line height for about-info-animate */
+.about-info-animate {
+  line-height: 1.2; /* More space between lines */
+  font-size: 12px;
+}
+
+@media (min-width: 640px) { /* Small devices (tablets) */
+  .about-info-animate {
+    font-size: 1.4  rem;
+    line-height: 1.8;
+  }
+}
+
+@media (min-width: 768px) { /* Medium devices (tablets) */
+  .about-info-animate {
+    font-size: 2rem;
+    line-height: 1;
+  }
+}
+
+@media (min-width: 1024px) { /* Large devices (desktops) */
+  .about-info-animate {
+    font-size: 2.3rem;
+    line-height: 1.2;
+  }
+}
+
+/* Responsive background image for the right div */
+.morphing-square-bg {
+  background-image: url('/public/HeroBgImg.jpg'); /* Adjust path if needed */
+  background-size: cover;
+  background-position: center;
+  border-radius: 1.5rem;
+  /* min-height: 10rem;
+  min-width: 100%; */
+}
+
+@media (min-width: 640px) {
+  .morphing-square-bg {
+    min-height: 16rem;
+    min-width: 100%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .morphing-square-bg {
+    min-height: 20rem;
+    min-width: 100%;
   }
 }
 
