@@ -1,84 +1,170 @@
-// FlowingMenu.jsx
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 
-function FlowingMenu({ items = [] }) {
-  const [loaded, setLoaded] = useState(false);
+const services = [
+  { title: 'Embroidery', img: '/public/aariWork.jpg' },
+  { title: 'Tailoring', img: '/public/HeroBg.jpg' },
+  { title: 'Design', img: '/public/HeroBgImg.jpg' },
+  { title: 'Consulting', img: '/public/vite.svg' },
+  { title: 'Alteration', img: '/public/VN.png' },
+  { title: 'Styling', img: '/public/aariWork.jpg' },
+  { title: 'Custom Fit', img: '/public/HeroBg.jpg' },
+  { title: 'Patterning', img: '/public/HeroBgImg.jpg' },
+  { title: 'Finishing', img: '/public/vite.svg' },
+];
+
+const CARD_WIDTH = 320; // adjust as needed
+const CARD_HEIGHT = 420;
+const CARD_GAP = 32;
+
+const Services = () => {
+  const scrollRef = useRef(null);
 
   useEffect(() => {
-    const preload = (src) => new Promise(res => {
-      const img = new Image();
-      img.onload = res;
-      img.src = src;
-    });
+    const sc = scrollRef.current;
+    let isDown = false,
+      startX = 0,
+      scrollLeft = 0;
 
-    Promise.all(items.filter(i => i.image).map(i => preload(i.image)))
-      .then(() => setLoaded(true))
-      .catch(() => setLoaded(true));
-  }, [items]);
+    const onMouseDown = (e) => {
+      isDown = true;
+      sc.classList.add('active');
+      startX = e.pageX - sc.offsetLeft;
+      scrollLeft = sc.scrollLeft;
+    };
+    const onMouseUpLeave = () => {
+      isDown = false;
+      sc.classList.remove('active');
+    };
+    const onMouseMove = (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - sc.offsetLeft;
+      const walk = x - startX;
+      sc.scrollLeft = scrollLeft - walk;
+    };
 
-  if (!loaded) return <div className="p-4">Loading...</div>;
+    sc.addEventListener('mousedown', onMouseDown);
+    sc.addEventListener('mouseleave', onMouseUpLeave);
+    sc.addEventListener('mouseup', onMouseUpLeave);
+    sc.addEventListener('mousemove', onMouseMove);
+
+    return () => {
+      sc.removeEventListener('mousedown', onMouseDown);
+      sc.removeEventListener('mouseleave', onMouseUpLeave);
+      sc.removeEventListener('mouseup', onMouseUpLeave);
+      sc.removeEventListener('mousemove', onMouseMove);
+    };
+  }, []);
 
   return (
-    <div className="w-full h-full overflow-visible">
-      <nav className="flex flex-col h-full m-0 p-0 gap-y-8">
-        {items.map((item, idx) => (
-          <React.Fragment key={idx}>
-            <MenuItem {...item} />
-            {idx < items.length - 1 && <hr className="border-t border-gray-300 w-full my-2" />}
-          </React.Fragment>
+    <div style={{ padding: '40px 0', background: '#f8f8f8' }} className='px-10'>
+      <h2
+        style={{
+          textAlign: 'center',
+          marginBottom: 32,
+          fontSize: 32,
+          fontWeight: 700,
+          borderRadius: 20,
+        }}
+      >
+        Our Services
+      </h2>
+
+      <div
+        ref={scrollRef}
+        className="hide-scrollbar px-8"
+        style={{
+          overflowX: 'auto',
+          overflowY: 'visible',
+          borderRadius: 20,
+          whiteSpace: 'nowrap',
+          scrollBehavior: 'smooth',
+          paddingBottom: 24,
+          minHeight: CARD_HEIGHT * 1.1 + CARD_GAP, // accommodate hover scale
+          paddingTop: CARD_GAP, // extra space for hover
+          cursor: 'grab',
+          scrollbarGutter: 'stable',
+        }}
+      >
+        {services.map((service, idx) => (
+          <div
+            key={idx}
+            className="service-card rounded-md"
+            style={{
+              display: 'inline-block',
+              width: CARD_WIDTH,
+              height: CARD_HEIGHT,
+              marginRight: CARD_GAP,
+              background: `url(${service.img}) center/cover no-repeat`,
+              borderRadius: 18,
+              position: 'relative',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              verticalAlign: 'top',
+              overflow: 'hidden', // <-- change this from 'visible' to 'hidden'
+            }}
+          >
+            <div
+              className="service-title"
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: 48,
+                background: 'rgba(0,0,0,0.5)',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                writingMode: 'vertical-rl',
+                textOrientation: 'mixed',
+                fontSize: 24,
+                fontWeight: 600,
+                letterSpacing: 2,
+                transition: 'background 0.3s, color 0.3s',
+                zIndex: 2,
+              }}
+            >
+              {service.title}
+            </div>
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background:
+                  'linear-gradient(120deg,rgba(0,0,0,0.1) 60%,rgba(0,0,0,0.3) 100%)',
+                zIndex: 1,
+              }}
+            />
+          </div>
         ))}
-      </nav>
+      </div>
+
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .hide-scrollbar.active {
+          cursor: grabbing;
+          user-select: none;
+        }
+        .service-card:hover {
+          transform: scale(1.07) rotate(-2deg);
+          box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+          z-index: 10;
+        }
+        .service-card:hover .service-title {
+          background: rgba(255,99,71,0.85);
+          color: #fffbe7;
+        }
+      `}</style>
     </div>
   );
-}
+};
 
-function MenuItem({ link, text, image }) {
-  const [show, setShow] = useState(false);
-  const coords = useRef({ x: 0, y: 0 });
-  const itemRef = useRef(null);
-  const frame = useRef(null);
-  const imgRef = useRef(null);
-
-  const handleMouseEnter = () => image && setShow(true);
-  const handleMouseLeave = () => {
-    setShow(false);
-    cancelAnimationFrame(frame.current);
-  };
-
-  const handleMouseMove = (e) => {
-    const rect = itemRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left + 20;
-    const y = e.clientY - rect.top - 40;
-    coords.current = { x, y };
-    cancelAnimationFrame(frame.current);
-
-    frame.current = requestAnimationFrame(() => {
-      if (imgRef.current) {
-        imgRef.current.style.transform = `translate(${coords.current.x}px, ${coords.current.y}px)`;
-      }
-    });
-  };
-
-  return (
-    <div
-      ref={itemRef}
-      className="relative flex items-center justify-center h-[80px] cursor-pointer"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseMove={handleMouseMove}
-    >
-      <a href={link} className="uppercase font-semibold text-black text-[2rem] z-10">{text}</a>
-      {show && (
-        <img
-          ref={imgRef}
-          src={image}
-          alt={text}
-          className="absolute w-[300px] h-[300px] pointer-events-none rounded-xl shadow-md hover-img"
-          style={{ transform: 'translate(0,0)' }}
-        />
-      )}
-    </div>
-  );
-}
-
-export default FlowingMenu;
+export default Services;
