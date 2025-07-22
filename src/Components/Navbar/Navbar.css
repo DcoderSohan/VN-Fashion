@@ -21,3 +21,11 @@
   animation: morph-border 3s infinite ease-in-out;
   transition: border-radius 0.5s;
 }
+
+/* Glassmorphism navbar background when scrolled */
+.nav-bg {
+  background-color: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(200, 200, 200, 0.5);
+}

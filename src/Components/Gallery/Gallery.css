@@ -1,0 +1,19 @@
+:root {
+    --nav-height: 4rem; /* Change this to your actual navbar height */
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  #gallery {
+    scroll-margin-top: var(--nav-height);
+  }
+  
+
+  /* Offset anchor to account for navbar height */
+#gallery {
+    /* add equal to your navbar height, e.g., 4rem (64px) */
+    scroll-margin-top: 4rem;
+  }
+  
