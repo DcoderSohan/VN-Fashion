@@ -1,13 +1,13 @@
 import React, { useRef, useEffect } from 'react';
 
 const services = [
-  { title: 'Embroidery', img: '/public/aariWork.jpg' },
-  { title: 'Tailoring', img: '/public/VN-1.jpg' },
-  { title: 'Design', img: '/public/VN-2.jpg' },
-  { title: 'Consulting', img: '/public/VN-3.jpg' },
-  { title: 'Alteration', img: '/public/VN-4.jpg' },
-  { title: 'Styling', img: '/public/VN-5.jpg' },
-  { title: 'Custom Fit', img: '/public/VN-6.jpg' },
+  { title: 'Designer Blouses', img: '/aariWork.jpg' }, // removed /public/
+  { title: 'Aari embroidery blouses/dress', img: '/VN-1.jpg' },     // removed /public/
+  { title: 'Fabric painting blouses/dress ', img: '/VN-2.jpg' },        // removed /public/
+  { title: 'Stitching (all type)', img: '/VN-3.jpg' },    // removed /public/
+  { title: 'Rent costumes', img: '/VN-4.jpg' },    // removed /public/
+  { title: 'Natural colour made fabric sales', img: '/VN-5.jpg' },       // removed /public/
+  { title: 'Custom Fit', img: '/VN-6.jpg' },    // removed /public/
 ];
 
 const CARD_WIDTH = 320; // desktop default
