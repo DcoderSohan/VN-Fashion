@@ -10,7 +10,7 @@ const Contact = ({
   )}`;
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 sm:px-8">
+    <div className="flex flex-col items-center justify-center py-16 px-4 sm:px-8" id="contact" >
       {/* Title Section */}
       <div className="flex flex-col sm:flex-row items-center justify-center text-center gap-2 sm:gap-6 py-10">
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-9xl font-bold">
