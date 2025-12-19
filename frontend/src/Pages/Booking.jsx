@@ -118,7 +118,7 @@ const Booking = () => {
                 {/* Service Selection */}
                 <div>
                   <label className="flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
-                    <Calendar className="text-blue-600" size={18} className="sm:w-5 sm:h-5" />
+                    <Calendar className="text-blue-600 sm:w-5 sm:h-5" size={18} />
                     Select Service *
                   </label>
                   <select
@@ -141,7 +141,7 @@ const Booking = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <label className="flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
-                      <Calendar className="text-blue-600" size={18} className="sm:w-5 sm:h-5" />
+                      <Calendar className="text-blue-600 sm:w-5 sm:h-5" size={18} />
                       Select Date *
                     </label>
                     <input
@@ -157,7 +157,7 @@ const Booking = () => {
                   </div>
                   <div>
                     <label className="flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
-                      <Clock className="text-blue-600" size={18} className="sm:w-5 sm:h-5" />
+                      <Clock className="text-blue-600 sm:w-5 sm:h-5" size={18} />
                       Select Time *
                     </label>
                     <select
@@ -269,7 +269,7 @@ const Booking = () => {
                   transition={{ type: "spring", stiffness: 200, damping: 15 }}
                   className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6"
                 >
-                  <CheckCircle className="text-green-600" size={36} className="sm:w-12 sm:h-12" />
+                  <CheckCircle className="text-green-600 sm:w-12 sm:h-12" size={36} />
                 </motion.div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">Booking Confirmed!</h2>
                 <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base px-2">Your appointment has been successfully booked. We'll contact you soon to confirm the details.</p>
