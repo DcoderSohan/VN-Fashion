@@ -1,116 +1,62 @@
-import React, { useState } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Mail, Phone, MessageSquare, ArrowRight } from "lucide-react";
 
-const Contact = ({
-  phone = "7798370430",
-}) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const message = `Hi Vidisha! My name is ${formData.name}. ${formData.message} Contact: ${formData.email} | ${formData.phone}`;
-    const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
-  };
-
+const Contact = () => {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 sm:px-8" id="contact">
-      {/* Title Section */}
-      <div className="flex flex-col sm:flex-row items-center justify-center text-center gap-2 sm:gap-6 py-10">
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-9xl font-bold">
-          Let's
-        </h1>
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-9xl font-bold text-blue-600">
-          Connect
-        </h1>
-      </div>
+    <div className="flex flex-col items-center justify-center py-20 px-4 sm:px-8 bg-gradient-to-br from-gray-50 via-white to-gray-100" id="contact">
+      <motion.div
+        className="text-center max-w-3xl mx-auto"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
+        {/* Title Section */}
+        <div className="flex flex-col sm:flex-row items-center justify-center text-center gap-2 sm:gap-6 mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold">
+            Let's
+          </h1>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-blue-600">
+            Connect
+          </h1>
+        </div>
 
-      {/* Contact Form */}
-      <div className="w-full max-w-2xl mt-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Name *
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                placeholder="Your Name"
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email *
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                placeholder="your.email@example.com"
-              />
-            </div>
+        {/* Description */}
+        <p className="text-gray-600 text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+          Have questions or want to discuss your design ideas? We'd love to hear from you! Get in touch with us and let's bring your fashion vision to life.
+        </p>
+
+        {/* Quick Contact Info */}
+        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-6 mb-8 sm:mb-10">
+          <div className="flex items-center gap-2 sm:gap-3 text-gray-700">
+            <Phone className="text-blue-600" size={18} className="sm:w-5 sm:h-5 flex-shrink-0" />
+            <a href="tel:+917798370430" className="font-medium text-sm sm:text-base hover:text-blue-600 transition-colors">
+              +91 7798370430
+            </a>
           </div>
-
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-              Phone Number
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-              placeholder="+91 1234567890"
-            />
+          <div className="flex items-center gap-2 sm:gap-3 text-gray-700">
+            <Mail className="text-blue-600" size={18} className="sm:w-5 sm:h-5 flex-shrink-0" />
+            <a href="mailto:info@vnfashion.com" className="font-medium text-sm sm:text-base hover:text-blue-600 transition-colors break-all">
+              info@vnfashion.com
+            </a>
           </div>
+        </div>
 
-          <div>
-            <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-              Message *
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              required
-              rows={5}
-              value={formData.message}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
-              placeholder="I'm looking for a custom outfit for an upcoming event. I love your designs and would love to discuss ideas, timeline, and pricing..."
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full relative overflow-hidden border border-gray-400 px-8 py-4 rounded-full hover:bg-gradient-to-r from-black to-black bg-[length:200%_100%] bg-right text-black hover:text-white transition-all duration-500 hover:bg-left text-base sm:text-lg md:text-xl font-medium"
+        {/* CTA Button */}
+        <Link to="/contact">
+          <motion.button
+            className="inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            Send Message via WhatsApp
-          </button>
-        </form>
-      </div>
+            <MessageSquare size={18} className="sm:w-5 sm:h-5" />
+            Get In Touch
+            <ArrowRight size={18} className="sm:w-5 sm:h-5" />
+          </motion.button>
+        </Link>
+      </motion.div>
     </div>
   );
 };

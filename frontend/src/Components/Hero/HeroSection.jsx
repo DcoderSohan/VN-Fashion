@@ -39,10 +39,10 @@ const HeroSection = () => {
       <div className="relative z-10 flex items-center justify-center h-full">
         <div className="relative w-full h-full">
           {/* Main Logo Container */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-9xl font-bold select-none">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-bold select-none">
             {/* Base metallic text */}
             <div
-              className="w-[400px] h-[400px] md:w-[600px] md:h-[600px] mx-auto"
+              className="w-[250px] h-[250px] sm:w-[350px] sm:h-[350px] md:w-[500px] md:h-[500px] lg:w-[600px] lg:h-[600px] mx-auto"
               style={{
                 WebkitMaskImage: 'url("./VN.png")',
                 maskImage: 'url("./VN.png")',
@@ -61,21 +61,21 @@ const HeroSection = () => {
 
             {/* Chrome reflection effect */}
             <div className="absolute inset-0 text-transparent bg-gradient-to-b from-white via-transparent to-gray-600 bg-clip-text opacity-30">
-              <img src="./VN.png" alt="" />
+              <img src="./VN.png" alt="" loading="lazy" />
             </div>
 
             {/* Additional metallic depth */}
             <div className="absolute inset-0 text-transparent bg-gradient-to-tr from-gray-600 via-gray-200 to-gray-400 bg-clip-text opacity-20">
-              <img src="./VN.png" alt="" />
+              <img src="./VN.png" alt="" loading="lazy" />
             </div>
           </div>
 
           {/* Horizontally Scrolling Text Overlay - Full width at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-[200px] md:h-[300px] overflow-hidden w-full">
+          <div className="absolute bottom-0 left-0 right-0 h-[120px] sm:h-[150px] md:h-[200px] lg:h-[300px] overflow-hidden w-full">
             <div className="scrolling-text-container">
               <div className="scrolling-text-wrapper">
                 <div className="scrolling-text">
-                  <span className="text-[12rem] text-black">
+                  <span className="scrolling-text-span text-black">
                     VN FASHION • VN FASHION • VN FASHION • VN FASHION • VN
                     FASHION • VN FASHION • VN FASHION • VN FASHION • VN FASHION
                     • VN FASHION • VN FASHION • VN FASHION • VN FASHION • VN
@@ -83,7 +83,7 @@ const HeroSection = () => {
                   </span>
                 </div>
                 <div className="scrolling-text" aria-hidden="true">
-                  <span className="text-[12rem] text-black">
+                  <span className="scrolling-text-span text-black">
                     VN FASHION • VN FASHION • VN FASHION • VN FASHION • VN
                     FASHION • VN FASHION • VN FASHION • VN FASHION • VN FASHION
                     • VN FASHION • VN FASHION • VN FASHION • VN FASHION • VN
@@ -162,14 +162,33 @@ const HeroSection = () => {
             display: inline-block;
           }
 
-          .scrolling-text span {
+          .scrolling-text-span {
             display: inline-block;
-            font-size: 12rem;
+            font-size: 4rem;
             line-height: 1;
+            font-weight: bold;
+          }
+
+          @media (min-width: 640px) {
+            .scrolling-text-span {
+              font-size: 6rem;
+            }
           }
 
           @media (min-width: 768px) {
-            .scrolling-text span {
+            .scrolling-text-span {
+              font-size: 8rem;
+            }
+          }
+
+          @media (min-width: 1024px) {
+            .scrolling-text-span {
+              font-size: 12rem;
+            }
+          }
+
+          @media (min-width: 1280px) {
+            .scrolling-text-span {
               font-size: 15rem;
             }
           }

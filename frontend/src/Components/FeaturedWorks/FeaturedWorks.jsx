@@ -93,10 +93,11 @@ const FeaturedWorks = () => {
               onHoverEnd={() => setHoveredIndex(null)}
               className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 bg-white"
             >
-              <div className="relative h-80 overflow-hidden">
+              <div className="relative h-64 sm:h-72 md:h-80 overflow-hidden">
                 <motion.img
                   src={work.image}
                   alt={work.title}
+                  loading="lazy"
                   className="w-full h-full object-cover"
                   whileHover={{ scale: 1.1 }}
                   transition={{ duration: 0.5 }}
@@ -108,9 +109,9 @@ const FeaturedWorks = () => {
                   </span>
                 </div>
               </div>
-              <div className="p-6">
-                <h3 className="text-2xl font-bold mb-2 text-gray-800">{work.title}</h3>
-                <p className="text-gray-600">{work.description}</p>
+              <div className="p-4 sm:p-6">
+                <h3 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">{work.title}</h3>
+                <p className="text-gray-600 text-sm sm:text-base">{work.description}</p>
               </div>
               {hoveredIndex === index && (
                 <motion.div

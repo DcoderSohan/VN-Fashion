@@ -9,7 +9,7 @@ const navItems = [
   { name: "About", href: "/about" },
   { name: "Services", href: "/services" },
   { name: "Gallery", href: "/gallery" },
-  { name: "Contact", href: "#contact" },
+  { name: "Contact", href: "/contact" },
 ];
 
 const Navbar = () => {
@@ -149,7 +149,7 @@ const Navbar = () => {
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                 <Link to="/" className="flex items-center gap-2 font-Unbounded text-xl" onClick={() => setIsOpen(false)}>
                   <div className="morphing-square bg-black flex items-center justify-center" style={{ width: 40, height: 40 }}>
-                    <img src="/VN.png" alt="VN Fashion Logo" width={28} height={28} />
+                    <img src="/VN.png" alt="VN Fashion Logo" width={28} height={28} loading="lazy" />
                   </div>
                   <span className="text-gray-900 font-semibold">VN FASHION</span>
                 </Link>

@@ -50,20 +50,10 @@ const Introduction = () => {
           </motion.div>
 
           <motion.div variants={itemVariants} className="max-w-3xl mx-auto">
-            <p className="text-lg sm:text-xl text-gray-700 leading-relaxed mb-6">
+            <p className="text-lg sm:text-xl text-gray-700 leading-relaxed">
               Welcome to VN Fashion, where creativity meets craftsmanship. We specialize in
               creating exquisite, handcrafted designs that celebrate your unique style and
-              personality.
-            </p>
-            <p className="text-lg sm:text-xl text-gray-700 leading-relaxed mb-6">
-              Our mission is to transform your vision into reality through meticulous attention
-              to detail, premium quality fabrics, and innovative design techniques. Whether
-              you're looking for traditional elegance or contemporary flair, we bring your
-              fashion dreams to life.
-            </p>
-            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">
-              Every piece is crafted with passion, precision, and a commitment to excellence
-              that sets us apart in the world of fashion design.
+              transform your fashion dreams into reality.
             </p>
           </motion.div>
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Filter } from "lucide-react";
+import { X, Filter, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
 import Navbar from "../Components/Navbar/Navbar";
 import Footer from "../Components/Footer/Footer";
 
@@ -21,17 +22,93 @@ const Gallery = () => {
     localStorage.setItem('galleryButtonPosition', JSON.stringify(buttonPosition));
   }, [buttonPosition]);
 
+  const [lightboxImage, setLightboxImage] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
+
   // All work images - this would typically come from an API or database
   const allWorks = [
-    { id: 1, title: "Bridal Lehenga", image: "/VN-1.jpg", category: "Bridal" },
-    { id: 2, title: "Designer Blouse", image: "/VN-2.jpg", category: "Blouses" },
-    { id: 3, title: "Aari Work Saree", image: "/aariWork.jpg", category: "Sarees" },
-    { id: 4, title: "Custom Fit Dress", image: "/VN-3.jpg", category: "Dresses" },
-    { id: 5, title: "Traditional Outfit", image: "/VN-4.jpg", category: "Traditional" },
-    { id: 6, title: "Embroidered Blouse", image: "/VN-5.jpg", category: "Blouses" },
-    { id: 7, title: "Elegant Saree", image: "/VN-1.jpg", category: "Sarees" },
-    { id: 8, title: "Modern Lehenga", image: "/VN-2.jpg", category: "Bridal" },
-    { id: 9, title: "Designer Dress", image: "/VN-3.jpg", category: "Dresses" },
+    { 
+      id: 1, 
+      title: "Bridal Lehenga", 
+      image: "/VN-1.jpg", 
+      category: "Bridal",
+      description: "Exquisite bridal lehenga with intricate Aari embroidery, featuring traditional motifs enhanced with beads, mirrors, and zari threads.",
+      materials: "Silk fabric, Zari threads, Beads, Mirrors",
+      price: "Starting from ₹50,000"
+    },
+    { 
+      id: 2, 
+      title: "Designer Blouse", 
+      image: "/VN-2.jpg", 
+      category: "Blouses",
+      description: "Custom-designed blouse with hand-painted motifs and premium fabric selection.",
+      materials: "Premium cotton, Fabric paint, Embroidery threads",
+      price: "Starting from ₹8,000"
+    },
+    { 
+      id: 3, 
+      title: "Aari Work Saree", 
+      image: "/aariWork.jpg", 
+      category: "Sarees",
+      description: "Traditional Aari embroidery work on elegant saree, showcasing exquisite craftsmanship.",
+      materials: "Silk, Zari threads, Beads, Mirrors",
+      price: "Starting from ₹25,000"
+    },
+    { 
+      id: 4, 
+      title: "Custom Fit Dress", 
+      image: "/VN-3.jpg", 
+      category: "Dresses",
+      description: "Modern dress with traditional embroidery elements, perfectly tailored to your measurements.",
+      materials: "Premium fabric, Embroidery, Custom tailoring",
+      price: "Starting from ₹15,000"
+    },
+    { 
+      id: 5, 
+      title: "Traditional Outfit", 
+      image: "/VN-4.jpg", 
+      category: "Traditional",
+      description: "Classic traditional outfit with contemporary styling and intricate detailing.",
+      materials: "Traditional fabric, Hand embroidery, Premium accessories",
+      price: "Starting from ₹20,000"
+    },
+    { 
+      id: 6, 
+      title: "Embroidered Blouse", 
+      image: "/VN-5.jpg", 
+      category: "Blouses",
+      description: "Elegant embroidered blouse with delicate patterns and premium finish.",
+      materials: "Silk, Embroidery threads, Beads",
+      price: "Starting from ₹10,000"
+    },
+    { 
+      id: 7, 
+      title: "Elegant Saree", 
+      image: "/VN-1.jpg", 
+      category: "Sarees",
+      description: "Sophisticated saree design with modern aesthetics and traditional craftsmanship.",
+      materials: "Premium silk, Zari work, Embellishments",
+      price: "Starting from ₹30,000"
+    },
+    { 
+      id: 8, 
+      title: "Modern Lehenga", 
+      image: "/VN-2.jpg", 
+      category: "Bridal",
+      description: "Contemporary lehenga design blending modern trends with traditional elegance.",
+      materials: "Designer fabric, Hand embroidery, Premium accessories",
+      price: "Starting from ₹45,000"
+    },
+    { 
+      id: 9, 
+      title: "Designer Dress", 
+      image: "/VN-3.jpg", 
+      category: "Dresses",
+      description: "Unique designer dress with custom patterns and personalized styling.",
+      materials: "Premium fabric, Custom design, Expert tailoring",
+      price: "Starting from ₹18,000"
+    },
   ];
 
   const categories = ["All", ...new Set(allWorks.map(work => work.category))];
@@ -39,6 +116,35 @@ const Gallery = () => {
   const filteredWorks = selectedCategory === "All" 
     ? allWorks 
     : allWorks.filter(work => work.category === selectedCategory);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredWorks.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedWorks = filteredWorks.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page when category changes
+  }, [selectedCategory]);
+
+  const openLightbox = (work) => {
+    setLightboxImage(work);
+  };
+
+  const closeLightbox = () => {
+    setLightboxImage(null);
+  };
+
+  const navigateLightbox = (direction) => {
+    const currentIndex = filteredWorks.findIndex(w => w.id === lightboxImage.id);
+    let newIndex;
+    if (direction === 'next') {
+      newIndex = (currentIndex + 1) % filteredWorks.length;
+    } else {
+      newIndex = (currentIndex - 1 + filteredWorks.length) % filteredWorks.length;
+    }
+    setLightboxImage(filteredWorks[newIndex]);
+  };
 
   // Handle drag for category button
   useEffect(() => {
@@ -263,22 +369,24 @@ const Gallery = () => {
           </AnimatePresence>
 
           {/* Gallery Grid with Fashionable Hover Effects */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {filteredWorks.map((work, idx) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            {paginatedWorks.map((work, idx) => (
               <motion.div
                 key={work.id}
-                className="group relative overflow-hidden rounded-2xl shadow-lg bg-white"
+                className="group relative overflow-hidden rounded-xl sm:rounded-2xl shadow-lg bg-white cursor-pointer"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: idx * 0.05 }}
                 onMouseEnter={() => setHoveredIndex(work.id)}
                 onMouseLeave={() => setHoveredIndex(null)}
+                onClick={() => openLightbox(work)}
               >
                 {/* Image Container */}
-                <div className="relative h-[400px] sm:h-[450px] lg:h-[500px] overflow-hidden">
+                <div className="relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] overflow-hidden">
                   <motion.img
                     src={work.image}
                     alt={work.title}
+                    loading="lazy"
                     className="w-full h-full object-cover"
                     whileHover={{ scale: 1.1 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
@@ -303,7 +411,7 @@ const Gallery = () => {
                     transition={{ duration: 0.4 }}
                   >
                     <motion.h3
-                      className="text-2xl font-bold mb-2"
+                      className="text-lg sm:text-xl md:text-2xl font-bold mb-2"
                       initial={{ x: -20 }}
                       animate={{ x: hoveredIndex === work.id ? 0 : -20 }}
                       transition={{ delay: 0.1 }}
@@ -311,13 +419,27 @@ const Gallery = () => {
                       {work.title}
                     </motion.h3>
                     <motion.p
-                      className="text-sm opacity-90"
+                      className="text-xs sm:text-sm opacity-90 mb-3"
                       initial={{ x: -20 }}
                       animate={{ x: hoveredIndex === work.id ? 0 : -20 }}
                       transition={{ delay: 0.15 }}
                     >
                       {work.category}
                     </motion.p>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: hoveredIndex === work.id ? 1 : 0, y: hoveredIndex === work.id ? 0 : 10 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <Link
+                        to="/booking"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-xs sm:text-sm transition-colors"
+                      >
+                        <Calendar size={14} className="sm:w-4 sm:h-4" />
+                        Book Now
+                      </Link>
+                    </motion.div>
                   </motion.div>
 
                   {/* Shine Effect */}
@@ -348,6 +470,120 @@ const Gallery = () => {
               </motion.div>
             ))}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <motion.div
+              className="flex justify-center items-center gap-4 mt-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-lg bg-white border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+              >
+                Previous
+              </button>
+              <span className="text-gray-700">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 rounded-lg bg-white border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+              >
+                Next
+              </button>
+            </motion.div>
+          )}
+
+          {/* Lightbox Modal */}
+          <AnimatePresence>
+            {lightboxImage && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                onClick={closeLightbox}
+              >
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.8, opacity: 0 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="max-w-6xl w-full mx-4 bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl max-h-[95vh] flex flex-col"
+                >
+                  <div className="relative flex-1 flex flex-col overflow-hidden">
+                    {/* Close Button */}
+                    <button
+                      onClick={closeLightbox}
+                      className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+                    >
+                      <X size={18} className="sm:w-6 sm:h-6 text-gray-800" />
+                    </button>
+
+                    {/* Navigation Buttons */}
+                    {filteredWorks.length > 1 && (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigateLightbox('prev');
+                          }}
+                          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-12 sm:h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+                        >
+                          <ChevronLeft size={18} className="sm:w-6 sm:h-6 text-gray-800" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigateLightbox('next');
+                          }}
+                          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-12 sm:h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+                        >
+                          <ChevronRight size={18} className="sm:w-6 sm:h-6 text-gray-800" />
+                        </button>
+                      </>
+                    )}
+
+                    {/* Image */}
+                    <div className="relative h-[40vh] sm:h-[50vh] md:h-[60vh] overflow-hidden flex-shrink-0">
+                      <img
+                        src={lightboxImage.image}
+                        alt={lightboxImage.title}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+
+                    {/* Details - Scrollable */}
+                    <div className="p-4 sm:p-6 md:p-8 overflow-y-auto flex-1">
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-gray-900">{lightboxImage.title}</h2>
+                      <p className="text-blue-600 font-semibold mb-3 sm:mb-4 text-sm sm:text-base">{lightboxImage.category}</p>
+                      <p className="text-gray-700 mb-3 sm:mb-4 leading-relaxed text-sm sm:text-base">{lightboxImage.description}</p>
+                      <div className="mb-3 sm:mb-4">
+                        <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Materials Used:</h3>
+                        <p className="text-gray-600 text-sm sm:text-base">{lightboxImage.materials}</p>
+                      </div>
+                      <div className="mb-4 sm:mb-6">
+                        <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Price:</h3>
+                        <p className="text-base sm:text-lg text-blue-600 font-semibold">{lightboxImage.price}</p>
+                      </div>
+                      <Link
+                        to="/booking"
+                        className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors text-sm sm:text-base"
+                      >
+                        <Calendar size={18} className="sm:w-5 sm:h-5" />
+                        Book This Design
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Empty State */}
           {filteredWorks.length === 0 && (

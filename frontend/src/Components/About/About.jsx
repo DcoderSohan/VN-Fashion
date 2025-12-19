@@ -15,6 +15,8 @@ const About = () => {
 
   const aboutText = "We specialize in exquisite Aari embroidery, a refined handcraft using a hooked needle to create delicate chain-stitch motifs enhanced with beads, mirrors, metallic zari threads, and intricate embellishments.";
 
+  const designerIntro = "I'm a passionate master artisan with over a decade of expertise in traditional Indian embroidery and contemporary fashion design. Her dedication to preserving age-old Aari embroidery techniques while infusing modern aesthetics has made her a sought-after designer for bridal wear and custom creations.";
+
   const designerInfo = {
     name: "Vidisha",
     title: "Master Artisan & Designer",
@@ -67,43 +69,94 @@ const About = () => {
   }, []);
 
   return (
-    <div className="about-section-wrapper" id="about">
+    <div className="about-section-wrapper w-full" id="about">
       <motion.div 
         ref={aboutRef}
-        className="container flex flex-col items-center justify-center w-full min-h-screen mx-auto px-4 md:px-8 py-20"
+        className="w-full min-h-screen flex flex-col justify-center px-4 sm:px-6 md:px-8 lg:px-12 py-12 sm:py-16 md:py-20"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="w-full max-w-4xl">
+        <div className="w-full">
           <h2 
             ref={titleRef}
-            className="about-title text-4xl sm:text-5xl md:text-6xl font-bold mb-8 text-center text-gray-900"
+            className="about-title text-4xl sm:text-5xl md:text-6xl font-bold mb-12 text-center text-gray-900"
           >
             <span className="about-title-line">About Our</span>
             <span className="about-title-line about-title-accent ml-2">Craft</span>
           </h2>
 
-          {/* Animated Paragraph */}
+          {/* About Content with Designer Image on Left, Text on Right */}
           <motion.div
-            className="mb-8"
+            className="w-full"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <p 
-              ref={paragraphRef}
-              className="about-info-animate text-lg sm:text-xl md:text-2xl leading-relaxed text-center text-gray-800"
-            >
-              {aboutText}
-            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-16 items-center w-full">
+              {/* Designer Image - Left Side */}
+              <motion.div 
+                className="relative w-full flex justify-center md:justify-start order-2 md:order-1"
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+              >
+                <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg h-[280px] sm:h-[320px] md:h-[400px] lg:h-[450px] rounded-lg overflow-hidden shadow-2xl group">
+                  <img
+                    src="/vidisha.jpg"
+                    alt={designerInfo.name}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  {/* Designer Name Tag - Bottom Right Corner */}
+                  <motion.div
+                    className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-gray-200"
+                    initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                    whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.8 }}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <p className="text-gray-900 font-bold text-lg md:text-xl">
+                      {designerInfo.name}
+                    </p>
+                    <p className="text-blue-600 text-xs md:text-sm font-medium">
+                      {designerInfo.title}
+                    </p>
+                  </motion.div>
+                </div>
+              </motion.div>
+
+              {/* Text Content - Right Side */}
+              <div className="w-full flex flex-col justify-center space-y-4 sm:space-y-6 order-1 md:order-2">
+                <p 
+                  ref={paragraphRef}
+                  className="about-info-animate text-base sm:text-lg md:text-xl leading-relaxed text-gray-800 text-center md:text-left"
+                >
+                  {aboutText}
+                </p>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
+                  className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 sm:p-6 rounded-lg border-l-4 border-blue-600"
+                >
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">About the Designer</h3>
+                  <p className="text-sm sm:text-base md:text-lg leading-relaxed text-gray-700">
+                    {designerIntro}
+                  </p>
+                </motion.div>
+              </div>
+            </div>
           </motion.div>
 
           {/* Button to show designer info */}
           <motion.div
-            className="flex justify-center mb-8"
+            className="flex justify-center mt-12"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -125,7 +178,7 @@ const About = () => {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.5 }}
-                className="overflow-hidden"
+                className="overflow-hidden mt-8"
               >
                 <motion.div
                   className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-10 space-y-6"

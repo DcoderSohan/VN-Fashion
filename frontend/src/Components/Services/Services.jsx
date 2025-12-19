@@ -78,32 +78,67 @@ const Services = () => {
           </p>
         </motion.div>
 
-        {/* Grid Layout Services - Show only 3 simple cards */}
+        {/* Unique 3-Image Layout - Masonry Style */}
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
+          className="services-unique-layout mb-12"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ staggerChildren: 0.1 }}
+          transition={{ staggerChildren: 0.2 }}
         >
-          {displayedServices.map((service, idx) => (
+          <div className="services-masonry-grid">
+            {/* First Service - Large Left */}
             <motion.div
-              key={service.id}
-              className="service-card-home"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              className="service-card-large"
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: idx * 0.1 }}
-              whileHover={{ y: -10 }}
+              transition={{ duration: 0.6 }}
+              whileHover={{ scale: 1.02, y: -10 }}
             >
-              <div className="service-card-image" style={{ backgroundImage: `url(${service.img})` }}>
+              <div className="service-card-image" style={{ backgroundImage: `url(${displayedServices[0].img})` }}>
                 <div className="service-card-overlay"></div>
                 <div className="service-title-bottom">
-                  {service.title}
+                  {displayedServices[0].title}
                 </div>
               </div>
             </motion.div>
-          ))}
+
+            {/* Second and Third Services - Stacked Right */}
+            <div className="services-stacked">
+              <motion.div
+                className="service-card-medium"
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                whileHover={{ scale: 1.02, y: -10 }}
+              >
+                <div className="service-card-image" style={{ backgroundImage: `url(${displayedServices[1].img})` }}>
+                  <div className="service-card-overlay"></div>
+                  <div className="service-title-bottom">
+                    {displayedServices[1].title}
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="service-card-medium"
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                whileHover={{ scale: 1.02, y: -10 }}
+              >
+                <div className="service-card-image" style={{ backgroundImage: `url(${displayedServices[2].img})` }}>
+                  <div className="service-card-overlay"></div>
+                  <div className="service-title-bottom">
+                    {displayedServices[2].title}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
         </motion.div>
 
         {/* View All Button */}
@@ -128,14 +163,40 @@ const Services = () => {
       </div>
 
       <style>{`
-        .service-card-home {
-          height: 420px;
+        /* Unique 3-Image Masonry Layout */
+        .services-unique-layout {
+          width: 100%;
+        }
+        
+        .services-masonry-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+        
+        .services-stacked {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+        
+        .service-card-large,
+        .service-card-medium {
           border-radius: 24px;
           overflow: hidden;
           box-shadow: 0 8px 32px rgba(0,0,0,0.12);
           transition: all 0.3s ease;
           background: white;
         }
+        
+        .service-card-large {
+          height: 350px;
+        }
+        
+        .service-card-medium {
+          height: 200px;
+        }
+        
         .service-card-image {
           width: 100%;
           height: 100%;
@@ -143,12 +204,14 @@ const Services = () => {
           background-position: center;
           position: relative;
         }
+        
         .service-card-overlay {
           position: absolute;
           inset: 0;
           background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.85) 100%);
           z-index: 1;
         }
+        
         .service-title-bottom {
           position: absolute;
           bottom: 0;
@@ -163,27 +226,70 @@ const Services = () => {
           z-index: 2;
           transition: all 0.3s ease;
         }
-        .service-card-home:hover {
+        
+        .service-card-large:hover,
+        .service-card-medium:hover {
           box-shadow: 0 12px 48px rgba(0,0,0,0.2);
         }
-        .service-card-home:hover .service-title-bottom {
+        
+        .service-card-large:hover .service-title-bottom,
+        .service-card-medium:hover .service-title-bottom {
           padding-bottom: 28px;
         }
+        
+        /* Tablet and up */
         @media (min-width: 640px) {
-          .service-card-home {
-            height: 460px;
-            border-radius: 28px;
+          .service-card-large {
+            height: 400px;
           }
+          
+          .service-card-medium {
+            height: 220px;
+          }
+          
           .service-title-bottom {
-            font-size: 22px;
-            padding: 28px;
+            font-size: 18px;
+            padding: 20px;
           }
         }
-        @media (min-width: 1024px) {
-          .service-card-home {
+
+        @media (min-width: 768px) {
+          .services-masonry-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+          }
+          
+          .service-card-large {
             height: 500px;
+            grid-row: span 2;
+          }
+          
+          .service-card-medium {
+            height: 240px;
+          }
+          
+          .service-title-bottom {
+            font-size: 20px;
+            padding: 24px;
+          }
+        }
+        
+        /* Desktop */
+        @media (min-width: 1024px) {
+          .services-masonry-grid {
+            gap: 2.5rem;
+          }
+          
+          .service-card-large {
+            height: 700px;
             border-radius: 32px;
           }
+          
+          .service-card-medium {
+            height: 335px;
+            border-radius: 28px;
+          }
+          
           .service-title-bottom {
             font-size: 24px;
             padding: 32px;
