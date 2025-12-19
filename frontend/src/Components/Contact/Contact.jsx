@@ -31,13 +31,13 @@ const Contact = () => {
         {/* Quick Contact Info */}
         <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-6 mb-8 sm:mb-10">
           <div className="flex items-center gap-2 sm:gap-3 text-gray-700">
-            <Phone className="text-blue-600" size={18} className="sm:w-5 sm:h-5 flex-shrink-0" />
+            <Phone className="text-blue-600 sm:w-5 sm:h-5 flex-shrink-0" size={18} />
             <a href="tel:+917798370430" className="font-medium text-sm sm:text-base hover:text-blue-600 transition-colors">
               +91 7798370430
             </a>
           </div>
           <div className="flex items-center gap-2 sm:gap-3 text-gray-700">
-            <Mail className="text-blue-600" size={18} className="sm:w-5 sm:h-5 flex-shrink-0" />
+            <Mail className="text-blue-600 sm:w-5 sm:h-5 flex-shrink-0" size={18} />
             <a href="mailto:info@vnfashion.com" className="font-medium text-sm sm:text-base hover:text-blue-600 transition-colors break-all">
               info@vnfashion.com
             </a>
