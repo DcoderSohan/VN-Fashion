@@ -5,8 +5,8 @@
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
-  SERVER_BASE_URL: import.meta.env.VITE_SERVER_BASE_URL || 'http://localhost:5000',
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://vn-fashion-backend1.onrender.com/api',
+  SERVER_BASE_URL: import.meta.env.VITE_SERVER_BASE_URL || 'https://vn-fashion-backend1.onrender.com',
   TIMEOUT: 30000, // 30 seconds
 };
 
