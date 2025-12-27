@@ -1,30 +1,14 @@
-import axios from 'axios';
+/**
+ * Content API Functions
+ * Optimized API calls using centralized axios instance and constants
+ */
+import axiosInstance from './axiosInstance';
+import { API_ENDPOINTS, DEFAULT_DATA } from '../config/constants';
 
-// Get base URL for API
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL || 'http://localhost:5000';
-
-// Create axios instance with base URL
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Helper function to get full image URL (handles both local and external URLs)
-export const getImageUrl = (url) => {
-  if (!url) return '';
-  // If it's already a full URL (http/https), return as is
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
-  }
-  // If it's a local upload path, prepend server base URL
-  if (url.startsWith('/api/uploads/')) {
-    return `${SERVER_BASE_URL}${url}`;
-  }
-  // Otherwise return as is
-  return url;
+// Helper function to handle API errors with fallback
+const handleApiError = (error, fallback) => {
+  console.error('API Error:', error);
+  return fallback;
 };
 
 // Content API functions
@@ -32,146 +16,104 @@ export const contentApi = {
   // Get About content (public endpoint)
   getAbout: async () => {
     try {
-      const response = await api.get('/content/public/about');
+      const response = await axiosInstance.get(API_ENDPOINTS.ABOUT);
       return response.data;
     } catch (error) {
-      console.error('Error fetching about content:', error);
-      // Return default values if API fails
-      return {
-        aboutText: "We specialize in exquisite Aari embroidery, a refined handcraft using a hooked needle to create delicate chain-stitch motifs enhanced with beads, mirrors, metallic zari threads, and intricate embellishments.",
-        designerName: "Vidisha",
-        designerTitle: "Master Artisan & Designer",
-        designerBio: "With over a decade of experience in traditional Indian embroidery and contemporary fashion design, Vidisha brings together the best of both worlds. Specializing in Aari embroidery, she creates exquisite pieces that blend traditional craftsmanship with modern aesthetics.",
-        designerImage: "/vidisha.jpg"
-      };
+      return handleApiError(error, DEFAULT_DATA.ABOUT);
     }
   },
   
   // Get Achievements (public endpoint)
   getAchievements: async () => {
     try {
-      const response = await api.get('/content/public/achievements');
+      const response = await axiosInstance.get(API_ENDPOINTS.ACHIEVEMENTS);
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching achievements:', error);
-      // Return default values if API fails
-      return [
-        "10+ Years of Experience",
-        "500+ Custom Designs Created",
-        "Specialized in Bridal Wear"
-      ];
+      return handleApiError(error, DEFAULT_DATA.ACHIEVEMENTS);
     }
   },
 
   // Get Gallery items (public endpoint)
   getGallery: async () => {
     try {
-      const response = await api.get('/content/public/gallery');
+      const response = await axiosInstance.get(API_ENDPOINTS.GALLERY);
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching gallery:', error);
-      return [];
+      return handleApiError(error, []);
     }
   },
 
   // Get Services (public endpoint)
   getServices: async () => {
     try {
-      const response = await api.get('/content/public/services');
+      const response = await axiosInstance.get(API_ENDPOINTS.SERVICES);
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching services:', error);
-      return [];
+      return handleApiError(error, []);
     }
   },
 
   // Get Categories (public endpoint)
   getCategories: async () => {
     try {
-      const response = await api.get('/content/public/categories');
+      const response = await axiosInstance.get(API_ENDPOINTS.CATEGORIES);
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching categories:', error);
-      return [];
+      return handleApiError(error, []);
     }
   },
 
   // Get Certificates (public endpoint)
   getCertificates: async () => {
     try {
-      const response = await api.get('/content/public/certificates');
+      const response = await axiosInstance.get(API_ENDPOINTS.CERTIFICATES);
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching certificates:', error);
-      return [];
+      return handleApiError(error, []);
     }
   },
 
   // Get Timeline (public endpoint)
   getTimeline: async () => {
     try {
-      const response = await api.get('/content/public/timeline');
+      const response = await axiosInstance.get(API_ENDPOINTS.TIMELINE);
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching timeline:', error);
-      return [];
+      return handleApiError(error, []);
     }
   },
 
   // Get Testimonials (public endpoint)
   getTestimonials: async () => {
     try {
-      const response = await api.get('/content/public/testimonials');
+      const response = await axiosInstance.get(API_ENDPOINTS.TESTIMONIALS);
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching testimonials:', error);
-      return [];
-    }
-  },
-
-  // Get Services (public endpoint)
-  getServices: async () => {
-    try {
-      const response = await api.get('/content/public/services');
-      return response.data || [];
-    } catch (error) {
-      console.error('Error fetching services:', error);
-      return [];
+      return handleApiError(error, []);
     }
   },
 
   // Create Booking (public endpoint - no auth required)
   createBooking: async (bookingData) => {
-    try {
-      const response = await api.post('/content/public/bookings', bookingData);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating booking:', error);
-      throw error;
-    }
+    const response = await axiosInstance.post(API_ENDPOINTS.BOOKINGS, bookingData);
+    return response.data;
   },
 
   // Create Contact (public endpoint - no auth required)
   createContact: async (contactData) => {
-    try {
-      const response = await api.post('/content/public/contacts', contactData);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating contact:', error);
-      throw error;
-    }
+    const response = await axiosInstance.post(API_ENDPOINTS.CONTACTS, contactData);
+    return response.data;
   },
 
   // Get Settings (public endpoint)
   getSettings: async () => {
-    try {
-      const response = await api.get('/content/public/settings');
-      return response;
-    } catch (error) {
-      console.error('Error fetching settings:', error);
-      throw error;
-    }
+    const response = await axiosInstance.get(API_ENDPOINTS.SETTINGS);
+    return response;
   },
 };
 
-export default api;
+// Re-export axios instance and helpers
+export { default as axiosInstance } from './axiosInstance';
+export * from './helpers';
+
+export default axiosInstance;

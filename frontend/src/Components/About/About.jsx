@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { contentApi, getImageUrl } from "../../utils/api";
+import { contentApi } from "../../utils/api";
+import { getImageUrl } from "../../utils/helpers";
 import './About.css';
 
 gsap.registerPlugin(ScrollTrigger);

@@ -5,7 +5,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { X, Calendar, MapPin, Clock, Award, Info, ChevronRight, ChevronLeft } from "lucide-react";
 import Navbar from "../Components/Navbar/Navbar";
 import Footer from "../Components/Footer/Footer";
-import { contentApi, getImageUrl } from "../utils/api";
+import { contentApi } from "../utils/api";
+import { getImageUrl } from "../utils/helpers";
 
 gsap.registerPlugin(ScrollTrigger);
 

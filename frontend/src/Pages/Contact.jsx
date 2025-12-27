@@ -334,12 +334,12 @@ const Contact = () => {
                 <motion.button
                   type="submit"
                   disabled={!!emailError}
-                  className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold text-sm sm:text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   whileHover={{ scale: emailError ? 1 : 1.02 }}
                   whileTap={{ scale: emailError ? 1 : 0.98 }}
                 >
-                  <Send size={20} />
-                  Send Message
+                  <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span>Send Message</span>
                 </motion.button>
               </form>
             </motion.div>

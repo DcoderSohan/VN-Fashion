@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Quote, Star } from "lucide-react";
-import { contentApi, getImageUrl } from "../../utils/api";
+import { contentApi } from "../../utils/api";
+import { getImageUrl } from "../../utils/helpers";
 
 const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);

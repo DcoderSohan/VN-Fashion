@@ -4,7 +4,8 @@ import { X, Filter, ChevronLeft, ChevronRight, Calendar, Info, Star } from "luci
 import { Link, useLocation } from "react-router-dom";
 import Navbar from "../Components/Navbar/Navbar";
 import Footer from "../Components/Footer/Footer";
-import { contentApi, getImageUrl } from "../utils/api";
+import { contentApi } from "../utils/api";
+import { getImageUrl } from "../utils/helpers";
 
 const Gallery = () => {
   const location = useLocation();
@@ -906,12 +907,12 @@ const Gallery = () => {
                               className="w-full block"
                             >
                               <motion.button
-                                className="w-full py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 shadow-xl hover:shadow-2xl flex items-center justify-center gap-3 text-base md:text-lg transition-all duration-300"
+                                className="w-full py-3 sm:py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base md:text-lg transition-all duration-300"
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                               >
-                                <Calendar size={20} />
-                                Book This Design
+                                <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <span>Book This Design</span>
                               </motion.button>
                             </Link>
                           </div>

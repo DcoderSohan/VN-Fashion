@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import Navbar from '../Components/Navbar/Navbar';
 import Footer from '../Components/Footer/Footer';
 import { Sparkles, Palette, Scissors, Crown, Shirt, Calendar, ArrowRight, X, Info, ChevronLeft, ChevronRight } from 'lucide-react';
-import { contentApi, getImageUrl } from '../utils/api';
+import { contentApi } from '../utils/api';
+import { getImageUrl } from '../utils/helpers';
 
 // Default icons and colors for services
 const serviceIcons = [Shirt, Sparkles, Palette, Scissors, Crown];

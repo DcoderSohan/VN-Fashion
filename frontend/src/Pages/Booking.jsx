@@ -4,17 +4,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle } from 'lucide-react';
 import Navbar from '../Components/Navbar/Navbar';
 import Footer from '../Components/Footer/Footer';
-import { contentApi, getImageUrl } from '../utils/api';
+import { contentApi } from '../utils/api';
+import { getImageUrl, formatPrice } from '../utils/helpers';
 import ErrorModal from '../Components/Modal/ErrorModal';
-
-// Helper function to format price with rupee symbol
-const formatPrice = (price) => {
-  if (!price) return '';
-  if (price.trim().startsWith('₹')) {
-    return price;
-  }
-  return `₹ ${price.trim()}`;
-};
 
 const timeSlots = [
   '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
@@ -48,6 +40,8 @@ const Booking = () => {
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Fetch services from API
   useEffect(() => {

@@ -59,26 +59,26 @@ const Introduction = () => {
 
           <motion.div
             variants={itemVariants}
-            className="mt-12 flex flex-wrap justify-center gap-6"
+            className="mt-12 flex flex-wrap justify-center gap-4 sm:gap-6"
           >
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-shadow"
+              className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-sm sm:text-base shadow-lg hover:shadow-xl transition-shadow"
             >
               Our Philosophy
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 bg-gradient-to-r from-pink-600 to-orange-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-shadow"
+              className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-pink-600 to-orange-600 text-white rounded-full font-semibold text-sm sm:text-base shadow-lg hover:shadow-xl transition-shadow"
             >
               Craftsmanship Excellence
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-shadow"
+              className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full font-semibold text-sm sm:text-base shadow-lg hover:shadow-xl transition-shadow"
             >
               Custom Designs
             </motion.div>

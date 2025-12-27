@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Star } from "lucide-react";
-import { contentApi, getImageUrl } from "../../utils/api";
+import { contentApi } from "../../utils/api";
+import { getImageUrl } from "../../utils/helpers";
 
 const FeaturedWorks = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -247,10 +248,10 @@ const FeaturedWorks = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+              className="inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300"
             >
-              View Full Portfolio
-              <ArrowRight className="w-5 h-5" />
+              <span>View Full Portfolio</span>
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
           </Link>
         </motion.div>
@@ -259,4 +260,4 @@ const FeaturedWorks = () => {
   );
 };
 
-export default FeaturedWorks;
+export default React.memo(FeaturedWorks);

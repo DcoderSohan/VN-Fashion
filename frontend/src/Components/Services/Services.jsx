@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { contentApi, getImageUrl } from '../../utils/api';
+import { contentApi } from '../../utils/api';
+import { getImageUrl } from '../../utils/helpers';
 
 const Services = () => {
   const [services, setServices] = useState([]);

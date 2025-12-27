@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Phone, Mail, MapPin, Instagram, Facebook, Youtube, MessageCircle, Linkedin, Github, Globe, Mail as MailIcon, Share2 } from "lucide-react";
 import { contentApi } from "../../utils/api";
+import DeveloperModal from "../Modal/DeveloperModal";
 import "../Navbar/Navbar.css";
 
 // Icon mapping for dynamic icon rendering
@@ -24,6 +25,7 @@ const iconMap = {
 const Footer = () => {
   const phoneNumber = "7798370430";
   const [socialLinks, setSocialLinks] = useState([]);
+  const [showDeveloperModal, setShowDeveloperModal] = useState(false);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -57,16 +59,18 @@ const Footer = () => {
     fetchSettings();
   }, []);
 
-  // Map social links to footer format
-  const mappedSocialLinks = socialLinks.map((link) => {
-    const IconComponent = iconMap[link.icon] || Globe;
-    return {
-      name: link.name,
-      icon: IconComponent,
-      href: link.url,
-      color: "hover:text-blue-600",
-    };
-  });
+  // Map social links to footer format (memoized for performance)
+  const mappedSocialLinks = useMemo(() => {
+    return socialLinks.map((link) => {
+      const IconComponent = iconMap[link.icon] || Globe;
+      return {
+        name: link.name,
+        icon: IconComponent,
+        href: link.url,
+        color: "hover:text-blue-600",
+      };
+    });
+  }, [socialLinks]);
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -196,21 +200,27 @@ const Footer = () => {
           <div className="text-gray-400 text-sm text-center sm:text-left">
             &copy; {new Date().getFullYear()} VN Fashion. All rights reserved.
           </div>
-          <div className="text-gray-400 text-sm text-center sm:text-right">
+          <div className="text-gray-400 text-xs sm:text-sm text-center sm:text-right">
             Developed by{" "}
-            <a
-              href="https://your-portfolio-url.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-400 hover:text-blue-300 font-semibold underline transition-colors"
+            <motion.button
+              onClick={() => setShowDeveloperModal(true)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="text-blue-400 hover:text-blue-300 font-semibold underline transition-colors cursor-pointer text-xs sm:text-sm"
             >
               Sohan Sarang
-            </a>
+            </motion.button>
           </div>
         </div>
       </div>
+
+      {/* Developer Modal */}
+      <DeveloperModal
+        isOpen={showDeveloperModal}
+        onClose={() => setShowDeveloperModal(false)}
+      />
     </footer>
   );
 };
 
-export default Footer;
+export default React.memo(Footer);

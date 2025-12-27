@@ -3,8 +3,25 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+// Performance: Use requestIdleCallback for non-critical rendering
+const root = createRoot(document.getElementById('root'));
+
+// Use requestIdleCallback if available, otherwise render immediately
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(() => {
+    root.render(
+      <StrictMode>
+        <App />
+      </StrictMode>
+    );
+  });
+} else {
+  // Fallback for browsers without requestIdleCallback
+  setTimeout(() => {
+    root.render(
+      <StrictMode>
+        <App />
+      </StrictMode>
+    );
+  }, 1);
+}
