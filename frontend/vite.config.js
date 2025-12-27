@@ -7,12 +7,11 @@ export default defineConfig({
   publicDir: 'public',
   build: {
     // Optimize build for production
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console.log in production
-        drop_debugger: true,
-      },
+    minify: 'esbuild', // Use esbuild (faster, built-in) instead of terser
+    target: 'es2015',
+    // Drop console and debugger in production
+    esbuild: {
+      drop: ['console', 'debugger'],
     },
     rollupOptions: {
       output: {
