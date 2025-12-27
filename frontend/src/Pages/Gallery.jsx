@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Filter, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
-import { Link } from "react-router-dom";
+import { X, Filter, ChevronLeft, ChevronRight, Calendar, Info, Star } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import Navbar from "../Components/Navbar/Navbar";
 import Footer from "../Components/Footer/Footer";
+import { contentApi, getImageUrl } from "../utils/api";
 
 const Gallery = () => {
+  const location = useLocation();
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,126 +18,132 @@ const Gallery = () => {
   const [isDragging, setIsDragging] = useState(false);
   const buttonRef = useRef(null);
   const dragStartPos = useRef({ x: 0, y: 0 });
+  const itemRefs = useRef({});
+  const currentDragPos = useRef({ x: 0, y: 0 });
+  
+  // State declarations - must be before useEffect hooks that use them
+  const [lightboxImage, setLightboxImage] = useState(null);
+  const [showGalleryDetails, setShowGalleryDetails] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
+  const [allWorks, setAllWorks] = useState([]);
+  const [categories, setCategories] = useState(["All"]);
+  const [loading, setLoading] = useState(true);
 
   // Save button position to localStorage
   useEffect(() => {
     localStorage.setItem('galleryButtonPosition', JSON.stringify(buttonPosition));
   }, [buttonPosition]);
 
-  const [lightboxImage, setLightboxImage] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9;
-
-  // All work images - this would typically come from an API or database
-  const allWorks = [
-    { 
-      id: 1, 
-      title: "Bridal Lehenga", 
-      image: "/VN-1.jpg", 
-      category: "Bridal",
-      description: "Exquisite bridal lehenga with intricate Aari embroidery, featuring traditional motifs enhanced with beads, mirrors, and zari threads.",
-      materials: "Silk fabric, Zari threads, Beads, Mirrors",
-      price: "Starting from ₹50,000"
-    },
-    { 
-      id: 2, 
-      title: "Designer Blouse", 
-      image: "/VN-2.jpg", 
-      category: "Blouses",
-      description: "Custom-designed blouse with hand-painted motifs and premium fabric selection.",
-      materials: "Premium cotton, Fabric paint, Embroidery threads",
-      price: "Starting from ₹8,000"
-    },
-    { 
-      id: 3, 
-      title: "Aari Work Saree", 
-      image: "/aariWork.jpg", 
-      category: "Sarees",
-      description: "Traditional Aari embroidery work on elegant saree, showcasing exquisite craftsmanship.",
-      materials: "Silk, Zari threads, Beads, Mirrors",
-      price: "Starting from ₹25,000"
-    },
-    { 
-      id: 4, 
-      title: "Custom Fit Dress", 
-      image: "/VN-3.jpg", 
-      category: "Dresses",
-      description: "Modern dress with traditional embroidery elements, perfectly tailored to your measurements.",
-      materials: "Premium fabric, Embroidery, Custom tailoring",
-      price: "Starting from ₹15,000"
-    },
-    { 
-      id: 5, 
-      title: "Traditional Outfit", 
-      image: "/VN-4.jpg", 
-      category: "Traditional",
-      description: "Classic traditional outfit with contemporary styling and intricate detailing.",
-      materials: "Traditional fabric, Hand embroidery, Premium accessories",
-      price: "Starting from ₹20,000"
-    },
-    { 
-      id: 6, 
-      title: "Embroidered Blouse", 
-      image: "/VN-5.jpg", 
-      category: "Blouses",
-      description: "Elegant embroidered blouse with delicate patterns and premium finish.",
-      materials: "Silk, Embroidery threads, Beads",
-      price: "Starting from ₹10,000"
-    },
-    { 
-      id: 7, 
-      title: "Elegant Saree", 
-      image: "/VN-1.jpg", 
-      category: "Sarees",
-      description: "Sophisticated saree design with modern aesthetics and traditional craftsmanship.",
-      materials: "Premium silk, Zari work, Embellishments",
-      price: "Starting from ₹30,000"
-    },
-    { 
-      id: 8, 
-      title: "Modern Lehenga", 
-      image: "/VN-2.jpg", 
-      category: "Bridal",
-      description: "Contemporary lehenga design blending modern trends with traditional elegance.",
-      materials: "Designer fabric, Hand embroidery, Premium accessories",
-      price: "Starting from ₹45,000"
-    },
-    { 
-      id: 9, 
-      title: "Designer Dress", 
-      image: "/VN-3.jpg", 
-      category: "Dresses",
-      description: "Unique designer dress with custom patterns and personalized styling.",
-      materials: "Premium fabric, Custom design, Expert tailoring",
-      price: "Starting from ₹18,000"
-    },
-  ];
-
-  const categories = ["All", ...new Set(allWorks.map(work => work.category))];
-
-  const filteredWorks = selectedCategory === "All" 
-    ? allWorks 
-    : allWorks.filter(work => work.category === selectedCategory);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredWorks.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedWorks = filteredWorks.slice(startIndex, endIndex);
-
+  // Reset details panel when gallery modal closes
   useEffect(() => {
-    setCurrentPage(1); // Reset to first page when category changes
-  }, [selectedCategory]);
+    if (!lightboxImage) {
+      setShowGalleryDetails(true);
+    }
+  }, [lightboxImage]);
 
-  const openLightbox = (work) => {
+  // Fetch gallery data from API
+  useEffect(() => {
+    const fetchGallery = async () => {
+      try {
+        setLoading(true);
+        const galleryData = await contentApi.getGallery();
+        
+        // Transform API data to match component structure
+        const transformedWorks = galleryData.map((item, index) => ({
+          id: item._id || index + 1,
+          title: item.title || "Untitled",
+          image: getImageUrl(item.image) || "/VN-1.jpg",
+          category: item.category || "Uncategorized",
+          description: item.description || "",
+          materials: item.materials || "",
+          price: item.price || "Contact for pricing",
+          featured: item.featured || false,
+        }));
+        
+        // Sort: featured items first, then others
+        // Ensure only one featured item (take first if multiple)
+        const featuredItems = transformedWorks.filter(w => w.featured);
+        const nonFeaturedItems = transformedWorks.filter(w => !w.featured);
+        
+        // If multiple featured, only keep the first one
+        const singleFeatured = featuredItems.length > 0 ? [featuredItems[0]] : [];
+        const otherFeatured = featuredItems.slice(1).map(item => ({ ...item, featured: false }));
+        
+        const sortedWorks = [...singleFeatured, ...otherFeatured, ...nonFeaturedItems];
+        
+        setAllWorks(sortedWorks);
+        
+        // Extract unique categories
+        const uniqueCategories = ["All", ...new Set(transformedWorks.map(work => work.category).filter(Boolean))];
+        setCategories(uniqueCategories);
+      } catch (error) {
+        console.error('Error fetching gallery:', error);
+        // Fallback to default data if API fails
+        const defaultWorks = [
+          { 
+            id: 1, 
+            title: "Bridal Lehenga", 
+            image: "/VN-1.jpg", 
+            category: "Bridal",
+            description: "Exquisite bridal lehenga with intricate Aari embroidery, featuring traditional motifs enhanced with beads, mirrors, and zari threads.",
+            materials: "Silk fabric, Zari threads, Beads, Mirrors",
+            price: "Starting from ₹50,000"
+          },
+          { 
+            id: 2, 
+            title: "Designer Blouse", 
+            image: "/VN-2.jpg", 
+            category: "Blouses",
+            description: "Custom-designed blouse with hand-painted motifs and premium fabric selection.",
+            materials: "Premium cotton, Fabric paint, Embroidery threads",
+            price: "Starting from ₹8,000"
+          },
+        ];
+        setAllWorks(defaultWorks);
+        setCategories(["All", "Bridal", "Blouses"]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGallery();
+  }, []);
+
+  // Memoize filtered works for performance (maintain featured first order)
+  const filteredWorks = useMemo(() => {
+    const filtered = selectedCategory === "All" 
+      ? allWorks 
+      : allWorks.filter(work => work.category === selectedCategory);
+    
+    // Ensure featured items stay first even after filtering
+    return filtered.sort((a, b) => {
+      if (a.featured && !b.featured) return -1;
+      if (!a.featured && b.featured) return 1;
+      return 0;
+    });
+  }, [allWorks, selectedCategory]);
+
+  // Pagination - memoized
+  const totalPages = useMemo(() => Math.ceil(filteredWorks.length / itemsPerPage), [filteredWorks.length, itemsPerPage]);
+  const paginatedWorks = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredWorks.slice(startIndex, endIndex);
+  }, [filteredWorks, currentPage, itemsPerPage]);
+
+  // Define callbacks before using them in useEffect
+  const openLightbox = useCallback((work) => {
     setLightboxImage(work);
-  };
+    setShowGalleryDetails(true);
+  }, []);
 
-  const closeLightbox = () => {
+  const closeLightbox = useCallback(() => {
     setLightboxImage(null);
-  };
+  }, []);
 
-  const navigateLightbox = (direction) => {
+  const navigateLightbox = useCallback((direction) => {
+    if (!lightboxImage) return;
     const currentIndex = filteredWorks.findIndex(w => w.id === lightboxImage.id);
     let newIndex;
     if (direction === 'next') {
@@ -143,12 +151,82 @@ const Gallery = () => {
     } else {
       newIndex = (currentIndex - 1 + filteredWorks.length) % filteredWorks.length;
     }
-    setLightboxImage(filteredWorks[newIndex]);
-  };
+    // Preload image for smoother transition
+    const nextWork = filteredWorks[newIndex];
+    if (nextWork?.image) {
+      const img = new Image();
+      img.src = nextWork.image;
+      // Update immediately - browser will handle caching
+      setLightboxImage(nextWork);
+    }
+  }, [lightboxImage, filteredWorks]);
 
-  // Handle drag for category button
+  // Handle navigation from home page - scroll to specific item (optimized)
+  useEffect(() => {
+    if (location.state?.scrollToItem && !loading && allWorks.length > 0) {
+      const itemId = location.state.scrollToItem;
+      const item = allWorks.find(w => w.id === itemId);
+      
+      if (item) {
+        // Find which page the item is on
+        const itemIndex = filteredWorks.findIndex(w => w.id === itemId);
+        if (itemIndex !== -1) {
+          const targetPage = Math.floor(itemIndex / itemsPerPage) + 1;
+          setCurrentPage(targetPage);
+          
+          // Use double requestAnimationFrame for smoother transition after page render
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              const element = itemRefs.current[itemId];
+              if (element) {
+                // Scroll instantly first, then open lightbox
+                element.scrollIntoView({ behavior: 'auto', block: 'center' });
+                // Open lightbox immediately for instant feedback
+                openLightbox(item);
+              } else {
+                // Fallback: open lightbox even if element not found
+                openLightbox(item);
+              }
+            });
+          });
+        }
+      }
+      
+      // Clear the state to prevent re-triggering
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, loading, allWorks, filteredWorks, itemsPerPage, openLightbox]);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page when category changes
+  }, [selectedCategory]);
+
+  // Keyboard navigation for lightbox - optimized with useCallback
+  useEffect(() => {
+    if (!lightboxImage) return;
+
+    const handleKeyPress = (e) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        navigateLightbox('prev');
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        navigateLightbox('next');
+      } else if (e.key === 'Escape') {
+        closeLightbox();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [lightboxImage, navigateLightbox, closeLightbox]);
+
+  // Handle drag for category button - optimized for smooth animation
   useEffect(() => {
     if (!isDragging) return;
+
+    let animationFrameId = null;
+    let rafScheduled = false;
 
     const handleMove = (clientX, clientY) => {
       const newX = clientX - dragStartPos.current.x;
@@ -157,10 +235,20 @@ const Gallery = () => {
       const maxX = window.innerWidth - 56;
       const maxY = window.innerHeight - 56;
       
-      setButtonPosition({
-        x: Math.max(0, Math.min(newX, maxX)),
-        y: Math.max(0, Math.min(newY, maxY)),
-      });
+      currentDragPos.current.x = Math.max(0, Math.min(newX, maxX));
+      currentDragPos.current.y = Math.max(0, Math.min(newY, maxY));
+      
+      // Use requestAnimationFrame for smooth updates (only schedule once per frame)
+      if (!rafScheduled) {
+        rafScheduled = true;
+        animationFrameId = requestAnimationFrame(() => {
+          setButtonPosition({ 
+            x: currentDragPos.current.x, 
+            y: currentDragPos.current.y 
+          });
+          rafScheduled = false;
+        });
+      }
     };
 
     const handleMouseMove = (e) => {
@@ -176,6 +264,10 @@ const Gallery = () => {
     };
 
     const handleEnd = () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      rafScheduled = false;
       setIsDragging(false);
     };
 
@@ -185,6 +277,9 @@ const Gallery = () => {
     window.addEventListener('touchend', handleEnd);
 
     return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleEnd);
       window.removeEventListener('touchmove', handleTouchMove);
@@ -204,6 +299,7 @@ const Gallery = () => {
         x: clientX - rect.left,
         y: clientY - rect.top,
       };
+      currentDragPos.current = { ...buttonPosition };
       setIsDragging(true);
     }
   };
@@ -266,7 +362,16 @@ const Gallery = () => {
           </motion.div>
 
           {/* Draggable Category Button - Mobile/Tablet Only */}
-          <div className="lg:hidden fixed z-50" style={{ left: `${buttonPosition.x}px`, top: `${buttonPosition.y}px` }}>
+          <div 
+            className="lg:hidden fixed z-50"
+            style={{ 
+              left: `${buttonPosition.x}px`, 
+              top: `${buttonPosition.y}px`,
+              willChange: isDragging ? 'transform' : 'auto',
+              transform: 'translateZ(0)',
+              transition: isDragging ? 'none' : 'left 0.2s ease-out, top 0.2s ease-out'
+            }}
+          >
             {/* Draggable Button */}
             <motion.button
               ref={buttonRef}
@@ -278,9 +383,14 @@ const Gallery = () => {
                 }
               }}
               className="w-14 h-14 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center"
-              style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+              style={{ 
+                cursor: isDragging ? 'grabbing' : 'grab',
+                willChange: isDragging ? 'transform' : 'auto',
+                touchAction: 'none'
+              }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
             >
               <Filter size={24} />
             </motion.button>
@@ -368,29 +478,54 @@ const Gallery = () => {
             )}
           </AnimatePresence>
 
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-16">
+              <p className="text-gray-500 text-lg">Loading gallery...</p>
+            </div>
+          )}
+
           {/* Gallery Grid with Fashionable Hover Effects */}
+          {!loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {paginatedWorks.map((work, idx) => (
               <motion.div
                 key={work.id}
+                ref={(el) => {
+                  if (el) itemRefs.current[work.id] = el;
+                }}
                 className="group relative overflow-hidden rounded-xl sm:rounded-2xl shadow-lg bg-white cursor-pointer"
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: idx * 0.05 }}
+                transition={{ duration: 0.3, delay: Math.min(idx * 0.03, 0.3) }}
                 onMouseEnter={() => setHoveredIndex(work.id)}
                 onMouseLeave={() => setHoveredIndex(null)}
                 onClick={() => openLightbox(work)}
               >
                 {/* Image Container */}
                 <div className="relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] overflow-hidden">
-                  <motion.img
+                  <img
                     src={work.image}
                     alt={work.title}
                     loading="lazy"
-                    className="w-full h-full object-cover"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    onError={(e) => {
+                      e.target.src = "/VN-1.jpg";
+                    }}
                   />
+                  
+                  {/* Golden Featured Badge */}
+                  {work.featured && (
+                    <div className="absolute top-4 left-4 z-10">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 rounded-full blur-sm opacity-75 animate-pulse"></div>
+                        <div className="relative bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg border-2 border-yellow-300">
+                          <Star className="w-4 h-4 fill-white" />
+                          <span className="text-xs font-bold uppercase tracking-wide">Featured</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   
                   {/* Gradient Overlay */}
                   <motion.div
@@ -433,6 +568,13 @@ const Gallery = () => {
                     >
                       <Link
                         to="/booking"
+                        state={{ 
+                          designId: work.id,
+                          designTitle: work.title,
+                          designCategory: work.category,
+                          designPrice: work.price,
+                          designImage: work.image
+                        }}
                         onClick={(e) => e.stopPropagation()}
                         className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-xs sm:text-sm transition-colors"
                       >
@@ -470,9 +612,10 @@ const Gallery = () => {
               </motion.div>
             ))}
           </div>
+          )}
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {!loading && totalPages > 1 && (
             <motion.div
               className="flex justify-center items-center gap-4 mt-12"
               initial={{ opacity: 0 }}
@@ -499,94 +642,290 @@ const Gallery = () => {
             </motion.div>
           )}
 
-          {/* Lightbox Modal */}
-          <AnimatePresence>
+          {/* Gallery Lightbox Modal - Same Design as Certificate Modal */}
+          <AnimatePresence mode="wait">
             {lightboxImage && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4"
                 onClick={closeLightbox}
               >
                 <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.8, opacity: 0 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15, ease: "easeInOut" }}
                   onClick={(e) => e.stopPropagation()}
-                  className="max-w-6xl w-full mx-4 bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl max-h-[95vh] flex flex-col"
+                  className="relative w-full h-full max-w-7xl max-h-[95vh] sm:max-h-[90vh] flex flex-col md:flex-row rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl"
+                  style={{ willChange: 'opacity' }}
                 >
-                  <div className="relative flex-1 flex flex-col overflow-hidden">
-                    {/* Close Button */}
-                    <button
-                      onClick={closeLightbox}
-                      className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-colors"
-                    >
-                      <X size={18} className="sm:w-6 sm:h-6 text-gray-800" />
-                    </button>
+                  {/* Gallery Image - Full Width */}
+                  <div className="relative flex-1 bg-gray-900 flex items-center justify-center overflow-hidden min-h-[40vh] md:min-h-0">
+                    <AnimatePresence mode="wait">
+                      {lightboxImage.image ? (
+                        <motion.img
+                          key={lightboxImage.id}
+                          src={lightboxImage.image}
+                          alt={lightboxImage.title}
+                          className="w-full h-full object-contain"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ 
+                            duration: 0.2,
+                            ease: "easeInOut"
+                          }}
+                          style={{ willChange: 'opacity' }}
+                          loading="eager"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/VN-1.jpg";
+                          }}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center p-8 text-white/50">
+                          <Filter size={64} className="mb-4 opacity-50" />
+                          <p className="text-lg">No image available</p>
+                        </div>
+                      )}
+                    </AnimatePresence>
+                    
+                    {/* Title Overlay - Top (Clean Design) */}
+                    <div className="absolute top-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-b from-black/80 via-black/50 to-transparent">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-white/10 backdrop-blur-sm rounded-lg">
+                          <Filter className="text-white" size={20} />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-1 flex-wrap">
+                            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
+                              {lightboxImage.title}
+                            </h2>
+                            {lightboxImage.featured && (
+                              <div className="relative">
+                                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 rounded-full blur-sm opacity-75 animate-pulse"></div>
+                                <div className="relative bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-white px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg border-2 border-yellow-300">
+                                  <Star className="w-3.5 h-3.5 fill-white" />
+                                  <span className="text-[10px] font-bold uppercase tracking-wide">Featured</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          {lightboxImage.category && (
+                            <p className="text-white/80 text-sm md:text-base font-medium">
+                              {lightboxImage.category}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
-                    {/* Navigation Buttons */}
+                    {/* Navigation Buttons - Only show if multiple images */}
                     {filteredWorks.length > 1 && (
                       <>
-                        <button
+                        <motion.button
                           onClick={(e) => {
                             e.stopPropagation();
                             navigateLightbox('prev');
                           }}
-                          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-12 sm:h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+                          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg border border-white/30"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          transition={{ duration: 0.2, ease: "easeOut" }}
                         >
-                          <ChevronLeft size={18} className="sm:w-6 sm:h-6 text-gray-800" />
-                        </button>
-                        <button
+                          <ChevronLeft size={20} className="text-white" />
+                        </motion.button>
+                        <motion.button
                           onClick={(e) => {
                             e.stopPropagation();
                             navigateLightbox('next');
                           }}
-                          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-12 sm:h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+                          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg border border-white/30"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          transition={{ duration: 0.2, ease: "easeOut" }}
                         >
-                          <ChevronRight size={18} className="sm:w-6 sm:h-6 text-gray-800" />
-                        </button>
+                          <ChevronRight size={20} className="text-white" />
+                        </motion.button>
+                        {/* Image Counter */}
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full">
+                          <span className="text-white text-xs sm:text-sm font-medium">
+                            {filteredWorks.findIndex(w => w.id === lightboxImage.id) + 1} / {filteredWorks.length}
+                          </span>
+                        </div>
                       </>
                     )}
 
-                    {/* Image */}
-                    <div className="relative h-[40vh] sm:h-[50vh] md:h-[60vh] overflow-hidden flex-shrink-0">
-                      <img
-                        src={lightboxImage.image}
-                        alt={lightboxImage.title}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
+                    {/* Close Button - Top Right */}
+                    <button
+                      onClick={closeLightbox}
+                      className="absolute top-4 right-4 w-10 h-10 md:w-12 md:h-12 bg-gray-900/80 hover:bg-gray-800/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl transition-all duration-300 z-50 border border-gray-700/50 hover:scale-110 active:scale-95 hover:border-red-500/50"
+                      aria-label="Close modal"
+                    >
+                      <X size={20} md:size={22} className="text-white" />
+                    </button>
 
-                    {/* Details - Scrollable */}
-                    <div className="p-4 sm:p-6 md:p-8 overflow-y-auto flex-1">
-                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-gray-900">{lightboxImage.title}</h2>
-                      <p className="text-blue-600 font-semibold mb-3 sm:mb-4 text-sm sm:text-base">{lightboxImage.category}</p>
-                      <p className="text-gray-700 mb-3 sm:mb-4 leading-relaxed text-sm sm:text-base">{lightboxImage.description}</p>
-                      <div className="mb-3 sm:mb-4">
-                        <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Materials Used:</h3>
-                        <p className="text-gray-600 text-sm sm:text-base">{lightboxImage.materials}</p>
-                      </div>
-                      <div className="mb-4 sm:mb-6">
-                        <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Price:</h3>
-                        <p className="text-base sm:text-lg text-blue-600 font-semibold">{lightboxImage.price}</p>
-                      </div>
-                      <Link
-                        to="/booking"
-                        className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors text-sm sm:text-base"
-                      >
-                        <Calendar size={18} className="sm:w-5 sm:h-5" />
-                        Book This Design
-                      </Link>
-                    </div>
+                    {/* Single Toggle Details Button - Always visible, positioned at top edge of details when open */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowGalleryDetails(!showGalleryDetails);
+                      }}
+                      className={`fixed left-1/2 -translate-x-1/2 w-12 h-12 bg-gray-900/95 hover:bg-gray-800/95 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl border-2 border-gray-700/70 transition-all duration-300 z-[70] lg:hidden ${
+                        showGalleryDetails 
+                          ? 'bottom-[calc(60vh-1.5rem)] sm:bottom-[calc(65vh-1.5rem)]' 
+                          : 'bottom-4'
+                      }`}
+                      aria-label={showGalleryDetails ? "Hide details" : "Show details"}
+                    >
+                      {showGalleryDetails ? (
+                        <ChevronLeft size={20} className="text-white rotate-90" />
+                      ) : (
+                        <ChevronRight size={20} className="text-white -rotate-90" />
+                      )}
+                    </button>
                   </div>
+
+                  {/* Details Panel - Mobile: Bottom Sheet, Desktop: Right Side with Glassmorphism */}
+                  <AnimatePresence>
+                    {showGalleryDetails && (
+                      <motion.div
+                        initial={{ 
+                          y: '100%',
+                          x: '100%',
+                          opacity: 0 
+                        }}
+                        animate={{ 
+                          y: 0,
+                          x: 0,
+                          opacity: 1 
+                        }}
+                        exit={{ 
+                          y: '100%',
+                          x: '100%',
+                          opacity: 0 
+                        }}
+                        transition={{ 
+                          type: "tween",
+                          ease: [0.4, 0, 0.2, 1],
+                          duration: 0.25,
+                          opacity: { duration: 0.15 }
+                        }}
+                        className="absolute md:relative md:right-0 md:top-0 md:bottom-0 bottom-0 left-0 right-0 w-full md:w-96 lg:w-[420px] h-[60vh] sm:h-[65vh] md:h-full bg-gray-900/95 backdrop-blur-xl border-t md:border-t-0 md:border-l border-gray-700/50 shadow-2xl overflow-visible rounded-t-3xl md:rounded-t-none z-50"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(17, 24, 39, 0.98) 0%, rgba(17, 24, 39, 0.95) 100%)',
+                          backdropFilter: 'blur(16px) saturate(180%)',
+                          WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+                          transform: 'translateZ(0)',
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {/* Mobile Drag Handle */}
+                        <div className="md:hidden flex justify-center pt-3 pb-2">
+                          <div className="w-12 h-1.5 bg-gray-600 rounded-full"></div>
+                        </div>
+
+                        {/* Content Container */}
+                        <div className="relative h-full overflow-y-auto modal-scrollbar-hide p-5 sm:p-6 md:p-6 lg:p-8 pb-8">
+                          {/* Header */}
+                          <div className="mb-6 pb-4 border-b border-gray-700/50">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-blue-600/20 rounded-lg">
+                                <Info className="text-blue-400" size={22} />
+                              </div>
+                              <h3 className="text-xl md:text-2xl font-bold text-white">Details</h3>
+                            </div>
+                          </div>
+
+                          {/* Description */}
+                          {lightboxImage.description && (
+                            <div className="mb-6">
+                              <h4 className="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wider">Description</h4>
+                              <p className="text-gray-300 text-sm md:text-base leading-relaxed whitespace-pre-wrap">
+                                {lightboxImage.description}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Details Cards */}
+                          <div className="space-y-4 mb-6">
+                            {/* Materials */}
+                            {lightboxImage.materials && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.05, duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                                className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50 shadow-lg"
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className="p-2 bg-purple-600/20 rounded-lg flex-shrink-0">
+                                    <Filter className="text-purple-400" size={18} />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Materials Used</h4>
+                                    <p className="text-white text-sm md:text-base font-medium break-words">{lightboxImage.materials}</p>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            )}
+
+                            {/* Price */}
+                            {lightboxImage.price && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.1, duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                                className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50 shadow-lg"
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className="p-2 bg-green-600/20 rounded-lg flex-shrink-0">
+                                    <Calendar className="text-green-400" size={18} />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Price</h4>
+                                    <p className="text-white text-sm md:text-base font-semibold break-words">{lightboxImage.price}</p>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            )}
+                          </div>
+
+                          {/* Book Now Button */}
+                          <div className="mt-8 pt-4 border-t border-gray-700/50">
+                            <Link
+                              to="/booking"
+                              state={{ 
+                                designId: lightboxImage.id,
+                                designTitle: lightboxImage.title,
+                                designCategory: lightboxImage.category,
+                                designPrice: lightboxImage.price,
+                                designImage: lightboxImage.image
+                              }}
+                              className="w-full block"
+                            >
+                              <motion.button
+                                className="w-full py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 shadow-xl hover:shadow-2xl flex items-center justify-center gap-3 text-base md:text-lg transition-all duration-300"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                              >
+                                <Calendar size={20} />
+                                Book This Design
+                              </motion.button>
+                            </Link>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
 
           {/* Empty State */}
-          {filteredWorks.length === 0 && (
+          {!loading && filteredWorks.length === 0 && (
             <motion.div
               className="text-center py-16"
               initial={{ opacity: 0 }}
@@ -598,6 +937,44 @@ const Gallery = () => {
         </div>
       </div>
       <Footer />
+      
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .modal-scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .modal-scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        @keyframes gradient {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+        /* GPU acceleration for smooth animations */
+        * {
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+        [data-framer-component] {
+          transform: translateZ(0);
+          backface-visibility: hidden;
+          perspective: 1000px;
+        }
+      `}</style>
     </div>
   );
 };

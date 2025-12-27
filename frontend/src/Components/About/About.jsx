@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { contentApi, getImageUrl } from "../../utils/api";
 import './About.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -12,17 +13,58 @@ const About = () => {
   const textRef = useRef(null);
   const paragraphRef = useRef(null);
   const [showDesignerInfo, setShowDesignerInfo] = useState(false);
+  const [aboutData, setAboutData] = useState({
+    aboutText: "We specialize in exquisite Aari embroidery, a refined handcraft using a hooked needle to create delicate chain-stitch motifs enhanced with beads, mirrors, metallic zari threads, and intricate embellishments.",
+    designerName: "Vidisha",
+    designerTitle: "Master Artisan & Designer",
+    designerBio: "With over a decade of experience in traditional Indian embroidery and contemporary fashion design, Vidisha brings together the best of both worlds. Specializing in Aari embroidery, she creates exquisite pieces that blend traditional craftsmanship with modern aesthetics.",
+    designerImage: "/vidisha.jpg"
+  });
+  const [achievements, setAchievements] = useState([]);
 
-  const aboutText = "We specialize in exquisite Aari embroidery, a refined handcraft using a hooked needle to create delicate chain-stitch motifs enhanced with beads, mirrors, metallic zari threads, and intricate embellishments.";
+  // Fetch about content and achievements from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch about data
+        const aboutData = await contentApi.getAbout();
+        if (aboutData) {
+          setAboutData({
+            aboutText: aboutData.aboutText || aboutData.aboutText,
+            designerName: aboutData.designerName || aboutData.designerName,
+            designerTitle: aboutData.designerTitle || aboutData.designerTitle,
+            designerBio: aboutData.designerBio || aboutData.designerBio,
+            designerImage: aboutData.designerImage || aboutData.designerImage
+          });
+        }
+
+        // Fetch achievements
+        const achievementsData = await contentApi.getAchievements();
+        if (Array.isArray(achievementsData)) {
+          // Convert achievement objects to strings for display
+          const achievementStrings = achievementsData.map(ach => 
+            typeof ach === 'object' ? (ach.title || String(ach)) : ach
+          );
+          setAchievements(achievementStrings);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const aboutText = aboutData.aboutText;
 
   const designerIntro = "I'm a passionate master artisan with over a decade of expertise in traditional Indian embroidery and contemporary fashion design. Her dedication to preserving age-old Aari embroidery techniques while infusing modern aesthetics has made her a sought-after designer for bridal wear and custom creations.";
 
   const designerInfo = {
-    name: "Vidisha",
-    title: "Master Artisan & Designer",
-    bio: "With over a decade of experience in traditional Indian embroidery and contemporary fashion design, Vidisha brings together the best of both worlds. Specializing in Aari embroidery, she creates exquisite pieces that blend traditional craftsmanship with modern aesthetics.",
+    name: aboutData.designerName,
+    title: aboutData.designerTitle,
+    bio: aboutData.designerBio,
     expertise: ["Aari Embroidery", "Fabric Painting", "Custom Tailoring", "Traditional & Contemporary Design"],
-    achievements: ["10+ Years of Experience", "500+ Custom Designs Created", "Specialized in Bridal Wear"],
+    achievements: achievements.length > 0 ? achievements : ["10+ Years of Experience", "500+ Custom Designs Created", "Specialized in Bridal Wear"],
   };
 
   useEffect(() => {
@@ -106,10 +148,14 @@ const About = () => {
               >
                 <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg h-[280px] sm:h-[320px] md:h-[400px] lg:h-[450px] rounded-lg overflow-hidden shadow-2xl group">
                   <img
-                    src="/vidisha.jpg"
+                    src={getImageUrl(aboutData.designerImage)}
                     alt={designerInfo.name}
                     loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                      // Fallback to default image if API image fails
+                      e.target.src = "/vidisha.jpg";
+                    }}
                   />
                   {/* Designer Name Tag - Bottom Right Corner */}
                   <motion.div

@@ -1,39 +1,72 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Phone, Mail, MapPin, Instagram, Facebook, Youtube, MessageCircle } from "lucide-react";
+import { Phone, Mail, MapPin, Instagram, Facebook, Youtube, MessageCircle, Linkedin, Github, Globe, Mail as MailIcon, Share2 } from "lucide-react";
+import { contentApi } from "../../utils/api";
 import "../Navbar/Navbar.css";
+
+// Icon mapping for dynamic icon rendering
+const iconMap = {
+  Instagram: Instagram,
+  Facebook: Facebook,
+  Twitter: null, // Add if needed
+  Youtube: Youtube,
+  WhatsApp: MessageCircle,
+  LinkedIn: Linkedin,
+  GitHub: Github,
+  Globe: Globe,
+  Mail: MailIcon,
+  Phone: Phone,
+  MapPin: MapPin,
+  Share2: Share2,
+};
 
 const Footer = () => {
   const phoneNumber = "7798370430";
-  const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}`;
+  const [socialLinks, setSocialLinks] = useState([]);
 
-  const socialLinks = [
-    {
-      name: "Instagram",
-      icon: Instagram,
-      href: "https://instagram.com/vnfashion", // Update with actual links
-      color: "hover:text-pink-600",
-    },
-    {
-      name: "Facebook",
-      icon: Facebook,
-      href: "https://facebook.com/vnfashion",
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await contentApi.getSettings();
+        if (response.data) {
+          const links = response.data.socialLinks || [];
+          // Sort by order
+          const sortedLinks = links.sort((a, b) => (a.order || 0) - (b.order || 0));
+          setSocialLinks(sortedLinks);
+        }
+      } catch (error) {
+        console.error('Error fetching settings:', error);
+        // Use fallback values if API fails
+        setSocialLinks([
+          {
+            name: "Instagram",
+            icon: "Instagram",
+            url: "https://instagram.com/vnfashion",
+            order: 0,
+          },
+          {
+            name: "WhatsApp",
+            icon: "WhatsApp",
+            url: `https://api.whatsapp.com/send?phone=${phoneNumber}`,
+            order: 1,
+          },
+        ]);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  // Map social links to footer format
+  const mappedSocialLinks = socialLinks.map((link) => {
+    const IconComponent = iconMap[link.icon] || Globe;
+    return {
+      name: link.name,
+      icon: IconComponent,
+      href: link.url,
       color: "hover:text-blue-600",
-    },
-    {
-      name: "YouTube",
-      icon: Youtube,
-      href: "https://youtube.com/@vnfashion",
-      color: "hover:text-red-600",
-    },
-    {
-      name: "WhatsApp",
-      icon: MessageCircle,
-      href: whatsappUrl,
-      color: "hover:text-green-600",
-    },
-  ];
+    };
+  });
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -50,14 +83,23 @@ const Footer = () => {
           {/* Brand Section */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-3 sm:mb-4">
-              <div className="morphing-square bg-white flex items-center justify-center shadow-lg" style={{ width: 40, height: 40 }}>
-                <img 
-                  src="/VN.png" 
-                  alt="VN Fashion Logo" 
-                  width={28} 
-                  height={28}
-                  className="brightness-0"
-                  loading="lazy"
+              <div className="morphing-square bg-white flex items-center justify-center shadow-lg overflow-hidden" style={{ width: 40, height: 40 }}>
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    WebkitMaskImage: 'url("/VN.png")',
+                    maskImage: 'url("/VN.png")',
+                    WebkitMaskRepeat: "no-repeat",
+                    maskRepeat: "no-repeat",
+                    WebkitMaskSize: "contain",
+                    maskSize: "contain",
+                    WebkitMaskPosition: "center",
+                    maskPosition: "center",
+                    background: "linear-gradient(90deg, #ff00cc, #3333ff, #00ffcc, #ffcc00)",
+                    backgroundSize: "200% 200%",
+                    animation: "rainbow 4s ease-in-out infinite",
+                  }}
                 />
               </div>
               <span className="text-white text-lg sm:text-xl md:text-2xl font-Unbounded font-semibold">
@@ -110,7 +152,7 @@ const Footer = () => {
               </li>
               <li className="flex items-start gap-2 sm:gap-3 text-gray-400 text-xs sm:text-sm">
                 <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mt-0.5 sm:mt-1 flex-shrink-0" />
-                <span>Your Location, City, State</span>
+                <span>Gavade Ambere Kharviwada, Ratnagiri, Maharashtra - 415 626</span>
               </li>
             </ul>
           </div>
@@ -118,28 +160,34 @@ const Footer = () => {
           {/* Social Media */}
           <div>
             <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Follow Us</h3>
-            <div className="flex gap-3 sm:gap-4">
-              {socialLinks.map((social) => {
-                const Icon = social.icon;
-                return (
-                  <motion.a
-                    key={social.name}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.2, y: -2 }}
-                    whileTap={{ scale: 0.9 }}
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 ${social.color} transition-colors`}
-                    aria-label={social.name}
-                  >
-                    <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </motion.a>
-                );
-              })}
+            <div className="flex gap-3 sm:gap-4 flex-wrap">
+              {mappedSocialLinks.length > 0 ? (
+                mappedSocialLinks.map((social) => {
+                  const Icon = social.icon;
+                  return (
+                    <motion.a
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ scale: 1.2, y: -2 }}
+                      whileTap={{ scale: 0.9 }}
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 ${social.color} transition-colors`}
+                      aria-label={social.name}
+                    >
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </motion.a>
+                  );
+                })
+              ) : (
+                <p className="text-gray-400 text-xs">No social links configured</p>
+              )}
             </div>
-            <p className="text-gray-400 text-xs mt-3 sm:mt-4">
-              Stay connected for latest designs and updates
-            </p>
+            {mappedSocialLinks.length > 0 && (
+              <p className="text-gray-400 text-xs mt-3 sm:mt-4">
+                Stay connected for latest designs and updates
+              </p>
+            )}
           </div>
         </div>
 

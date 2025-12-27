@@ -71,7 +71,7 @@ const HeroSection = () => {
           </div>
 
           {/* Horizontally Scrolling Text Overlay - Full width at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-[120px] sm:h-[150px] md:h-[200px] lg:h-[300px] overflow-hidden w-full">
+          <div className="absolute bottom-14 left-0 right-0 h-[120px] sm:h-[150px] md:h-[200px] lg:h-[300px] overflow-hidden w-full">
             <div className="scrolling-text-container">
               <div className="scrolling-text-wrapper">
                 <div className="scrolling-text">
@@ -164,32 +164,32 @@ const HeroSection = () => {
 
           .scrolling-text-span {
             display: inline-block;
-            font-size: 4rem;
+            font-size: 8rem;
             line-height: 1;
             font-weight: bold;
           }
 
           @media (min-width: 640px) {
             .scrolling-text-span {
-              font-size: 6rem;
+              font-size: 12rem;
             }
           }
 
           @media (min-width: 768px) {
             .scrolling-text-span {
-              font-size: 8rem;
+              font-size: 14rem;
             }
           }
 
           @media (min-width: 1024px) {
             .scrolling-text-span {
-              font-size: 12rem;
+              font-size: 16rem;
             }
           }
 
           @media (min-width: 1280px) {
             .scrolling-text-span {
-              font-size: 15rem;
+              font-size: 18rem;
             }
           }
         `}</style>

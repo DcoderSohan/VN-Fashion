@@ -17,6 +17,7 @@ import Booking from './Pages/Booking'
 import ContactPage from './Pages/Contact'
 import PageTransition from './Components/PageTransition'
 
+
 function Home() {
   return (
     <div>
@@ -35,9 +36,9 @@ function Home() {
 function AnimatedRoutes() {
   const location = useLocation();
 
-  // Scroll to top on route change
+  // Scroll to top on route change (instant, no animation)
   React.useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [location.pathname]);
 
   return (

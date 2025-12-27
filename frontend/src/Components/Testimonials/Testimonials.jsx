@@ -1,54 +1,37 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Quote, Star } from "lucide-react";
+import { contentApi, getImageUrl } from "../../utils/api";
 
 const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  const testimonials = [
-    {
-      id: 1,
-      name: "Priya Sharma",
-      role: "Bride",
-      image: "/VN-1.jpg", // You can replace with actual client photos
-      quote:
-        "VN Fashion created the most beautiful bridal lehenga for my wedding! The attention to detail and craftsmanship was exceptional. I felt like a princess on my special day.",
-      rating: 5,
-    },
-    {
-      id: 2,
-      name: "Anjali Patel",
-      role: "Client",
-      image: "/VN-2.jpg",
-      quote:
-        "The custom blouse designs are absolutely stunning. Vidisha understood exactly what I wanted and delivered beyond my expectations. Highly recommend!",
-      rating: 5,
-    },
-    {
-      id: 3,
-      name: "Meera Desai",
-      role: "Client",
-      image: "/VN-3.jpg",
-      quote:
-        "The aari work on my saree is exquisite! The quality and finish are outstanding. VN Fashion has become my go-to designer for all special occasions.",
-      rating: 5,
-    },
-    {
-      id: 4,
-      name: "Riya Kapoor",
-      role: "Client",
-      image: "/VN-4.jpg",
-      quote:
-        "Professional service, beautiful designs, and timely delivery. The team at VN Fashion made my entire experience seamless and enjoyable.",
-      rating: 5,
-    },
-  ];
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
+    fetchTestimonials();
+  }, []);
+
+  const fetchTestimonials = async () => {
+    try {
+      setLoading(true);
+      const data = await contentApi.getTestimonials();
+      setTestimonials(data || []);
+    } catch (error) {
+      console.error('Error fetching testimonials:', error);
+      setTestimonials([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (testimonials.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
   }, [testimonials.length]);
 
   const containerVariants = {
@@ -98,87 +81,113 @@ const Testimonials = () => {
           </motion.div>
         </motion.div>
 
-        <div className="relative h-auto min-h-[300px] sm:min-h-[400px] md:h-[450px]">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentIndex}
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0 flex items-center justify-center px-4"
-            >
-              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl sm:rounded-2xl md:rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 lg:p-12 max-w-4xl w-full mx-auto border border-gray-100">
-                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 md:gap-8">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2, type: "spring" }}
-                    className="relative flex-shrink-0"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-blue-100 shadow-lg">
-                      <img
-                        src={testimonials[currentIndex].image}
-                        alt={testimonials[currentIndex].name}
-                        loading="lazy"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-blue-600 rounded-full p-1.5 sm:p-2 shadow-lg">
-                      <Quote className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
-                    </div>
-                  </motion.div>
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : testimonials.length > 0 ? (
+          <>
+            <div className="relative h-auto min-h-[300px] sm:min-h-[400px] md:h-[450px]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentIndex}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute inset-0 flex items-center justify-center px-4"
+                >
+                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl sm:rounded-2xl md:rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 lg:p-12 max-w-4xl w-full mx-auto border border-gray-100">
+                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 md:gap-8">
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.2, type: "spring" }}
+                        className="relative flex-shrink-0"
+                      >
+                        {testimonials[currentIndex].image ? (
+                          <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-blue-100 shadow-lg">
+                            <img
+                              src={getImageUrl(testimonials[currentIndex].image)}
+                              alt={testimonials[currentIndex].name}
+                              loading="lazy"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.parentElement.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-2xl">${testimonials[currentIndex].name.charAt(0).toUpperCase()}</div>`;
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-blue-100 shadow-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-2xl sm:text-3xl md:text-4xl">
+                            {testimonials[currentIndex].name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-blue-600 rounded-full p-1.5 sm:p-2 shadow-lg">
+                          <Quote className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                        </div>
+                      </motion.div>
 
-                  <div className="flex-1 text-center sm:text-left">
-                    <div className="flex justify-center sm:justify-start gap-1 mb-3 sm:mb-4">
-                      {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400"
-                        />
-                      ))}
+                      <div className="flex-1 text-center sm:text-left">
+                        <div className="flex justify-center sm:justify-start gap-1 mb-3 sm:mb-4">
+                          {[...Array(testimonials[currentIndex].rating || 5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400"
+                            />
+                          ))}
+                        </div>
+                        <motion.p
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.3 }}
+                          className="text-base sm:text-lg md:text-xl text-gray-700 italic mb-4 sm:mb-6 leading-relaxed"
+                        >
+                          "{testimonials[currentIndex].quote}"
+                        </motion.p>
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.4 }}
+                        >
+                          <h4 className="text-lg sm:text-xl font-bold text-gray-800">
+                            {testimonials[currentIndex].name}
+                          </h4>
+                          {testimonials[currentIndex].role && (
+                            <p className="text-gray-600 text-sm sm:text-base">{testimonials[currentIndex].role}</p>
+                          )}
+                        </motion.div>
+                      </div>
                     </div>
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                      className="text-base sm:text-lg md:text-xl text-gray-700 italic mb-4 sm:mb-6 leading-relaxed"
-                    >
-                      "{testimonials[currentIndex].quote}"
-                    </motion.p>
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.4 }}
-                    >
-                      <h4 className="text-lg sm:text-xl font-bold text-gray-800">
-                        {testimonials[currentIndex].name}
-                      </h4>
-                      <p className="text-gray-600 text-sm sm:text-base">{testimonials[currentIndex].role}</p>
-                    </motion.div>
                   </div>
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
 
-        {/* Navigation dots */}
-        <div className="flex justify-center gap-3 mt-8">
-          {testimonials.map((_, index) => (
-            <motion.button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
-              className={`w-3 h-3 rounded-full transition-all ${
-                index === currentIndex
-                  ? "bg-blue-600 w-8"
-                  : "bg-gray-300 hover:bg-gray-400"
-              }`}
-            />
-          ))}
-        </div>
+            {/* Navigation dots */}
+            {testimonials.length > 1 && (
+              <div className="flex justify-center gap-3 mt-8">
+                {testimonials.map((_, index) => (
+                  <motion.button
+                    key={index}
+                    onClick={() => setCurrentIndex(index)}
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.9 }}
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      index === currentIndex
+                        ? "bg-blue-600 w-8"
+                        : "bg-gray-300 hover:bg-gray-400"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-16">
+            <p className="text-gray-600 text-lg">No testimonials available at the moment.</p>
+          </div>
+        )}
       </div>
     </section>
   );

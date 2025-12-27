@@ -5,30 +5,30 @@ import { useEffect } from "react";
 const pageVariants = {
   initial: {
     opacity: 0,
-    y: 20,
   },
   animate: {
     opacity: 1,
-    y: 0,
   },
   exit: {
     opacity: 0,
-    y: -20,
   },
 };
 
 const pageTransition = {
   type: "tween",
-  ease: "anticipate",
-  duration: 0.5,
+  ease: "easeInOut",
+  duration: 0.15, // Minimal duration for smooth but fast transition
 };
 
 const PageTransition = ({ children }) => {
   const location = useLocation();
 
-  // Scroll to top when route changes
+  // Scroll to top when route changes (optimized)
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    // Use requestAnimationFrame for smoother scroll
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    });
   }, [location.pathname]);
 
   return (
@@ -39,6 +39,7 @@ const PageTransition = ({ children }) => {
       exit="exit"
       variants={pageVariants}
       transition={pageTransition}
+      style={{ willChange: 'opacity' }}
     >
       {children}
     </motion.div>

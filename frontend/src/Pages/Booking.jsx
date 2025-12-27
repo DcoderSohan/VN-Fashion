@@ -4,14 +4,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Calendar, Clock, User, Mail, Phone, MessageSquare, CheckCircle } from 'lucide-react';
 import Navbar from '../Components/Navbar/Navbar';
 import Footer from '../Components/Footer/Footer';
+import { contentApi, getImageUrl } from '../utils/api';
+import ErrorModal from '../Components/Modal/ErrorModal';
 
-const services = [
-  { id: 1, name: 'Designer Blouses', price: 'Starting from ₹8,000' },
-  { id: 2, name: 'Aari Embroidery', price: 'Starting from ₹15,000' },
-  { id: 3, name: 'Fabric Painting', price: 'Starting from ₹5,000' },
-  { id: 4, name: 'Stitching Services', price: 'Starting from ₹2,000' },
-  { id: 5, name: 'Costume Rental', price: 'Starting from ₹3,000' },
-];
+// Helper function to format price with rupee symbol
+const formatPrice = (price) => {
+  if (!price) return '';
+  if (price.trim().startsWith('₹')) {
+    return price;
+  }
+  return `₹ ${price.trim()}`;
+};
 
 const timeSlots = [
   '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
@@ -22,17 +25,64 @@ const timeSlots = [
 const Booking = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     serviceId: location.state?.serviceId || '',
+    serviceTitle: location.state?.serviceTitle || '',
+    servicePrice: location.state?.servicePrice || '',
+    serviceCategory: location.state?.serviceCategory || '',
+    designId: location.state?.designId || '',
+    designTitle: location.state?.designTitle || '',
+    designCategory: location.state?.designCategory || '',
+    designPrice: location.state?.designPrice || '',
+    designImage: location.state?.designImage || '',
     date: '',
     time: '',
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
+    contactNumber: '',
     notes: '',
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
+
+  // Fetch services from API
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        const data = await contentApi.getServices();
+        setServices(data || []);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+        setServices([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServices();
+  }, []);
+
+  // Update formData when location.state changes (when navigating from gallery or services)
+  useEffect(() => {
+    if (location.state) {
+      setFormData(prev => ({
+        ...prev,
+        serviceId: location.state?.serviceId || prev.serviceId,
+        serviceTitle: location.state?.serviceTitle || prev.serviceTitle,
+        servicePrice: location.state?.servicePrice || prev.servicePrice,
+        serviceCategory: location.state?.serviceCategory || prev.serviceCategory,
+        designId: location.state?.designId || prev.designId,
+        designTitle: location.state?.designTitle || prev.designTitle,
+        designCategory: location.state?.designCategory || prev.designCategory,
+        designPrice: location.state?.designPrice || prev.designPrice,
+        designImage: location.state?.designImage || prev.designImage,
+      }));
+    }
+  }, [location.state]);
 
   // Get today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split('T')[0];
@@ -49,29 +99,67 @@ const Booking = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
-    if (!formData.serviceId || !formData.date || !formData.time || !formData.name || !formData.email || !formData.phone) {
-      alert('Please fill in all required fields');
+      // Validation - either serviceId or designId must be present
+    if ((!formData.serviceId && !formData.designId) || !formData.date || !formData.time || !formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+      setErrorMessage('Please fill in all required fields to place your order');
+      setShowErrorModal(true);
       return;
     }
 
-    // Create booking details
-    const selectedService = services.find(s => s.id === parseInt(formData.serviceId));
-    const booking = {
-      ...formData,
-      serviceName: selectedService?.name || 'Custom Service',
-      bookingId: `BK${Date.now()}`,
-      submittedAt: new Date().toLocaleString(),
-    };
+    try {
+      // Prepare booking data for API
+      const bookingData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        contactNumber: formData.contactNumber || formData.phone,
+        serviceId: formData.serviceId || '',
+        serviceTitle: formData.serviceTitle || '',
+        servicePrice: formData.servicePrice || '',
+        serviceCategory: formData.serviceCategory || '',
+        designId: formData.designId || '',
+        designTitle: formData.designTitle || '',
+        designCategory: formData.designCategory || '',
+        designPrice: formData.designPrice || '',
+        designImage: formData.designImage || '',
+        date: formData.date,
+        time: formData.time,
+        notes: formData.notes || '',
+        status: 'pending',
+      };
 
-    setBookingDetails(booking);
-    setIsSubmitted(true);
-    
-    // In a real app, you would send this to a backend API
-    console.log('Booking submitted:', booking);
+      // Submit to API
+      const response = await contentApi.createBooking(bookingData);
+      
+      // Create booking details for display
+      const booking = {
+        ...bookingData,
+        _id: response._id,
+        name: `${formData.firstName} ${formData.lastName}`,
+        serviceName: formData.serviceTitle || formData.designTitle || 'Custom Service',
+        bookingId: `BK${response._id}`,
+        submittedAt: new Date().toLocaleString(),
+      };
+
+      setBookingDetails(booking);
+      setIsSubmitted(true);
+      
+      // Scroll to top of page to show success message
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      console.log('Order submitted successfully:', booking);
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      setErrorMessage('Failed to submit order. Please try again.');
+      setShowErrorModal(true);
+    }
   };
 
   const handleReset = () => {
@@ -79,11 +167,21 @@ const Booking = () => {
     setBookingDetails(null);
     setFormData({
       serviceId: '',
+      serviceTitle: '',
+      servicePrice: '',
+      serviceCategory: '',
+      designId: '',
+      designTitle: '',
+      designCategory: '',
+      designPrice: '',
+      designImage: '',
       date: '',
       time: '',
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
       phone: '',
+      contactNumber: '',
       notes: '',
     });
   };
@@ -101,10 +199,10 @@ const Booking = () => {
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4">
-              Book Your <span className="text-blue-600">Appointment</span>
+              Book Your <span className="text-blue-600">Order</span>
             </h1>
             <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto px-2">
-              Fill in the details below to schedule your consultation or service booking
+              Fill in the details below to place your order
             </p>
           </motion.div>
 
@@ -115,26 +213,121 @@ const Booking = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               <form onSubmit={handleSubmit} className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 lg:p-10 space-y-6 sm:space-y-8">
+                {/* Selected Service Info (if coming from services page) */}
+                {formData.serviceTitle && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-4 sm:p-6 mb-6"
+                  >
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Selected Service</h3>
+                    <div className="space-y-2">
+                      <p className="text-base sm:text-lg font-bold text-blue-600">{formData.serviceTitle}</p>
+                      {formData.serviceCategory && (
+                        <p className="text-sm sm:text-base text-gray-600">Category: <span className="font-semibold">{formData.serviceCategory}</span></p>
+                      )}
+                      {formData.servicePrice && (
+                        <p className="text-sm sm:text-base text-gray-600">Price: <span className="font-semibold text-green-600">{formatPrice(formData.servicePrice)}</span></p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({ ...formData, serviceId: '', serviceTitle: '', servicePrice: '', serviceCategory: '' });
+                      }}
+                      className="mt-3 text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Change Service
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Selected Design Info (if coming from gallery) */}
+                {formData.designTitle && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-4 sm:p-6 mb-6"
+                  >
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3">Selected Design</h3>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      {formData.designImage && (
+                        <div className="w-full sm:w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden border-2 border-blue-200">
+                          <img
+                            src={getImageUrl(formData.designImage)}
+                            alt={formData.designTitle}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1 space-y-2">
+                        <p className="text-base sm:text-lg font-bold text-blue-600">{formData.designTitle}</p>
+                        {formData.designCategory && (
+                          <p className="text-sm sm:text-base text-gray-600">Category: <span className="font-semibold">{formData.designCategory}</span></p>
+                        )}
+                        {formData.designPrice && (
+                          <p className="text-sm sm:text-base text-gray-600">Price: <span className="font-semibold text-green-600">{formatPrice(formData.designPrice)}</span></p>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({ ...formData, designId: '', designTitle: '', designCategory: '', designPrice: '', designImage: '' });
+                      }}
+                      className="mt-3 text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Change Design
+                    </button>
+                  </motion.div>
+                )}
+
                 {/* Service Selection */}
                 <div>
                   <label className="flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
                     <Calendar className="text-blue-600 sm:w-5 sm:h-5" size={18} />
-                    Select Service *
+                    {formData.serviceTitle || formData.designTitle ? 'Select Service (Optional)' : 'Select Service *'}
                   </label>
-                  <select
-                    name="serviceId"
-                    value={formData.serviceId}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  >
-                    <option value="">Choose a service...</option>
-                    {services.map((service) => (
-                      <option key={service.id} value={service.id}>
-                        {service.name} - {service.price}
-                      </option>
-                    ))}
-                  </select>
+                  {loading ? (
+                    <div className="w-full px-4 py-3 border border-gray-300 rounded-lg flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                    </div>
+                  ) : (
+                    <select
+                      name="serviceId"
+                      value={formData.serviceId}
+                      onChange={(e) => {
+                        const selectedService = services.find(s => s._id === e.target.value);
+                        setFormData({
+                          ...formData,
+                          serviceId: e.target.value,
+                          serviceTitle: selectedService?.title || '',
+                          servicePrice: selectedService?.price || '',
+                          serviceCategory: selectedService?.category || '',
+                          // Clear design data when selecting a service
+                          designId: e.target.value ? '' : formData.designId,
+                          designTitle: e.target.value ? '' : formData.designTitle,
+                          designCategory: e.target.value ? '' : formData.designCategory,
+                          designPrice: e.target.value ? '' : formData.designPrice,
+                        });
+                      }}
+                      required={!formData.serviceTitle && !formData.designTitle}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    >
+                      <option value="">Choose a service...</option>
+                      {services.map((service) => (
+                        <option key={service._id} value={service._id}>
+                          {service.title} {service.price ? `- ${formatPrice(service.price)}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  {(formData.serviceTitle || formData.designTitle) && (
+                    <p className="mt-2 text-xs sm:text-sm text-gray-500">You can select a different service or proceed with the selected item</p>
+                  )}
                 </div>
 
                 {/* Date & Time Selection */}
@@ -184,18 +377,35 @@ const Booking = () => {
                     <div>
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                         <User className="text-blue-600" size={16} />
-                        Full Name *
+                        First Name *
                       </label>
                       <input
                         type="text"
-                        name="name"
-                        value={formData.name}
+                        name="firstName"
+                        value={formData.firstName}
                         onChange={handleChange}
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                        placeholder="Your full name"
+                        placeholder="Your first name"
                       />
                     </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                        <User className="text-blue-600" size={16} />
+                        Last Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        placeholder="Your last name"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6">
                     <div>
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                         <Mail className="text-blue-600" size={16} />
@@ -211,21 +421,36 @@ const Booking = () => {
                         placeholder="your.email@example.com"
                       />
                     </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                        <Phone className="text-blue-600" size={16} />
+                        Phone Number *
+                      </label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        placeholder="+91 1234567890"
+                      />
+                    </div>
                   </div>
                   <div className="mt-6">
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                       <Phone className="text-blue-600" size={16} />
-                      Phone Number *
+                      Contact Number (Optional)
                     </label>
                     <input
                       type="tel"
-                      name="phone"
-                      value={formData.phone}
+                      name="contactNumber"
+                      value={formData.contactNumber}
                       onChange={handleChange}
-                      required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                      placeholder="+91 1234567890"
+                      placeholder="Alternative contact number"
                     />
+                    <p className="mt-1 text-xs text-gray-500">Additional contact number for admin to reach you</p>
                   </div>
                 </div>
 
@@ -252,7 +477,7 @@ const Booking = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Confirm Booking
+                  Place Order
                 </motion.button>
               </form>
             </motion.div>
@@ -271,22 +496,29 @@ const Booking = () => {
                 >
                   <CheckCircle className="text-green-600 sm:w-12 sm:h-12" size={36} />
                 </motion.div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">Booking Confirmed!</h2>
-                <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base px-2">Your appointment has been successfully booked. We'll contact you soon to confirm the details.</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">Thank You for Your Order!</h2>
+                <p className="text-gray-600 mb-2 sm:mb-3 text-base sm:text-lg px-2 font-medium">Thanks for ordering! We will get back to you soon and contact you soon.</p>
+                <p className="text-gray-500 mb-6 sm:mb-8 text-sm sm:text-base px-2">Your order has been successfully placed. Our team will reach out to you shortly to confirm the details.</p>
 
                 {/* Booking Details */}
                 {bookingDetails && (
                   <div className="bg-gray-50 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8 text-left">
-                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Booking Details</h3>
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Order Details</h3>
                     <div className="space-y-2 sm:space-y-3">
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
-                        <span className="text-gray-600 text-sm sm:text-base">Booking ID:</span>
+                        <span className="text-gray-600 text-sm sm:text-base">Order ID:</span>
                         <span className="font-semibold text-gray-900 text-sm sm:text-base break-all">{bookingDetails.bookingId}</span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
-                        <span className="text-gray-600 text-sm sm:text-base">Service:</span>
+                        <span className="text-gray-600 text-sm sm:text-base">{bookingDetails.serviceCategory ? 'Design' : 'Service'}:</span>
                         <span className="font-semibold text-gray-900 text-sm sm:text-base">{bookingDetails.serviceName}</span>
                       </div>
+                      {bookingDetails.serviceCategory && (
+                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                          <span className="text-gray-600 text-sm sm:text-base">Category:</span>
+                          <span className="font-semibold text-gray-900 text-sm sm:text-base">{bookingDetails.serviceCategory}</span>
+                        </div>
+                      )}
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
                         <span className="text-gray-600 text-sm sm:text-base">Date:</span>
                         <span className="font-semibold text-gray-900 text-sm sm:text-base">
@@ -304,7 +536,7 @@ const Booking = () => {
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
                         <span className="text-gray-600 text-sm sm:text-base">Name:</span>
-                        <span className="font-semibold text-gray-900 text-sm sm:text-base">{bookingDetails.name}</span>
+                        <span className="font-semibold text-gray-900 text-sm sm:text-base">{bookingDetails.firstName} {bookingDetails.lastName}</span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
                         <span className="text-gray-600 text-sm sm:text-base">Email:</span>
@@ -325,7 +557,7 @@ const Booking = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    Book Another Appointment
+                    Place Another Order
                   </motion.button>
                   <motion.button
                     onClick={() => navigate('/')}
@@ -342,6 +574,14 @@ const Booking = () => {
         </div>
       </div>
       <Footer />
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        message={errorMessage}
+      />
     </div>
   );
 };

@@ -1,52 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-
-const services = [
-  { 
-    id: 1,
-    title: 'Designer Blouses', 
-    img: '/aariWork.jpg', 
-    icon: '👗',
-    description: 'Custom-designed blouses tailored to perfection with intricate detailing and premium fabrics. Each piece is crafted with attention to detail and personalized to match your style.',
-    features: ['Custom Fitting', 'Premium Fabrics', 'Intricate Detailing', 'Personalized Design']
-  },
-  { 
-    id: 2,
-    title: 'Aari Embroidery', 
-    img: '/VN-1.jpg', 
-    icon: '✨',
-    description: 'Traditional Aari embroidery work on blouses and dresses, showcasing exquisite craftsmanship. Our skilled artisans create beautiful patterns using age-old techniques.',
-    features: ['Traditional Techniques', 'Handcrafted', 'Intricate Patterns', 'Premium Quality']
-  },   
-  { 
-    id: 3,
-    title: 'Fabric Painting', 
-    img: '/VN-2.jpg', 
-    icon: '🎨',
-    description: 'Hand-painted designs on blouses and dresses, creating unique and artistic pieces. Transform your garments into wearable art with our custom painting services.',
-    features: ['Hand Painted', 'Unique Designs', 'Artistic Expression', 'Custom Patterns']
-  },      
-  { 
-    id: 4,
-    title: 'Stitching Services', 
-    img: '/VN-3.jpg', 
-    icon: '✂️',
-    description: 'Professional stitching services for all types of garments with precision and care. From alterations to complete garment construction, we handle it all.',
-    features: ['All Garment Types', 'Precision Work', 'Quick Turnaround', 'Expert Tailoring']
-  },  
-  { 
-    id: 5,
-    title: 'Costume Rental', 
-    img: '/VN-4.jpg', 
-    icon: '👑',
-    description: 'Premium costume rental service for special occasions and events. Choose from our extensive collection of designer outfits for your special day.',
-    features: ['Designer Collection', 'Various Sizes', 'Event Ready', 'Affordable Rates']
-  },  
-];
+import { contentApi, getImageUrl } from '../../utils/api';
 
 const Services = () => {
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      const data = await contentApi.getServices();
+      setServices(data || []);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      setServices([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Show only first 3 services on home page
   const displayedServices = services.slice(0, 3);
 
@@ -78,68 +56,84 @@ const Services = () => {
           </p>
         </motion.div>
 
-        {/* Unique 3-Image Layout - Masonry Style */}
-        <motion.div
-          className="services-unique-layout mb-12"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ staggerChildren: 0.2 }}
-        >
-          <div className="services-masonry-grid">
-            {/* First Service - Large Left */}
-            <motion.div
-              className="service-card-large"
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              whileHover={{ scale: 1.02, y: -10 }}
-            >
-              <div className="service-card-image" style={{ backgroundImage: `url(${displayedServices[0].img})` }}>
-                <div className="service-card-overlay"></div>
-                <div className="service-title-bottom">
-                  {displayedServices[0].title}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Second and Third Services - Stacked Right */}
-            <div className="services-stacked">
-              <motion.div
-                className="service-card-medium"
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                whileHover={{ scale: 1.02, y: -10 }}
-              >
-                <div className="service-card-image" style={{ backgroundImage: `url(${displayedServices[1].img})` }}>
-                  <div className="service-card-overlay"></div>
-                  <div className="service-title-bottom">
-                    {displayedServices[1].title}
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                className="service-card-medium"
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                whileHover={{ scale: 1.02, y: -10 }}
-              >
-                <div className="service-card-image" style={{ backgroundImage: `url(${displayedServices[2].img})` }}>
-                  <div className="service-card-overlay"></div>
-                  <div className="service-title-bottom">
-                    {displayedServices[2].title}
-                  </div>
-                </div>
-              </motion.div>
-            </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
-        </motion.div>
+        ) : displayedServices.length > 0 ? (
+          /* Unique 3-Image Layout - Masonry Style */
+          <motion.div
+            className="services-unique-layout mb-12"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ staggerChildren: 0.2 }}
+          >
+            <div className="services-masonry-grid">
+              {/* First Service - Large Left */}
+              {displayedServices[0] && (
+                <motion.div
+                  className="service-card-large"
+                  initial={{ opacity: 0, x: -50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  whileHover={{ scale: 1.02, y: -10 }}
+                >
+                  <div className="service-card-image" style={{ backgroundImage: `url(${displayedServices[0].image ? getImageUrl(displayedServices[0].image) : '/placeholder.jpg'})` }}>
+                    <div className="service-card-overlay"></div>
+                    <div className="service-title-bottom">
+                      {displayedServices[0].title}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Second and Third Services - Stacked Right */}
+              <div className="services-stacked">
+                {displayedServices[1] && (
+                  <motion.div
+                    className="service-card-medium"
+                    initial={{ opacity: 0, x: 50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    whileHover={{ scale: 1.02, y: -10 }}
+                  >
+                    <div className="service-card-image" style={{ backgroundImage: `url(${displayedServices[1].image ? getImageUrl(displayedServices[1].image) : '/placeholder.jpg'})` }}>
+                      <div className="service-card-overlay"></div>
+                      <div className="service-title-bottom">
+                        {displayedServices[1].title}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {displayedServices[2] && (
+                  <motion.div
+                    className="service-card-medium"
+                    initial={{ opacity: 0, x: 50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    whileHover={{ scale: 1.02, y: -10 }}
+                  >
+                    <div className="service-card-image" style={{ backgroundImage: `url(${displayedServices[2].image ? getImageUrl(displayedServices[2].image) : '/placeholder.jpg'})` }}>
+                      <div className="service-card-overlay"></div>
+                      <div className="service-title-bottom">
+                        {displayedServices[2].title}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          <div className="text-center py-16">
+            <p className="text-gray-600 text-lg">No services available at the moment.</p>
+          </div>
+        )}
 
         {/* View All Button */}
         <motion.div

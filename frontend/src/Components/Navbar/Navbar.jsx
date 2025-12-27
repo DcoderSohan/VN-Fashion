@@ -64,8 +64,24 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 font-Unbounded text-xl sm:text-2xl">
-            <div className="morphing-square bg-black flex items-center justify-center" style={{ width: 40, height: 40 }}>
-              <img src="/VN.png" alt="VN Fashion Logo" width={28} height={28} />
+            <div className="morphing-square bg-black flex items-center justify-center overflow-hidden" style={{ width: 40, height: 40 }}>
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  WebkitMaskImage: 'url("/VN.png")',
+                  maskImage: 'url("/VN.png")',
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskSize: "contain",
+                  maskSize: "contain",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                  background: "linear-gradient(90deg, #ff00cc, #3333ff, #00ffcc, #ffcc00)",
+                  backgroundSize: "200% 200%",
+                  animation: "rainbow 4s ease-in-out infinite",
+                }}
+              />
             </div>
             <span className="text-gray-900 font-semibold">VN FASHION</span>
           </Link>
@@ -148,8 +164,24 @@ const Navbar = () => {
             >
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                 <Link to="/" className="flex items-center gap-2 font-Unbounded text-xl" onClick={() => setIsOpen(false)}>
-                  <div className="morphing-square bg-black flex items-center justify-center" style={{ width: 40, height: 40 }}>
-                    <img src="/VN.png" alt="VN Fashion Logo" width={28} height={28} loading="lazy" />
+                  <div className="morphing-square bg-black flex items-center justify-center overflow-hidden" style={{ width: 40, height: 40 }}>
+                    <div
+                      style={{
+                        width: 28,
+                        height: 28,
+                        WebkitMaskImage: 'url("/VN.png")',
+                        maskImage: 'url("/VN.png")',
+                        WebkitMaskRepeat: "no-repeat",
+                        maskRepeat: "no-repeat",
+                        WebkitMaskSize: "contain",
+                        maskSize: "contain",
+                        WebkitMaskPosition: "center",
+                        maskPosition: "center",
+                        background: "linear-gradient(90deg, #ff00cc, #3333ff, #00ffcc, #ffcc00)",
+                        backgroundSize: "200% 200%",
+                        animation: "rainbow 4s ease-in-out infinite",
+                      }}
+                    />
                   </div>
                   <span className="text-gray-900 font-semibold">VN FASHION</span>
                 </Link>
