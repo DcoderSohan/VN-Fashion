@@ -66,19 +66,25 @@ if (process.env.NODE_ENV === 'production') {
   
   // Client and Admin routing fix - handle all routes (SPA routing)
   // This must be LAST to catch all non-API routes
-  app.get('*', (req, res) => {
-    // Don't serve index.html for API routes
+  // Express 5 compatible: use middleware instead of '*' pattern
+  app.use((req, res, next) => {
+    // Skip if already handled (static files, API routes, etc.)
     if (req.path.startsWith('/api')) {
-      return res.status(404).json({ message: 'API route not found' });
+      return next(); // Let API routes be handled by their routes
     }
     
-    // Serve admin index.html for /admin routes
-    if (req.path.startsWith('/admin')) {
-      return res.sendFile(path.join(rootDir, 'admin/dist/index.html'));
+    // For GET requests that aren't API routes, serve the appropriate index.html
+    if (req.method === 'GET') {
+      // Serve admin index.html for /admin routes
+      if (req.path.startsWith('/admin')) {
+        return res.sendFile(path.join(rootDir, 'admin/dist/index.html'));
+      }
+      
+      // Serve frontend index.html for all other routes
+      return res.sendFile(path.join(rootDir, 'frontend/dist/index.html'));
     }
     
-    // Serve frontend index.html for all other routes
-    res.sendFile(path.join(rootDir, 'frontend/dist/index.html'));
+    next();
   });
 } else {
   // Development: Just show API status
