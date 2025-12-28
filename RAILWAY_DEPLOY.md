@@ -121,11 +121,11 @@ git push origin main
 - **DO NOT** set it to `backend` - this prevents Railway from accessing `frontend/` and `admin/` folders
 - Railway needs access to the project root to find the `frontend/dist` and `admin/dist` folders
 
-### Set Start Command ⚠️ IMPORTANT
+### Set Start Command
 - Railway → Settings → Deploy
-- **Start Command**: `cd backend && npm start`
-- **OR**: `npm start --prefix backend`
-- This tells Railway to run the start script from the `backend` directory (where `server.js` is located)
+- **Start Command**: `npm start` (or leave empty for auto-detection)
+- The root `package.json` now has a start script that runs the backend server
+- Railway will automatically run `npm start` from the project root
 
 ### Port Configuration
 When Railway asks **"Enter the port your app is listening on"**:
