@@ -168,19 +168,19 @@ After your deployment is complete, follow these steps to get your project URL:
 1. **Go to Railway Dashboard**: [https://railway.app](https://railway.app)
 2. **Click on your project** (VN Fashion or your project name)
 3. **Click on your service** (usually named "backend" or your repo name)
-4. **Look at the top of the page** - you'll see:
-   - **"Settings"** tab
-   - **"Deployments"** tab
-   - **"Metrics"** tab
-   - **"Variables"** tab
-5. **Click on the "Settings" tab**
-6. **Scroll down to "Domains" section**
-7. You'll see your Railway URL there, something like:
-   ```
-   https://your-app-name.up.railway.app
-   ```
-8. **Click the "Generate Domain" button** if you don't see a domain yet
-9. **Copy the URL** - this is your project's public URL!
+4. **Click on the "Networking" tab** (in the right sidebar)
+5. **Look for "Public Networking" section**
+6. **If you see "Generate Domain" button** (with lightning bolt icon):
+   - **Click "Generate Domain"** - Railway will create a public URL for you
+   - Wait a few seconds for the domain to be generated
+   - Your URL will appear, something like: `https://your-app-name.up.railway.app`
+7. **If a domain already exists**, you'll see it listed under "Public Networking"
+8. **Copy the URL** - this is your project's public URL!
+
+**Important Notes:**
+- The domain under "Private Networking" (`vn-fashion.railway.internal`) is **NOT** your public URL
+- You **MUST** click "Generate Domain" to get a public URL
+- The public URL format is: `https://[random-name].up.railway.app`
 
 ### Method 2: From the Deployments Tab
 
