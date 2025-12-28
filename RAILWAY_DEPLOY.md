@@ -116,8 +116,10 @@ git push origin main
 
 ## 🔹 STEP 7: Configure Railway
 
-### Set Root Directory
-- Railway → Settings → **Root Directory**: `backend`
+### Set Root Directory ⚠️ IMPORTANT
+- Railway → Settings → **Root Directory**: Leave EMPTY (or set to `.`)
+- **DO NOT** set it to `backend` - this prevents Railway from accessing `frontend/` and `admin/` folders
+- Railway needs access to the project root to find the `frontend/dist` and `admin/dist` folders
 
 ### Set Start Command
 - Railway → Settings → Deploy

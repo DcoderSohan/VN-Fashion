@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import { SERVER_CONFIG, CORS_CONFIG } from "./config/constants.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 dotenv.config();
 
@@ -57,12 +58,31 @@ app.use("/api/content", contentRoutes);
 if (process.env.NODE_ENV === 'production') {
   // Get the root directory (parent of backend folder)
   const rootDir = path.resolve(__dirname, '..');
+  const frontendDist = path.join(rootDir, 'frontend/dist');
+  const adminDist = path.join(rootDir, 'admin/dist');
+  
+  // Check if dist folders exist
+  if (!fs.existsSync(frontendDist)) {
+    console.error(`❌ ERROR: Frontend dist folder not found at: ${frontendDist}`);
+    console.error('   Make sure frontend/dist is committed to GitHub');
+    console.error('   Railway Root Directory should be set to project root (not "backend")');
+  } else {
+    console.log(`✅ Frontend dist found at: ${frontendDist}`);
+  }
+  
+  if (!fs.existsSync(adminDist)) {
+    console.error(`❌ ERROR: Admin dist folder not found at: ${adminDist}`);
+    console.error('   Make sure admin/dist is committed to GitHub');
+    console.error('   Railway Root Directory should be set to project root (not "backend")');
+  } else {
+    console.log(`✅ Admin dist found at: ${adminDist}`);
+  }
   
   // Serve frontend (client) - root path
-  app.use(express.static(path.join(rootDir, 'frontend/dist')));
+  app.use(express.static(frontendDist));
   
   // Serve admin - /admin path
-  app.use('/admin', express.static(path.join(rootDir, 'admin/dist')));
+  app.use('/admin', express.static(adminDist));
   
   // Client and Admin routing fix - handle all routes (SPA routing)
   // This must be LAST to catch all non-API routes
@@ -77,11 +97,23 @@ if (process.env.NODE_ENV === 'production') {
     if (req.method === 'GET') {
       // Serve admin index.html for /admin routes
       if (req.path.startsWith('/admin')) {
-        return res.sendFile(path.join(rootDir, 'admin/dist/index.html'));
+        const adminIndex = path.join(adminDist, 'index.html');
+        return res.sendFile(adminIndex, (err) => {
+          if (err) {
+            console.error(`Error serving admin index.html: ${err.message}`);
+            return res.status(500).json({ message: 'Admin panel not available', error: err.message });
+          }
+        });
       }
       
       // Serve frontend index.html for all other routes
-      return res.sendFile(path.join(rootDir, 'frontend/dist/index.html'));
+      const frontendIndex = path.join(frontendDist, 'index.html');
+      return res.sendFile(frontendIndex, (err) => {
+        if (err) {
+          console.error(`Error serving frontend index.html: ${err.message}`);
+          return res.status(500).json({ message: 'Frontend not available', error: err.message });
+        }
+      });
     }
     
     next();
