@@ -196,9 +196,15 @@ PORT=5000
 
 **Install Command** (for dependencies):
 - Railway → Settings → Deploy
+- **Install Command**: Leave EMPTY (auto-detection) OR set to `npm install`
+- The root `package.json` has a `postinstall` script that automatically installs backend dependencies
+- When Railway runs `npm install`, it will:
+  1. Install root dependencies (none, so it completes quickly)
+  2. Run `postinstall` script → `cd backend && npm install` → Installs all backend dependencies ✅
+
+**Alternative (if postinstall doesn't work):**
 - **Install Command**: `cd backend && npm install`
-- **This is REQUIRED** - Railway needs to install dependencies from `backend/package.json`
-- Without this, Railway will try to install from root `package.json` (which has no dependencies)
+- This directly installs backend dependencies
 
 **Build Command**:
 - Railway → Settings → Deploy
