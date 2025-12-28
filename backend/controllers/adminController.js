@@ -1,33 +1,13 @@
 import Admin from "../models/Admin.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { uploadToCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
-import { isCloudinaryConfigured } from "../middlewares/uploadMiddleware.js";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
-
-// Get current directory
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { uploadToCloudinary, deleteFromCloudinary, extractPublicIdFromUrl } from "../config/cloudinary.js";
 
 // Generate JWT
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE
   });
-};
-
-// Helper function to normalize avatar URL (fix duplicate /uploads/uploads/)
-const normalizeAvatarUrl = (avatarUrl) => {
-  if (!avatarUrl) return '';
-  
-  // Fix duplicate /uploads/uploads/ paths
-  if (avatarUrl.includes('/uploads/uploads/')) {
-    return avatarUrl.replace('/uploads/uploads/', '/uploads/');
-  }
-  
-  return avatarUrl;
 };
 
 // ================= REGISTER =================
@@ -59,13 +39,10 @@ export const registerAdmin = async (req, res) => {
       password: hashedPassword
     });
 
-    // Normalize avatar URL (should be empty for new admin, but normalize anyway)
-    const normalizedAvatar = normalizeAvatarUrl(admin.avatar);
-
     res.status(201).json({
       _id: admin._id,
       email: admin.email,
-      avatar: normalizedAvatar || '',
+      avatar: admin.avatar || '',
       token: generateToken(admin._id)
     });
   } catch (error) {
@@ -93,14 +70,11 @@ export const loginAdmin = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-
-    // Normalize avatar URL
-    const normalizedAvatar = normalizeAvatarUrl(admin.avatar);
     
     res.json({
       _id: admin._id,
       email: admin.email,
-      avatar: normalizedAvatar || '',
+      avatar: admin.avatar || '',
       token: generateToken(admin._id)
     });
   } catch (error) {
@@ -117,19 +91,10 @@ export const getProfile = async (req, res) => {
       return res.status(404).json({ message: "Admin not found" });
     }
 
-    // Normalize avatar URL to fix any duplicate paths
-    const normalizedAvatar = normalizeAvatarUrl(admin.avatar);
-    
-    // If avatar was fixed, update it in MongoDB
-    if (normalizedAvatar !== admin.avatar && normalizedAvatar) {
-      admin.avatar = normalizedAvatar;
-      await admin.save();
-    }
-
     res.json({
       _id: admin._id,
       email: admin.email,
-      avatar: normalizedAvatar || '',
+      avatar: admin.avatar || '',
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -180,14 +145,11 @@ export const updateEmail = async (req, res) => {
     if (!admin) {
       return res.status(404).json({ message: "Admin not found" });
     }
-
-    // Normalize avatar URL
-    const normalizedAvatar = normalizeAvatarUrl(admin.avatar);
     
     res.json({
       _id: admin._id,
       email: admin.email,
-      avatar: normalizedAvatar || '',
+      avatar: admin.avatar || '',
       message: "Email updated successfully"
     });
   } catch (error) {
@@ -259,52 +221,6 @@ export const updatePassword = async (req, res) => {
   }
 };
 
-// Helper function to delete old local file
-const deleteLocalFile = (filePath) => {
-  try {
-    if (filePath && fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log('Deleted old local file:', filePath);
-    }
-  } catch (error) {
-    console.error('Error deleting local file:', error.message);
-  }
-};
-
-// Helper function to save file locally and return URL
-const saveFileLocally = (buffer, mimetype, originalname) => {
-  try {
-    // Ensure uploads directory exists
-    const uploadsDir = path.join(__dirname, '../uploads/admin-avatars');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
-    // Generate unique filename
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(originalname) || '.jpg';
-    const name = path.basename(originalname, ext) || 'avatar';
-    const filename = `${name}-${uniqueSuffix}${ext}`;
-    const filePath = path.join(uploadsDir, filename);
-
-    // Write buffer to file
-    fs.writeFileSync(filePath, buffer);
-
-    // Return URL relative to the uploads directory (not backend directory)
-    // Since static files are served from 'backend/uploads', and file is in 'backend/uploads/admin-avatars/filename'
-    // The URL should be '/api/uploads/admin-avatars/filename'
-    const backendDir = path.join(__dirname, '..');
-    const uploadsBaseDir = path.join(backendDir, 'uploads');
-    const relativePath = path.relative(uploadsBaseDir, filePath);
-    
-    // Return the URL path
-    return `/api/uploads/${relativePath.replace(/\\/g, '/')}`;
-  } catch (error) {
-    console.error('Error saving file locally:', error);
-    throw error;
-  }
-};
-
 // ================= UPDATE AVATAR =================
 export const updateAvatar = async (req, res) => {
   try {
@@ -321,6 +237,23 @@ export const updateAvatar = async (req, res) => {
       return res.status(400).json({ message: "File buffer is missing" });
     }
 
+    // Validate file type
+    if (!req.file.mimetype || !req.file.mimetype.startsWith('image/')) {
+      return res.status(400).json({ message: "Invalid file type. Only image files are allowed" });
+    }
+
+    // Validate file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (req.file.size > maxSize) {
+      return res.status(400).json({ message: "File too large. Maximum size is 5MB" });
+    }
+
+    console.log('File validation passed:', {
+      size: req.file.size,
+      mimetype: req.file.mimetype,
+      originalname: req.file.originalname
+    });
+
     // Validate admin
     if (!req.admin || !req.admin._id) {
       return res.status(401).json({ message: "Admin not authenticated" });
@@ -332,21 +265,15 @@ export const updateAvatar = async (req, res) => {
       return res.status(404).json({ message: "Admin not found" });
     }
 
-    // Delete old avatar
-    if (admin.avatar) {
+    // Delete old avatar from Cloudinary if it exists
+    if (admin.avatar && admin.avatar.includes('cloudinary')) {
       try {
-        if (admin.avatar.includes('cloudinary')) {
-          // Delete from Cloudinary
-          const urlMatch = admin.avatar.match(/\/upload\/(?:v\d+\/)?(.+?)\.(jpg|jpeg|png|gif|webp)/i);
-          if (urlMatch && urlMatch[1]) {
-            const publicId = urlMatch[1];
-            await deleteFromCloudinary(publicId);
-            console.log('✅ Deleted old Cloudinary avatar:', publicId);
-          }
-        } else if (admin.avatar.includes('/uploads/')) {
-          // Delete local file
-          const oldFilePath = path.join(__dirname, '..', admin.avatar.replace(/^\/api\/uploads\//, 'uploads/'));
-          deleteLocalFile(oldFilePath);
+        const publicId = extractPublicIdFromUrl(admin.avatar);
+        if (publicId) {
+          await deleteFromCloudinary(publicId);
+          console.log('✅ Deleted old Cloudinary avatar:', publicId);
+        } else {
+          console.warn('⚠️  Could not extract public ID from avatar URL:', admin.avatar);
         }
       } catch (error) {
         console.error("Error deleting old avatar:", error.message);
@@ -354,65 +281,36 @@ export const updateAvatar = async (req, res) => {
       }
     }
 
-    // Upload new avatar
-    let avatarUrl;
-    const useCloudinary = isCloudinaryConfigured();
+    // Upload new avatar to Cloudinary
+    console.log('=== Uploading to Cloudinary ===');
+    console.log('File size:', req.file.buffer.length, 'bytes');
+    console.log('MIME type:', req.file.mimetype);
 
-    if (useCloudinary) {
-      try {
-        console.log('=== Uploading to Cloudinary ===');
-        console.log('File size:', req.file.buffer.length, 'bytes');
-        console.log('MIME type:', req.file.mimetype);
+    const result = await uploadToCloudinary(
+      req.file.buffer, 
+      req.file.mimetype,
+      'vn-fashion/admin-avatars'
+    );
 
-        const result = await uploadToCloudinary(
-          req.file.buffer, 
-          req.file.mimetype,
-          'vn-fashion/admin-avatars'
-        );
-
-        if (!result || !result.secure_url) {
-          throw new Error('Cloudinary upload failed - no URL returned');
-        }
-
-        avatarUrl = result.secure_url;
-        console.log('✅ Cloudinary upload successful:', avatarUrl);
-      } catch (error) {
-        console.error('❌ Cloudinary upload error:', error);
-        // Fall back to local storage if Cloudinary fails
-        console.log('Falling back to local storage...');
-        avatarUrl = saveFileLocally(
-          req.file.buffer,
-          req.file.mimetype,
-          req.file.originalname || 'avatar.jpg'
-        );
-        console.log('✅ Saved to local storage:', avatarUrl);
-      }
-    } else {
-      // Use local storage
-      console.log('=== Using Local Storage ===');
-      avatarUrl = saveFileLocally(
-        req.file.buffer,
-        req.file.mimetype,
-        req.file.originalname || 'avatar.jpg'
-      );
-      console.log('✅ Saved to local storage:', avatarUrl);
+    if (!result || !result.secure_url) {
+      throw new Error('Cloudinary upload failed - no URL returned');
     }
+
+    const avatarUrl = result.secure_url;
+    console.log('✅ Cloudinary upload successful:', avatarUrl);
 
     // Update admin avatar in MongoDB
     admin.avatar = avatarUrl;
     await admin.save();
 
-    // Fetch fresh data from MongoDB to ensure we return the correct avatar URL
+    // Fetch fresh data from MongoDB
     const updatedAdmin = await Admin.findById(req.admin._id).select("-password");
     
-    // Normalize avatar URL to fix any duplicate paths
-    const normalizedAvatar = normalizeAvatarUrl(updatedAdmin.avatar || avatarUrl);
-    
-    // Return success response with normalized avatar URL from MongoDB
+    // Return success response
     res.json({
       _id: updatedAdmin._id,
       email: updatedAdmin.email,
-      avatar: normalizedAvatar,
+      avatar: updatedAdmin.avatar || avatarUrl,
       message: "Avatar updated successfully"
     });
   } catch (error) {
@@ -420,13 +318,22 @@ export const updateAvatar = async (req, res) => {
     console.error('Error details:', {
       name: error?.name,
       message: error?.message,
-      stack: error?.stack
+      stack: error?.stack,
+      http_code: error?.http_code
     });
 
     // Return appropriate error response
     if (error.name === 'ValidationError' || error.name === 'CastError') {
       return res.status(400).json({ 
         message: error.message || 'Validation error'
+      });
+    }
+
+    // Cloudinary specific errors
+    if (error.http_code) {
+      return res.status(500).json({ 
+        message: `Cloudinary error: ${error.message || 'Failed to upload image'}`,
+        error: process.env.NODE_ENV !== 'production' ? error?.message : undefined
       });
     }
 

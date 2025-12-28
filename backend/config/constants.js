@@ -23,11 +23,10 @@ export const JWT_CONFIG = {
   EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
 };
 
-// File Upload Configuration
+// File Upload Configuration (for Cloudinary)
 export const UPLOAD_CONFIG = {
   MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
   ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
-  UPLOAD_PATH: 'uploads',
 };
 
 // Database Configuration

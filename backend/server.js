@@ -21,10 +21,12 @@ if (!process.env.MONGO_URI) {
   process.env.MONGO_URI = 'mongodb://localhost:27017/vnfashion';
 }
 
-// Optional: Info about Cloudinary (local storage will be used if not configured)
+// Validate Cloudinary configuration (required)
+// Note: Cloudinary will be configured lazily when first used, but we validate here to fail fast
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-  console.log("ℹ️  Cloudinary not configured. Avatar uploads will use local file storage.");
-  console.log("   To use Cloudinary, add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your .env file");
+  console.error("❌ ERROR: Cloudinary configuration is required!");
+  console.error("   Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your .env file");
+  process.exit(1);
 }
 
 connectDB();
@@ -40,25 +42,52 @@ app.use(cors(CORS_CONFIG));
 app.use(express.json({ limit: '10mb' })); // Limit JSON payload size
 app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Limit URL-encoded payload size
 
-// Serve static files from uploads directory (with caching)
-app.use('/api/uploads', express.static(path.join(__dirname, 'uploads'), {
-  maxAge: '1y', // Cache static files for 1 year
-  etag: true,
-  lastModified: true,
-}));
+// Static file serving removed - all images are served from Cloudinary
 
-//test route
-app.get("/",(req,res)=>{
-    res.send("API is running");
-});
-
-//Routes
+//Routes - MUST be registered BEFORE static file serving
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import contentRoutes from "./routes/contentRoutes.js";
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/content", contentRoutes);
+
+// -------- SERVE FRONTENDS (Production) --------
+// Only serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  // Get the root directory (parent of backend folder)
+  const rootDir = path.resolve(__dirname, '..');
+  
+  // Serve frontend (client) - root path
+  app.use(express.static(path.join(rootDir, 'frontend/dist')));
+  
+  // Serve admin - /admin path
+  app.use('/admin', express.static(path.join(rootDir, 'admin/dist')));
+  
+  // Admin routing fix - handle all /admin/* routes (must be before catch-all)
+  app.get('/admin/*', (req, res) => {
+    res.sendFile(path.join(rootDir, 'admin/dist/index.html'));
+  });
+  
+  // Client routing fix - handle all other routes (SPA routing)
+  // This must be LAST to catch all non-API routes
+  app.get('*', (req, res) => {
+    // Don't serve index.html for API routes (shouldn't reach here, but safety check)
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({ message: 'API route not found' });
+    }
+    res.sendFile(path.join(rootDir, 'frontend/dist/index.html'));
+  });
+} else {
+  // Development: Just show API status
+  app.get("/", (req, res) => {
+    res.json({ 
+      message: "API is running",
+      environment: "development",
+      note: "Frontends are served separately in development mode"
+    });
+  });
+}
 
 // Debug: Log registered routes (only in development)
 if (process.env.NODE_ENV !== 'production') {

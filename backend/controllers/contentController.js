@@ -307,16 +307,6 @@ export const createTimeline = async (req, res) => {
       const imageDoc = await Image.findById(req.body.imageId);
       if (imageDoc) {
         imageUrl = imageDoc.cloudinaryUrl || '';
-        if (imageDoc.localPath && !imageUrl) {
-          const path = (await import('path')).default;
-          const { fileURLToPath } = await import('url');
-          const __filename = fileURLToPath(import.meta.url);
-          const __dirname = path.dirname(__filename);
-          const backendDir = path.join(__dirname, '..');
-          const uploadsBaseDir = path.join(backendDir, 'uploads');
-          const relativePath = path.relative(uploadsBaseDir, imageDoc.localPath);
-          imageUrl = `/api/uploads/${relativePath.replace(/\\/g, '/')}`;
-        }
       }
     }
     
@@ -355,18 +345,7 @@ export const updateTimeline = async (req, res) => {
       const Image = (await import("../models/Image.js")).default;
       const imageDoc = await Image.findById(req.body.imageId);
       if (imageDoc) {
-        let imageUrl = imageDoc.cloudinaryUrl || '';
-        if (imageDoc.localPath && !imageUrl) {
-          const path = (await import('path')).default;
-          const { fileURLToPath } = await import('url');
-          const __filename = fileURLToPath(import.meta.url);
-          const __dirname = path.dirname(__filename);
-          const backendDir = path.join(__dirname, '..');
-          const uploadsBaseDir = path.join(backendDir, 'uploads');
-          const relativePath = path.relative(uploadsBaseDir, imageDoc.localPath);
-          imageUrl = `/api/uploads/${relativePath.replace(/\\/g, '/')}`;
-        }
-        req.body.image = imageUrl;
+        req.body.image = imageDoc.cloudinaryUrl || '';
       }
     }
     
@@ -432,16 +411,6 @@ export const createService = async (req, res) => {
       const imageDoc = await Image.findById(req.body.imageId);
       if (imageDoc) {
         imageUrl = imageDoc.cloudinaryUrl || '';
-        if (imageDoc.localPath && !imageUrl) {
-          const path = (await import('path')).default;
-          const { fileURLToPath } = await import('url');
-          const __filename = fileURLToPath(import.meta.url);
-          const __dirname = path.dirname(__filename);
-          const backendDir = path.join(__dirname, '..');
-          const uploadsBaseDir = path.join(backendDir, 'uploads');
-          const relativePath = path.relative(uploadsBaseDir, imageDoc.localPath);
-          imageUrl = `/api/uploads/${relativePath.replace(/\\/g, '/')}`;
-        }
       }
     }
     
@@ -473,18 +442,7 @@ export const updateService = async (req, res) => {
       const Image = (await import("../models/Image.js")).default;
       const imageDoc = await Image.findById(req.body.imageId);
       if (imageDoc) {
-        let imageUrl = imageDoc.cloudinaryUrl || '';
-        if (imageDoc.localPath && !imageUrl) {
-          const path = (await import('path')).default;
-          const { fileURLToPath } = await import('url');
-          const __filename = fileURLToPath(import.meta.url);
-          const __dirname = path.dirname(__filename);
-          const backendDir = path.join(__dirname, '..');
-          const uploadsBaseDir = path.join(backendDir, 'uploads');
-          const relativePath = path.relative(uploadsBaseDir, imageDoc.localPath);
-          imageUrl = `/api/uploads/${relativePath.replace(/\\/g, '/')}`;
-        }
-        req.body.image = imageUrl;
+        req.body.image = imageDoc.cloudinaryUrl || '';
       }
     }
     
@@ -734,16 +692,6 @@ export const createCertificate = async (req, res) => {
       const imageDoc = await Image.findById(req.body.imageId);
       if (imageDoc) {
         imageUrl = imageDoc.cloudinaryUrl || '';
-        if (imageDoc.localPath && !imageUrl) {
-          const path = (await import('path')).default;
-          const { fileURLToPath } = await import('url');
-          const __filename = fileURLToPath(import.meta.url);
-          const __dirname = path.dirname(__filename);
-          const backendDir = path.join(__dirname, '..');
-          const uploadsBaseDir = path.join(backendDir, 'uploads');
-          const relativePath = path.relative(uploadsBaseDir, imageDoc.localPath);
-          imageUrl = `/api/uploads/${relativePath.replace(/\\/g, '/')}`;
-        }
       }
     }
     
@@ -777,18 +725,7 @@ export const updateCertificate = async (req, res) => {
       const Image = (await import("../models/Image.js")).default;
       const imageDoc = await Image.findById(req.body.imageId);
       if (imageDoc) {
-        let imageUrl = imageDoc.cloudinaryUrl || '';
-        if (imageDoc.localPath && !imageUrl) {
-          const path = (await import('path')).default;
-          const { fileURLToPath } = await import('url');
-          const __filename = fileURLToPath(import.meta.url);
-          const __dirname = path.dirname(__filename);
-          const backendDir = path.join(__dirname, '..');
-          const uploadsBaseDir = path.join(backendDir, 'uploads');
-          const relativePath = path.relative(uploadsBaseDir, imageDoc.localPath);
-          imageUrl = `/api/uploads/${relativePath.replace(/\\/g, '/')}`;
-        }
-        req.body.image = imageUrl;
+        req.body.image = imageDoc.cloudinaryUrl || '';
       }
     }
     
@@ -842,16 +779,6 @@ export const createTestimonial = async (req, res) => {
       const imageDoc = await Image.findById(req.body.imageId);
       if (imageDoc) {
         imageUrl = imageDoc.cloudinaryUrl || '';
-        if (imageDoc.localPath && !imageUrl) {
-          const path = (await import('path')).default;
-          const { fileURLToPath } = await import('url');
-          const __filename = fileURLToPath(import.meta.url);
-          const __dirname = path.dirname(__filename);
-          const backendDir = path.join(__dirname, '..');
-          const uploadsBaseDir = path.join(backendDir, 'uploads');
-          const relativePath = path.relative(uploadsBaseDir, imageDoc.localPath);
-          imageUrl = `/api/uploads/${relativePath.replace(/\\/g, '/')}`;
-        }
       }
     }
     
@@ -883,18 +810,7 @@ export const updateTestimonial = async (req, res) => {
       const Image = (await import("../models/Image.js")).default;
       const imageDoc = await Image.findById(req.body.imageId);
       if (imageDoc) {
-        let imageUrl = imageDoc.cloudinaryUrl || '';
-        if (imageDoc.localPath && !imageUrl) {
-          const path = (await import('path')).default;
-          const { fileURLToPath } = await import('url');
-          const __filename = fileURLToPath(import.meta.url);
-          const __dirname = path.dirname(__filename);
-          const backendDir = path.join(__dirname, '..');
-          const uploadsBaseDir = path.join(backendDir, 'uploads');
-          const relativePath = path.relative(uploadsBaseDir, imageDoc.localPath);
-          imageUrl = `/api/uploads/${relativePath.replace(/\\/g, '/')}`;
-        }
-        req.body.image = imageUrl;
+        req.body.image = imageDoc.cloudinaryUrl || '';
       }
     }
     

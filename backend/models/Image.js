@@ -23,24 +23,19 @@ const imageSchema = new mongoose.Schema({
     default: 'content',
     index: true, // Index for faster folder queries
   },
-  // Store image as Buffer in MongoDB
+  // Store image as Buffer in MongoDB (optional, for backup)
   data: {
     type: Buffer,
-    required: true,
+    required: false,
   },
-  // Store URL if uploaded to Cloudinary
+  // Store URL from Cloudinary
   cloudinaryUrl: {
     type: String,
-    default: '',
+    required: true,
   },
   publicId: {
     type: String,
-    default: '',
-  },
-  // Store local path if saved locally
-  localPath: {
-    type: String,
-    default: '',
+    required: true,
   },
   uploadedBy: {
     type: mongoose.Schema.Types.ObjectId,

@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Logo Rainbow Animation */
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Morphing Square Animation (Circular Border Radius) */
+@keyframes morph-border {
+  0% {
+    border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+  }
+  25% {
+    border-radius: 60% 40% 40% 60% / 60% 60% 40% 40%;
+  }
+  50% {
+    border-radius: 40% 60% 60% 40% / 60% 40% 40% 60%;
+  }
+  75% {
+    border-radius: 60% 40% 40% 60% / 40% 60% 60% 40%;
+  }
+  100% {
+    border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+  }
+}
+
+.morphing-square {
+  animation: morph-border 3s infinite ease-in-out;
+  border-radius: 50%;
+  transition: border-radius 0.5s;
+}
+
+/* Modal Scrollbar Hide */
+.modal-content-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.modal-content-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}

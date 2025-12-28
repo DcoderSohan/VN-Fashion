@@ -4,9 +4,12 @@
  */
 
 // API Configuration
+// In production, use relative paths (same domain)
+// In development, use localhost
+const isProduction = import.meta.env.PROD;
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://vn-fashion-backend1.onrender.com/api',
-  SERVER_BASE_URL: import.meta.env.VITE_SERVER_BASE_URL || 'https://vn-fashion-backend1.onrender.com',
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || (isProduction ? '/api' : 'http://localhost:5000/api'),
+  SERVER_BASE_URL: import.meta.env.VITE_SERVER_BASE_URL || (isProduction ? '' : 'http://localhost:5000'),
   TIMEOUT: 30000, // 30 seconds
 };
 
