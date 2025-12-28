@@ -156,20 +156,48 @@ PORT=5000
 
 **Note**: Railway automatically provides `PORT`, but you can set it explicitly. If you set `PORT=5000`, then enter `5000` when Railway asks for the port.
 
-## 🔹 STEP 8: Build Script (Optional)
+## 🔹 STEP 8: Build Configuration
 
-If you want Railway to build frontends automatically, add to `backend/package.json`:
+### ⚠️ Important: Build Locally (Recommended)
 
-```json
-{
-  "scripts": {
-    "start": "node server.js",
-    "build": "cd ../frontend && npm install && npm run build && cd ../admin && npm install && npm run build"
-  }
-}
-```
+**The build script has been removed** because:
+- Railway's build context doesn't allow accessing `../frontend` from the backend directory
+- Building locally is faster and more reliable
+- Avoids build timeouts on Railway
 
-**However**, it's better to build locally and commit `dist/` folders to avoid build timeouts.
+### ✅ Solution: Build and Commit Locally
+
+1. **Build frontend locally**:
+   ```bash
+   cd frontend
+   npm install
+   npm run build
+   ```
+
+2. **Build admin locally**:
+   ```bash
+   cd ../admin
+   npm install
+   npm run build
+   ```
+
+3. **Commit the dist folders**:
+   ```bash
+   git add frontend/dist admin/dist
+   git commit -m "Add build files for Railway deployment"
+   git push origin main
+   ```
+
+### 🔧 Configure Railway Build Command
+
+If Railway is trying to run a build command:
+
+1. **Go to Railway** → Your Service → **Settings** → **Deploy**
+2. **Clear the "Build Command"** field (leave it empty)
+3. **Set "Start Command"** to: `npm start`
+4. **Save changes**
+
+This tells Railway to skip building and just start the server (since you've already committed the built files).
 
 ## 🔹 STEP 9: Deploy
 
