@@ -192,13 +192,13 @@ PORT=5000
    git push origin main
    ```
 
-### 🔧 Configure Railway Build/Install Command
+### 🔧 Configure Railway Commands ⚠️ CRITICAL
 
 **Install Command** (for dependencies):
 - Railway → Settings → Deploy
-- **Install Command**: `npm install` (or leave empty for auto-detection)
-- The root `package.json` has an install script that installs backend dependencies
-- Railway will automatically run `npm install` which installs backend/node_modules
+- **Install Command**: `cd backend && npm install`
+- **This is REQUIRED** - Railway needs to install dependencies from `backend/package.json`
+- Without this, Railway will try to install from root `package.json` (which has no dependencies)
 
 **Build Command**:
 - Railway → Settings → Deploy
@@ -206,12 +206,18 @@ PORT=5000
 
 **Start Command**:
 - Railway → Settings → Deploy
-- **Start Command**: `npm start` (or leave empty for auto-detection)
+- **Start Command**: `npm start` (or leave empty - it will run `cd backend && npm start` from root package.json)
 
-This configuration ensures:
-1. Railway installs backend dependencies (`npm install` → `cd backend && npm install`)
-2. Railway skips building (we build locally)
-3. Railway starts the server (`npm start` → `cd backend && npm start`)
+**Complete Railway Configuration Summary:**
+1. **Root Directory**: Empty (project root)
+2. **Install Command**: `cd backend && npm install` ⚠️ **REQUIRED**
+3. **Build Command**: Empty
+4. **Start Command**: `npm start` (or empty)
+
+This ensures:
+- ✅ Railway installs backend dependencies correctly
+- ✅ Railway can access frontend/dist and admin/dist folders
+- ✅ Railway starts the server from backend directory
 
 ## 🔹 STEP 9: Deploy
 
