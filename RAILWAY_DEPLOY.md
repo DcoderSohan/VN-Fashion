@@ -192,16 +192,26 @@ PORT=5000
    git push origin main
    ```
 
-### 🔧 Configure Railway Build Command
+### 🔧 Configure Railway Build/Install Command
 
-If Railway is trying to run a build command:
+**Install Command** (for dependencies):
+- Railway → Settings → Deploy
+- **Install Command**: `npm install` (or leave empty for auto-detection)
+- The root `package.json` has an install script that installs backend dependencies
+- Railway will automatically run `npm install` which installs backend/node_modules
 
-1. **Go to Railway** → Your Service → **Settings** → **Deploy**
-2. **Clear the "Build Command"** field (leave it empty)
-3. **Set "Start Command"** to: `npm start`
-4. **Save changes**
+**Build Command**:
+- Railway → Settings → Deploy
+- **Build Command**: Leave EMPTY (we build locally and commit dist folders)
 
-This tells Railway to skip building and just start the server (since you've already committed the built files).
+**Start Command**:
+- Railway → Settings → Deploy
+- **Start Command**: `npm start` (or leave empty for auto-detection)
+
+This configuration ensures:
+1. Railway installs backend dependencies (`npm install` → `cd backend && npm install`)
+2. Railway skips building (we build locally)
+3. Railway starts the server (`npm start` → `cd backend && npm start`)
 
 ## 🔹 STEP 9: Deploy
 
