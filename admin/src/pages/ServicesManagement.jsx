@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, X, Upload, Loader2 } from 'lucide-react';
 import Modal from '../components/Modal';
+import ConfirmationModal from '../components/ConfirmationModal';
+import ErrorModal from '../components/ErrorModal';
 import { servicesApi, categoriesApi, uploadImage } from '../utils/contentApi';
 import { getImageUrl } from '../utils/helpers';
 

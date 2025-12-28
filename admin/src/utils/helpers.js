@@ -12,14 +12,17 @@ import { API_CONFIG } from '../config/constants';
 export const getImageUrl = (url) => {
   if (!url) return '';
   
-  // If it's already a full URL (http/https), return as is
+  // If it's already a full URL (http/https), return as is (Cloudinary URLs)
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url;
   }
   
-  // If it's a local upload path, prepend server base URL
+  // Legacy local upload paths - these should no longer exist as we use Cloudinary
+  // But handle them gracefully by returning empty string or a placeholder
   if (url.startsWith('/api/uploads/')) {
-    return `${API_CONFIG.SERVER_BASE_URL}${url}`;
+    console.warn('Legacy local upload path detected:', url, '- Images should be stored in Cloudinary');
+    // Return empty string or a placeholder image
+    return '';
   }
   
   // Otherwise return as is
