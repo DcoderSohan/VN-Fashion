@@ -185,6 +185,13 @@ If you want Railway to build frontends automatically, add to `backend/package.js
 
 ## 🚨 Common Issues & Fixes
 
+### ⚠️ npm warn config production Use `--omit=dev` instead
+**Status**: This is a **harmless deprecation warning** from npm.
+- Railway automatically uses `npm install --production` which triggers this warning
+- The app works perfectly fine despite this warning
+- This is just npm informing that `--production` is deprecated in favor of `--omit=dev`
+- **No action needed** - you can safely ignore this warning
+
 ### ❌ Admin page 404 on refresh
 **Fixed**: The server handles `/admin/*` routes correctly.
 
