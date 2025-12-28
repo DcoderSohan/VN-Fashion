@@ -224,17 +224,45 @@ After your deployment is complete, follow these steps to get your project URL:
 
 ## 🔹 STEP 10: Test Your Deployment
 
-### Test Client App
-- Visit: `https://your-app.up.railway.app/`
-- Should load the frontend
+Now that you have your Railway URL, test each part of your application:
 
-### Test Admin Panel
-- Visit: `https://your-app.up.railway.app/admin`
-- Should load the admin panel
+### ✅ Step 1: Test Client App (Frontend)
+1. **Open your browser**
+2. **Visit**: `https://f2j8a6jl.up.railway.app/` (or your Railway URL)
+3. **Expected Result**: 
+   - Your frontend should load
+   - You should see your VN Fashion website
+   - Navigation should work
 
-### Test API
-- Visit: `https://your-app.up.railway.app/api/content/public/settings`
-- Should return JSON data
+### ✅ Step 2: Test Admin Panel
+1. **Visit**: `https://f2j8a6jl.up.railway.app/admin`
+2. **Expected Result**:
+   - Admin login page should load
+   - You should be able to access the admin panel
+
+### ✅ Step 3: Test API Endpoints
+1. **Test Public API**:
+   - Visit: `https://f2j8a6jl.up.railway.app/api/content/public/settings`
+   - **Expected Result**: Should return JSON data (settings)
+   
+2. **Test API Health**:
+   - Visit: `https://f2j8a6jl.up.railway.app/api/content/public/settings`
+   - Should see JSON response, not HTML error page
+
+### ✅ Step 4: Test SPA Routing (Important!)
+1. **Navigate to a route** (e.g., `/about`, `/contact`)
+2. **Refresh the page** (F5 or Ctrl+R)
+3. **Expected Result**: Page should still load (not show 404)
+   - This confirms SPA routing is working correctly
+
+### ✅ Step 5: Test Image Loading
+1. **Check if images load** from Cloudinary
+2. **Expected Result**: Images should display correctly
+
+### 🎯 Your Railway URLs:
+- **Frontend**: `https://f2j8a6jl.up.railway.app/`
+- **Admin Panel**: `https://f2j8a6jl.up.railway.app/admin`
+- **API Base**: `https://f2j8a6jl.up.railway.app/api`
 
 ## ✅ Features Working
 
