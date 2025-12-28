@@ -123,6 +123,24 @@ git push origin main
 - Railway → Settings → Deploy
 - **Start Command**: `npm start`
 
+### Port Configuration
+When Railway asks **"Enter the port your app is listening on"**:
+
+**Option 1 (Recommended)**: Leave it blank or use Railway's auto-detected port
+- Railway usually auto-detects the port from your `package.json` start script
+- Your app uses `process.env.PORT || 5000`, so it will automatically use Railway's PORT
+
+**Option 2**: Enter the PORT from environment variables
+- Check Railway → Variables → Look for `PORT` variable
+- If PORT is set (e.g., `5000`), enter that number
+- If not set, Railway will auto-assign one
+
+**Option 3**: Enter `5000` explicitly
+- You can set `PORT=5000` in environment variables and enter `5000` here
+- But Railway's auto-detection usually works fine
+
+**Note**: Your app code already handles this with `process.env.PORT || 5000`, so Railway's automatic PORT assignment will work.
+
 ### Add Environment Variables
 Railway → Variables → Add:
 
@@ -136,7 +154,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 PORT=5000
 ```
 
-**Note**: Railway automatically provides `PORT`, but you can set it explicitly.
+**Note**: Railway automatically provides `PORT`, but you can set it explicitly. If you set `PORT=5000`, then enter `5000` when Railway asks for the port.
 
 ## 🔹 STEP 8: Build Script (Optional)
 
