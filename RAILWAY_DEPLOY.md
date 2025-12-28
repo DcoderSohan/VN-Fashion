@@ -159,6 +159,51 @@ If you want Railway to build frontends automatically, add to `backend/package.js
 2. Wait for deployment to complete
 3. Railway will provide a URL like: `https://your-app.up.railway.app`
 
+## 🔗 How to Get Your Railway Project URL
+
+After your deployment is complete, follow these steps to get your project URL:
+
+### Method 1: From the Service Dashboard (Easiest)
+
+1. **Go to Railway Dashboard**: [https://railway.app](https://railway.app)
+2. **Click on your project** (VN Fashion or your project name)
+3. **Click on your service** (usually named "backend" or your repo name)
+4. **Look at the top of the page** - you'll see:
+   - **"Settings"** tab
+   - **"Deployments"** tab
+   - **"Metrics"** tab
+   - **"Variables"** tab
+5. **Click on the "Settings" tab**
+6. **Scroll down to "Domains" section**
+7. You'll see your Railway URL there, something like:
+   ```
+   https://your-app-name.up.railway.app
+   ```
+8. **Click the "Generate Domain" button** if you don't see a domain yet
+9. **Copy the URL** - this is your project's public URL!
+
+### Method 2: From the Deployments Tab
+
+1. **Go to your service** in Railway
+2. **Click on "Deployments" tab**
+3. **Click on the latest deployment** (the most recent one)
+4. **Look at the deployment logs** - Railway often shows the URL in the logs
+5. Or check the **"Domains"** section in the deployment details
+
+### Method 3: Custom Domain (Optional)
+
+1. **In Settings → Domains**
+2. **Click "Custom Domain"** if you want to use your own domain
+3. **Add your domain** (e.g., `yourdomain.com`)
+4. **Follow Railway's DNS instructions** to point your domain to Railway
+
+### 📍 Quick Access Tips
+
+- **Bookmark your Railway dashboard** for easy access
+- **The URL format is always**: `https://[random-name].up.railway.app`
+- **Your URL is permanent** unless you delete the service
+- **You can regenerate the domain** in Settings if needed
+
 ## 🔹 STEP 10: Test Your Deployment
 
 ### Test Client App
