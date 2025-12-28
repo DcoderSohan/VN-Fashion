@@ -90,6 +90,22 @@ if (process.env.NODE_ENV === 'production') {
         res.setHeader('Content-Type', 'application/javascript');
       } else if (filePath.endsWith('.mjs')) {
         res.setHeader('Content-Type', 'application/javascript');
+      } else if (filePath.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      }
+    }
+  }));
+  
+  // Also serve admin assets from /assets path (for admin panel asset requests)
+  // Admin HTML references /assets/... but files are in /admin/assets/...
+  app.use('/assets', express.static(path.join(adminDist, 'assets'), {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      } else if (filePath.endsWith('.mjs')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      } else if (filePath.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
       }
     }
   }));
