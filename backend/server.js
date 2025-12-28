@@ -81,8 +81,18 @@ if (process.env.NODE_ENV === 'production') {
   // Serve frontend (client) - root path
   app.use(express.static(frontendDist));
   
-  // Serve admin - /admin path
-  app.use('/admin', express.static(adminDist));
+  // Serve admin static files - /admin path
+  // This must come BEFORE the catch-all middleware to serve JS/CSS files correctly
+  app.use('/admin', express.static(adminDist, {
+    // Set proper MIME types for JavaScript modules
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      } else if (filePath.endsWith('.mjs')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      }
+    }
+  }));
   
   // Client and Admin routing fix - handle all routes (SPA routing)
   // This must be LAST to catch all non-API routes
@@ -93,7 +103,14 @@ if (process.env.NODE_ENV === 'production') {
       return next(); // Let API routes be handled by their routes
     }
     
-    // For GET requests that aren't API routes, serve the appropriate index.html
+    // Skip if request is for a static file (has file extension)
+    // This prevents serving index.html for JS/CSS/image files
+    const hasFileExtension = /\.\w+$/.test(req.path);
+    if (hasFileExtension) {
+      return next(); // Let static file middleware handle it (or 404 if not found)
+    }
+    
+    // For GET requests that aren't API routes and aren't static files, serve the appropriate index.html
     if (req.method === 'GET') {
       // Serve admin index.html for /admin routes
       if (req.path.startsWith('/admin')) {
