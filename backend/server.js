@@ -64,18 +64,20 @@ if (process.env.NODE_ENV === 'production') {
   // Serve admin - /admin path
   app.use('/admin', express.static(path.join(rootDir, 'admin/dist')));
   
-  // Admin routing fix - handle all /admin/* routes (must be before catch-all)
-  app.get('/admin/*', (req, res) => {
-    res.sendFile(path.join(rootDir, 'admin/dist/index.html'));
-  });
-  
-  // Client routing fix - handle all other routes (SPA routing)
+  // Client and Admin routing fix - handle all routes (SPA routing)
   // This must be LAST to catch all non-API routes
   app.get('*', (req, res) => {
-    // Don't serve index.html for API routes (shouldn't reach here, but safety check)
+    // Don't serve index.html for API routes
     if (req.path.startsWith('/api')) {
       return res.status(404).json({ message: 'API route not found' });
     }
+    
+    // Serve admin index.html for /admin routes
+    if (req.path.startsWith('/admin')) {
+      return res.sendFile(path.join(rootDir, 'admin/dist/index.html'));
+    }
+    
+    // Serve frontend index.html for all other routes
     res.sendFile(path.join(rootDir, 'frontend/dist/index.html'));
   });
 } else {
