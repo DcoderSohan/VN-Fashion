@@ -216,12 +216,17 @@ PORT=5000
 
 **Complete Railway Configuration Summary:**
 1. **Root Directory**: Empty (project root)
-2. **Install Command**: `cd backend && npm install` ⚠️ **REQUIRED**
+2. **Install Command**: Empty (auto) OR `npm install` - postinstall script handles backend deps
 3. **Build Command**: Empty
 4. **Start Command**: `npm start` (or empty)
 
+**How it works:**
+- Railway runs `npm install` from root → triggers `postinstall` script
+- `postinstall` runs `cd backend && npm install` → installs all backend dependencies ✅
+- Then Railway runs `npm start` → runs `cd backend && npm start` → starts server ✅
+
 This ensures:
-- ✅ Railway installs backend dependencies correctly
+- ✅ Railway installs backend dependencies automatically via postinstall
 - ✅ Railway can access frontend/dist and admin/dist folders
 - ✅ Railway starts the server from backend directory
 
