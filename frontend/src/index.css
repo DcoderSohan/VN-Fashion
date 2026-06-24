@@ -1,35 +1,58 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Unbounded:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-*{
-    margin: 0;
-    padding: 0;
-    font-family: "Unbounded";
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 :root {
-    --nav-height: 4rem; /* Replace with your actual navbar height */
-  }
-  
-  html {
-    scroll-padding-top: var(--nav-height);
-  }
-  #services {
-    scroll-margin-top: var(--nav-height);
-    /* same as padding-top offset for direct anchor link */
-  }
+  --nav-height: 3.5rem;
+  --font-serif: 'Cormorant Garamond', 'Times New Roman', Georgia, serif;
+  --font-sans: 'Unbounded', system-ui, sans-serif;
+  --color-bg: #f5f4f2;
+  --color-white: #ffffff;
+  --color-black: #0a0a0a;
+  --color-text: #1a1a1a;
+  --color-muted: #9ca3af;
+}
+
+html {
+  scroll-padding-top: var(--nav-height);
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#services {
+  scroll-margin-top: var(--nav-height);
+}
 
 /* Logo Rainbow Animation */
 @keyframes rainbow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
-  
+
+/* Selection color */
+::selection {
+  background-color: #0a0a0a;
+  color: #f5f4f2;
+}
+
+/* Smooth image loading */
+img {
+  display: block;
+}

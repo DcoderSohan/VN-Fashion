@@ -4,6 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        sans: ["Unbounded", "system-ui", "sans-serif"],
         Poppins: ["Poppins", "sans-serif"],
         Roboto: ["Roboto", "sans-serif"],
         Audiowide: ["Audiowide", "sans-serif"],

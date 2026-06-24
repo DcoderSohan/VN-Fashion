@@ -1,224 +1,341 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Phone, Mail, MapPin, Instagram, Facebook, Youtube, MessageCircle, Linkedin, Github, Globe, Mail as MailIcon, Share2 } from "lucide-react";
+import {
+  Instagram, Facebook, Youtube, MessageCircle, Linkedin, Github, Globe,
+  Mail as MailIcon, Phone, MapPin, Share2,
+} from "lucide-react";
 import { contentApi } from "../../utils/api";
-import DeveloperModal from "../Modal/DeveloperModal";
-import "../Navbar/Navbar.css";
 
-// Icon mapping for dynamic icon rendering
+const SERIF = "'Playfair Display', 'Times New Roman', serif";
+const SANS = "'Raleway', system-ui, sans-serif";
+
 const iconMap = {
-  Instagram: Instagram,
-  Facebook: Facebook,
-  Twitter: null, // Add if needed
-  Youtube: Youtube,
-  WhatsApp: MessageCircle,
-  LinkedIn: Linkedin,
-  GitHub: Github,
-  Globe: Globe,
-  Mail: MailIcon,
-  Phone: Phone,
-  MapPin: MapPin,
-  Share2: Share2,
+  Instagram, Facebook, Twitter: null, Youtube, WhatsApp: MessageCircle,
+  LinkedIn: Linkedin, GitHub: Github, Globe, Mail: MailIcon,
+  Phone, MapPin, Share2,
 };
+
+const NAV_LINKS = [
+  { name: "Home", href: "/" },
+  { name: "About", href: "/about" },
+  { name: "Services", href: "/services" },
+  { name: "Gallery", href: "/gallery" },
+  { name: "Contact", href: "/contact" },
+];
+
+const COLL_LINKS = [
+  { name: "Bridal Wear", href: "/gallery" },
+  { name: "Aari Embroidery", href: "/services" },
+  { name: "Custom Designs", href: "/services" },
+  { name: "Fabric Painting", href: "/services" },
+  { name: "Ready-to-Wear", href: "/gallery" },
+];
 
 const Footer = () => {
   const phoneNumber = "7798370430";
   const [socialLinks, setSocialLinks] = useState([]);
-  const [showDeveloperModal, setShowDeveloperModal] = useState(false);
 
   useEffect(() => {
-    const fetchSettings = async () => {
+    (async () => {
       try {
-        const response = await contentApi.getSettings();
-        if (response.data) {
-          const links = response.data.socialLinks || [];
-          // Sort by order
-          const sortedLinks = links.sort((a, b) => (a.order || 0) - (b.order || 0));
-          setSocialLinks(sortedLinks);
+        const res = await contentApi.getSettings();
+        if (res.data) {
+          const links = res.data.socialLinks || [];
+          setSocialLinks(links.sort((a, b) => (a.order || 0) - (b.order || 0)));
         }
-      } catch (error) {
-        console.error('Error fetching settings:', error);
-        // Use fallback values if API fails
+      } catch (_) {
         setSocialLinks([
-          {
-            name: "Instagram",
-            icon: "Instagram",
-            url: "https://instagram.com/vnfashion",
-            order: 0,
-          },
-          {
-            name: "WhatsApp",
-            icon: "WhatsApp",
-            url: `https://api.whatsapp.com/send?phone=${phoneNumber}`,
-            order: 1,
-          },
+          { name: "Instagram", icon: "Instagram", url: "https://instagram.com/vnfashion", order: 0 },
+          { name: "WhatsApp", icon: "WhatsApp", url: `https://api.whatsapp.com/send?phone=${phoneNumber}`, order: 1 },
         ]);
       }
-    };
-    fetchSettings();
+    })();
   }, []);
 
-  // Map social links to footer format (memoized for performance)
-  const mappedSocialLinks = useMemo(() => {
-    return socialLinks.map((link) => {
-      const IconComponent = iconMap[link.icon] || Globe;
-      return {
-        name: link.name,
-        icon: IconComponent,
-        href: link.url,
-        color: "hover:text-blue-600",
-      };
-    });
-  }, [socialLinks]);
-
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "Services", href: "/services" },
-    { name: "Gallery", href: "/gallery" },
-    { name: "Contact", href: "/contact" },
-  ];
+  const mappedSocials = useMemo(() =>
+    socialLinks.map(l => ({ name: l.name, icon: iconMap[l.icon] || Globe, href: l.url })),
+    [socialLinks]
+  );
 
   return (
-    <footer className="w-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
-          {/* Brand Section */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-3 sm:mb-4">
-              <div className="morphing-square bg-white flex items-center justify-center shadow-lg overflow-hidden" style={{ width: 40, height: 40 }}>
-                <div
-                  style={{
-                    width: 28,
-                    height: 28,
-                    WebkitMaskImage: 'url("/VN.png")',
-                    maskImage: 'url("/VN.png")',
-                    WebkitMaskRepeat: "no-repeat",
-                    maskRepeat: "no-repeat",
-                    WebkitMaskSize: "contain",
-                    maskSize: "contain",
-                    WebkitMaskPosition: "center",
-                    maskPosition: "center",
-                    background: "linear-gradient(90deg, #ff00cc, #3333ff, #00ffcc, #ffcc00)",
-                    backgroundSize: "200% 200%",
-                    animation: "rainbow 4s ease-in-out infinite",
-                  }}
-                />
-              </div>
-              <span className="text-white text-lg sm:text-xl md:text-2xl font-Unbounded font-semibold">
-                VN FASHION
-              </span>
-            </Link>
-            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
-              Transforming Fashion, One Design at a Time. Crafting exquisite designs with passion and precision.
+    <footer className="ft-root" aria-label="Site footer">
+      <div className="ft-inner">
+
+        {/* ── Top row: logo + tagline ── */}
+        <div className="ft-top">
+          <Link to="/" className="ft-logo" style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            aria-label="VN Fashion Home">
+            VN FASHION
+          </Link>
+          <p className="ft-tagline" style={{ fontFamily: SANS }}>
+            Atelier of intentional design
+          </p>
+        </div>
+
+        {/* ── Main columns ── */}
+        <div className="ft-columns">
+
+          {/* About blurb + socials */}
+          <div className="ft-col ft-col-brand">
+            <p className="ft-blurb" style={{ fontFamily: SANS }}>
+              Transforming fashion through intentional design and artisan craft.
+              Each piece a testament to tradition and modernity.
             </p>
+            <div className="ft-socials">
+              {mappedSocials.map(s => {
+                const Icon = s.icon;
+                if (!Icon) return null;
+                return (
+                  <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer"
+                    aria-label={s.name} className="ft-social-icon">
+                    <Icon size={15} />
+                  </a>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Quick Links</h3>
-            <ul className="space-y-1.5 sm:space-y-2">
-              {navLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm"
-                  >
-                    {link.name}
+          {/* Navigation */}
+          <div className="ft-col">
+            <h4 className="ft-col-heading" style={{ fontFamily: SANS }}>Navigation</h4>
+            <ul className="ft-links">
+              {NAV_LINKS.map(l => (
+                <li key={l.name}>
+                  <Link to={l.href} className="ft-link" style={{ fontFamily: SANS }}>
+                    {l.name}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact Information */}
-          <div>
-            <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Contact Us</h3>
-            <ul className="space-y-2 sm:space-y-3">
-              <li className="flex items-center gap-2 sm:gap-3 text-gray-400 text-xs sm:text-sm">
-                <Phone className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <a
-                  href={`tel:${phoneNumber}`}
-                  className="hover:text-white transition-colors break-all"
-                >
-                  +91 {phoneNumber}
-                </a>
-              </li>
-              <li className="flex items-center gap-2 sm:gap-3 text-gray-400 text-xs sm:text-sm">
-                <Mail className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <a
-                  href="mailto:info@vnfashion.com"
-                  className="hover:text-white transition-colors break-all"
-                >
-                  info@vnfashion.com
-                </a>
-              </li>
-              <li className="flex items-start gap-2 sm:gap-3 text-gray-400 text-xs sm:text-sm">
-                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mt-0.5 sm:mt-1 flex-shrink-0" />
-                <span>Gavade Ambere Kharviwada, Ratnagiri, Maharashtra - 415 626</span>
-              </li>
+          {/* Collections */}
+          <div className="ft-col">
+            <h4 className="ft-col-heading" style={{ fontFamily: SANS }}>Collections</h4>
+            <ul className="ft-links">
+              {COLL_LINKS.map(l => (
+                <li key={l.name}>
+                  <Link to={l.href} className="ft-link" style={{ fontFamily: SANS }}>
+                    {l.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Social Media */}
-          <div>
-            <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Follow Us</h3>
-            <div className="flex gap-3 sm:gap-4 flex-wrap">
-              {mappedSocialLinks.length > 0 ? (
-                mappedSocialLinks.map((social) => {
-                  const Icon = social.icon;
-                  return (
-                    <motion.a
-                      key={social.name}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      whileHover={{ scale: 1.2, y: -2 }}
-                      whileTap={{ scale: 0.9 }}
-                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 ${social.color} transition-colors`}
-                      aria-label={social.name}
-                    >
-                      <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </motion.a>
-                  );
-                })
-              ) : (
-                <p className="text-gray-400 text-xs">No social links configured</p>
-              )}
-            </div>
-            {mappedSocialLinks.length > 0 && (
-              <p className="text-gray-400 text-xs mt-3 sm:mt-4">
-                Stay connected for latest designs and updates
-              </p>
-            )}
+          {/* Contact */}
+          <div className="ft-col">
+            <h4 className="ft-col-heading" style={{ fontFamily: SANS }}>Contact</h4>
+            <ul className="ft-links">
+              <li>
+                <a href={`tel:+91${phoneNumber}`} className="ft-link" style={{ fontFamily: SANS }}>
+                  +91 {phoneNumber}
+                </a>
+              </li>
+              <li>
+                <a href="mailto:info@vnfashion.com" className="ft-link" style={{ fontFamily: SANS }}>
+                  info@vnfashion.com
+                </a>
+              </li>
+              <li>
+                <p className="ft-address" style={{ fontFamily: SANS }}>
+                  Ratnagiri,<br />Maharashtra — 415 626
+                </p>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-gray-700 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-gray-400 text-sm text-center sm:text-left">
-            &copy; {new Date().getFullYear()} VN Fashion. All rights reserved.
-          </div>
-          <div className="text-gray-400 text-xs sm:text-sm text-center sm:text-right">
-            Developed by{" "}
-            <motion.button
-              onClick={() => setShowDeveloperModal(true)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="text-blue-400 hover:text-blue-300 font-semibold underline transition-colors cursor-pointer text-xs sm:text-sm"
-            >
+        {/* ── Bottom bar ── */}
+        <div className="ft-bottom">
+          <p className="ft-copy" style={{ fontFamily: SANS }}>
+            © {new Date().getFullYear()} VN Fashion. All rights reserved.
+          </p>
+          <p className="ft-credit" style={{ fontFamily: SANS }}>
+            Designed &amp; Developed by{" "}
+            <a href="https://sohansarang.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ft-credit-link">
               Sohan Sarang
-            </motion.button>
-          </div>
+            </a>
+          </p>
         </div>
       </div>
 
-      {/* Developer Modal */}
-      <DeveloperModal
-        isOpen={showDeveloperModal}
-        onClose={() => setShowDeveloperModal(false)}
-      />
+      <style>{`
+        .ft-root {
+          width: 100%;
+          background: #f8f7f5;
+          border-top: 1px solid #e5e7eb;
+        }
+        .ft-inner {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 3rem;
+        }
+        @media (max-width: 1023px) { .ft-inner { padding: 0 2rem; } }
+        @media (max-width: 640px)  { .ft-inner { padding: 0 1.25rem; } }
+
+        /* Top */
+        .ft-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 2rem 0;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        @media (max-width: 640px) {
+          .ft-top { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+        }
+        .ft-logo {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.1rem;
+          font-weight: 700;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: #0a0a0a;
+          text-decoration: none;
+          transition: opacity 0.3s;
+        }
+        .ft-logo:hover { opacity: 0.7; }
+        .ft-tagline {
+          font-size: 0.58rem;
+          font-weight: 600;
+          letter-spacing: 0.25em;
+          text-transform: uppercase;
+          color: #9ca3af;
+          margin: 0;
+        }
+
+        /* Columns */
+        .ft-columns {
+          display: grid;
+          grid-template-columns: 1.4fr 1fr 1fr 1fr;
+          gap: 3rem;
+          padding: 2.5rem 0;
+        }
+        @media (max-width: 768px) {
+          .ft-columns {
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+          }
+        }
+        @media (max-width: 480px) {
+          .ft-columns { grid-template-columns: 1fr; gap: 1.5rem; }
+        }
+
+        .ft-col {}
+        .ft-col-heading {
+          font-size: 0.58rem;
+          font-weight: 700;
+          letter-spacing: 0.28em;
+          text-transform: uppercase;
+          color: #0a0a0a;
+          margin: 0 0 1rem;
+        }
+        .ft-blurb {
+          font-size: 0.78rem;
+          font-weight: 400;
+          line-height: 1.7;
+          color: #6b7280;
+          margin: 0 0 1.25rem;
+          max-width: 280px;
+        }
+        .ft-socials {
+          display: flex;
+          gap: 0.5rem;
+        }
+        .ft-social-icon {
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #e5e7eb;
+          color: #6b7280;
+          text-decoration: none;
+          transition: color 0.25s, border-color 0.25s, background 0.25s;
+        }
+        .ft-social-icon:hover {
+          color: #ffffff;
+          background: #0a0a0a;
+          border-color: #0a0a0a;
+        }
+
+        .ft-links {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 0.6rem;
+        }
+        .ft-link {
+          font-size: 0.75rem;
+          font-weight: 400;
+          color: #6b7280;
+          text-decoration: none;
+          transition: color 0.25s;
+        }
+        .ft-link:hover { color: #0a0a0a; }
+        .ft-address {
+          font-size: 0.75rem;
+          font-weight: 400;
+          color: #6b7280;
+          line-height: 1.6;
+          margin: 0;
+        }
+
+        /* Bottom bar */
+        .ft-bottom {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 1.25rem 0;
+          border-top: 1px solid #e5e7eb;
+          gap: 1rem;
+        }
+        @media (max-width: 640px) {
+          .ft-bottom {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+          }
+        }
+        .ft-copy {
+          font-size: 0.55rem;
+          font-weight: 600;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #9ca3af;
+          margin: 0;
+        }
+        .ft-credit {
+          font-size: 0.55rem;
+          font-weight: 600;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #9ca3af;
+          margin: 0;
+        }
+        .ft-credit-link {
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: inherit;
+          font-weight: 700;
+          letter-spacing: inherit;
+          text-transform: uppercase;
+          color: #0a0a0a;
+          text-decoration: underline;
+          text-underline-offset: 2px;
+          font-family: inherit;
+          padding: 0;
+          transition: color 0.25s;
+        }
+        .ft-credit-link:hover { color: #b8860b; }
+      `}</style>
     </footer>
   );
 };

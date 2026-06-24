@@ -141,31 +141,15 @@ function DashboardLayout({ children }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       {/* Top Navigation Bar */}
-      <nav className="bg-white shadow-lg border-b border-gray-100 fixed top-0 left-0 right-0 z-50 h-14 sm:h-16 flex items-center justify-between px-3 sm:px-4 md:px-6">
-        <div className="flex items-center gap-2 sm:gap-4">
+      <nav className="bg-white shadow-sm border-b border-gray-100 fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-4 sm:px-6 md:px-8">
+        <div className="flex items-center gap-4">
           {/* Logo */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="morphing-square bg-black flex items-center justify-center overflow-hidden shadow-md" style={{ width: 32, height: 32 }}>
-              <div
-                style={{
-                  width: 22,
-                  height: 22,
-                  WebkitMaskImage: 'url("/VN.png")',
-                  maskImage: 'url("/VN.png")',
-                  WebkitMaskRepeat: "no-repeat",
-                  maskRepeat: "no-repeat",
-                  WebkitMaskSize: "contain",
-                  maskSize: "contain",
-                  WebkitMaskPosition: "center",
-                  maskPosition: "center",
-                  background: "linear-gradient(90deg, #ff00cc, #3333ff, #00ffcc, #ffcc00)",
-                  backgroundSize: "200% 200%",
-                  animation: "rainbow 4s ease-in-out infinite",
-                }}
-              />
-            </div>
-            <span className="text-lg sm:text-xl font-bold text-gray-900 hidden sm:inline">VN FASHION</span>
-            <span className="text-xs sm:text-sm text-gray-600 hidden lg:inline font-medium">Admin Dashboard</span>
+          <div className="flex items-center gap-3">
+            <span className="text-lg sm:text-xl font-bold tracking-[0.2em] text-gray-950 uppercase" style={{ fontFamily: "'Cormorant Garamond', 'Times New Roman', serif" }}>
+              VN FASHION
+            </span>
+            <div className="h-4 w-[1px] bg-gray-300 hidden sm:inline" />
+            <span className="text-xs sm:text-sm text-gray-400 hidden sm:inline font-semibold tracking-wider uppercase">Admin Dashboard</span>
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
