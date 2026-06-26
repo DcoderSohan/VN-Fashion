@@ -21,7 +21,8 @@ const HeroSection = () => {
       className="hero-root"
       aria-label="VN Fashion — Hero Section"
     >
-
+      {/* Faded background watermark */}
+      <div className="hero-faded-bg" aria-hidden="true" />
       {/* ── Main grid ─────────────────────────────────── */}
       <div className="hero-grid">
 
@@ -144,6 +145,18 @@ const HeroSection = () => {
           position: relative;
         }
 
+        /* Faded background watermark (matches About/Services/Contact) */
+        .hero-faded-bg {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          z-index: 0;
+          background-image: url('/VN-1.jpg');
+          background-size: cover;
+          background-position: top center;
+          opacity: 0.04;
+          filter: grayscale(1);
+        }
         /* ---- Top meta bar ---- */
         .hero-meta {
           display: flex;

@@ -27,6 +27,7 @@ export const API_ENDPOINTS = {
   BOOKINGS: '/content/public/bookings',
   CONTACTS: '/content/public/contacts',
   SETTINGS: '/content/public/settings',
+  CLASS_BANNERS: '/content/public/class-banners',
 };
 
 // Default fallback data

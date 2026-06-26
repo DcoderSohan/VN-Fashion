@@ -33,6 +33,7 @@ export const API_ENDPOINTS = {
   TESTIMONIALS: '/content/testimonials',
   SETTINGS: '/content/settings',
   UPLOAD_IMAGE: '/content/upload-image',
+  CLASS_BANNERS: '/content/class-banners',
 };
 
 // Storage keys

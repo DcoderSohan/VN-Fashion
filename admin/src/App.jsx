@@ -18,7 +18,8 @@ import {
   LogOut,
   User,
   ExternalLink,
-  Settings
+  Settings,
+  Tv
 } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import GalleryManagement from './pages/GalleryManagement';
@@ -33,6 +34,7 @@ import CertificatesManagement from './pages/CertificatesManagement';
 import TestimonialManagement from './pages/TestimonialManagement';
 import SettingsManagement from './pages/SettingsManagement';
 import SocialLinksManagement from './pages/SocialLinksManagement';
+import ClassBannersManagement from './pages/ClassBannersManagement';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
@@ -93,6 +95,7 @@ function DashboardLayout({ children }) {
     { id: 'testimonials', label: 'Testimonials', icon: MessageSquare, path: '/testimonials' },
     { id: 'services', label: 'Services', icon: ShoppingBag, path: '/services' },
     { id: 'categories', label: 'Categories', icon: Tag, path: '/categories' },
+    { id: 'class-banners', label: 'Class Banners', icon: Tv, path: '/class-banners' },
     { id: 'bookings', label: 'Bookings', icon: Calendar, path: '/bookings' },
     { id: 'contacts', label: 'Contacts', icon: MessageSquare, path: '/contacts' },
     { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
@@ -384,6 +387,13 @@ function App() {
           <ProtectedRoute>
             <DashboardLayout>
               <CategoriesManagement />
+            </DashboardLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/class-banners" element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <ClassBannersManagement />
             </DashboardLayout>
           </ProtectedRoute>
         } />

@@ -25,6 +25,7 @@
 html {
   scroll-padding-top: var(--nav-height);
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 body {

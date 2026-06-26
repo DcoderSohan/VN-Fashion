@@ -60,6 +60,11 @@ import {
   // Settings
   getSettings,
   updateSettings,
+  // Class Banners
+  getClassBanners,
+  createClassBanner,
+  updateClassBanner,
+  deleteClassBanner,
 } from "../controllers/contentController.js";
 
 const router = express.Router();
@@ -99,6 +104,9 @@ router.get("/public/timeline", getTimeline);
 
 // Public Testimonials route - no authentication required
 router.get("/public/testimonials", getTestimonials);
+
+// Public Class Banners route - no authentication required
+router.get("/public/class-banners", getClassBanners);
 
 // Public Bookings route - no authentication required (for customers to submit bookings)
 router.post("/public/bookings", createBooking);
@@ -171,5 +179,11 @@ router.get("/settings", protectAdmin, getSettings);
 router.put("/settings", protectAdmin, updateSettings);
 // Public route to get settings
 router.get("/public/settings", getSettings);
+
+// Class Banners routes (admin protected)
+router.get("/class-banners", protectAdmin, getClassBanners);
+router.post("/class-banners", protectAdmin, uploadSingle('image'), createClassBanner);
+router.put("/class-banners/:id", protectAdmin, uploadSingle('image'), updateClassBanner);
+router.delete("/class-banners/:id", protectAdmin, deleteClassBanner);
 
 export default router;

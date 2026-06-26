@@ -9,6 +9,7 @@ import Contact from "../models/Contact.js";
 import Certificate from "../models/Certificate.js";
 import Testimonial from "../models/Testimonial.js";
 import Settings from "../models/Settings.js";
+import ClassBanner from "../models/ClassBanner.js";
 
 // ================= GALLERY =================
 export const getGallery = async (req, res) => {
@@ -884,3 +885,96 @@ export const updateSettings = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// ================= CLASS BANNERS =================
+export const getClassBanners = async (req, res) => {
+  try {
+    const banners = await ClassBanner.find().sort({ order: 1, createdAt: -1 });
+    res.json(banners);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const createClassBanner = async (req, res) => {
+  try {
+    console.log('=== Create ClassBanner ===');
+    console.log('Request body:', req.body);
+
+    let imageUrl = req.body.image || '';
+    if (req.body.imageId) {
+      const Image = (await import("../models/Image.js")).default;
+      const imageDoc = await Image.findById(req.body.imageId);
+      if (imageDoc) {
+        imageUrl = imageDoc.cloudinaryUrl || '';
+      }
+    }
+
+    const bannerData = {
+      title: req.body.title || '',
+      subtitle: req.body.subtitle || '',
+      description: req.body.description || '',
+      image: imageUrl,
+      category: req.body.category || 'General',
+      instructor: req.body.instructor || '',
+      duration: req.body.duration || '',
+      schedule: req.body.schedule || '',
+      price: req.body.price || '',
+      seats: req.body.seats || '',
+      isActive: req.body.isActive !== false,
+      isFeatured: req.body.isFeatured === true,
+      order: req.body.order ? parseInt(req.body.order) : 0,
+    };
+
+    const banner = await ClassBanner.create(bannerData);
+    console.log('✅ ClassBanner created:', banner._id);
+    res.status(201).json(banner);
+  } catch (error) {
+    console.error('Error creating class banner:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateClassBanner = async (req, res) => {
+  try {
+    console.log('=== Update ClassBanner ===');
+    console.log('Banner ID:', req.params.id);
+
+    if (req.body.imageId) {
+      const Image = (await import("../models/Image.js")).default;
+      const imageDoc = await Image.findById(req.body.imageId);
+      if (imageDoc) {
+        req.body.image = imageDoc.cloudinaryUrl || '';
+      }
+    }
+
+    if (req.body.order) req.body.order = parseInt(req.body.order);
+
+    const banner = await ClassBanner.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!banner) {
+      return res.status(404).json({ message: "Class banner not found" });
+    }
+    console.log('✅ ClassBanner updated:', banner._id);
+    res.json(banner);
+  } catch (error) {
+    console.error('Error updating class banner:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteClassBanner = async (req, res) => {
+  try {
+    const banner = await ClassBanner.findByIdAndDelete(req.params.id);
+    if (!banner) {
+      return res.status(404).json({ message: "Class banner not found" });
+    }
+    res.json({ message: "Class banner deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

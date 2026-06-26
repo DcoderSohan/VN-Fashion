@@ -110,6 +110,16 @@ export const contentApi = {
     const response = await axiosInstance.get(API_ENDPOINTS.SETTINGS);
     return response;
   },
+
+  // Get Class Banners (public endpoint)
+  getClassBanners: async () => {
+    try {
+      const response = await axiosInstance.get(API_ENDPOINTS.CLASS_BANNERS);
+      return response.data || [];
+    } catch (error) {
+      return handleApiError(error, []);
+    }
+  },
 };
 
 // Re-export axios instance and helpers

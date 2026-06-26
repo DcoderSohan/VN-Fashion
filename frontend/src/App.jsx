@@ -17,6 +17,7 @@ const Gallery = lazy(() => import('./Pages/Gallery'))
 const ServicesPage = lazy(() => import('./Pages/Services'))
 const Booking = lazy(() => import('./Pages/Booking'))
 const ContactPage = lazy(() => import('./Pages/Contact'))
+const ClassesPage = lazy(() => import('./Pages/Classes'))
 
 // Minimal inline loader — spins while lazy chunk loads
 const PageLoader = () => (
@@ -62,6 +63,7 @@ function AnimatedRoutes() {
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/gallery" element={<Gallery />} />
+          <Route path="/classes" element={<ClassesPage />} />
           <Route path="/booking" element={<Booking />} />
           <Route path="/contact" element={<ContactPage />} />
         </Routes>

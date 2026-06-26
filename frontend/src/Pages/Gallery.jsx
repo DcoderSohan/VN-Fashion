@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "../Components/Navbar/Navbar";
 import Footer from "../Components/Footer/Footer";
@@ -9,285 +9,311 @@ import { getImageUrl } from "../utils/helpers";
 
 const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [lightboxImage, setLightboxImage] = useState(null);
-  const [allWorks, setAllWorks] = useState([]);
-  const [categories, setCategories] = useState(["All"]);
-  const [loading, setLoading] = useState(true);
+  const [lightboxImage, setLightboxImage]       = useState(null);
+  const [allWorks, setAllWorks]                 = useState([]);
+  const [categories, setCategories]             = useState(["All"]);
+  const [loading, setLoading]                   = useState(true);
 
-  // Fetch gallery data from API
   useEffect(() => {
     const fetchGallery = async () => {
       try {
         setLoading(true);
         const galleryData = await contentApi.getGallery();
-        
-        const transformedWorks = galleryData.map((item, index) => ({
-          id: item._id || index + 1,
-          title: item.title || "Untitled",
-          image: getImageUrl(item.image) || "/VN-1.jpg",
-          category: item.category || "Uncategorized",
+        const transformed = galleryData.map((item, i) => ({
+          id:          item._id || i + 1,
+          title:       item.title       || "Untitled",
+          image:       getImageUrl(item.image) || "/VN-1.jpg",
+          category:    item.category    || "Uncategorized",
           description: item.description || "",
-          materials: item.materials || "",
-          price: item.price || "Contact for pricing",
-          featured: item.featured || false,
+          materials:   item.materials   || "",
+          price:       item.price       || "Contact for pricing",
+          featured:    item.featured    || false,
         }));
-        
-        // Sort: featured items first
-        const sortedWorks = transformedWorks.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
-        setAllWorks(sortedWorks);
-        
-        // Extract unique categories
-        const uniqueCategories = ["All", ...new Set(transformedWorks.map(work => work.category).filter(Boolean))];
-        setCategories(uniqueCategories);
-      } catch (error) {
-        console.error('Error fetching gallery:', error);
-        // Fallback works matching mockups
-        const defaultWorks = [
-          { id: 1, title: "Noir Voluminous Gown", image: "/VN-1.jpg", category: "Couture", description: "Structured black gown with dynamic pleats." },
-          { id: 2, title: "Metallic Wave Texture", image: "/featured_fabric_texture.png", category: "Textile Art", description: "Iridescent fabric manipulation detail." },
-          { id: 3, title: "Structured Coat", image: "/hero_fashion_model.png", category: "Couture", description: "Minimalist black coat with architectural shoulders." },
-          { id: 4, title: "Couture Concept Sketch", image: "/VN-3.jpg", category: "Sketches", description: "Original design concept drafting." },
-          { id: 5, title: "Pleated Gown Detail", image: "/VN-2.jpg", category: "Couture", description: "Volume and texturing experimentation." },
-          { id: 6, title: "Trench Coat Silhouette", image: "/VN-4.jpg", category: "Ready-To-Wear", description: "Modern structured silhouette." }
+        const sorted = transformed.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+        setAllWorks(sorted);
+        const cats = ["All", ...new Set(transformed.map(w => w.category).filter(Boolean))];
+        setCategories(cats);
+      } catch {
+        const fallback = [
+          { id:1, title:"Noir Voluminous Gown",   image:"/VN-1.jpg",                   category:"Couture",       description:"Structured black gown with dynamic pleats.",          featured:true  },
+          { id:2, title:"Metallic Wave Texture",  image:"/featured_fabric_texture.png", category:"Textile Art",   description:"Iridescent fabric manipulation detail.",              featured:false },
+          { id:3, title:"Structured Coat",         image:"/hero_fashion_model.png",      category:"Couture",       description:"Minimalist black coat with architectural shoulders.",  featured:false },
+          { id:4, title:"Couture Concept Sketch", image:"/VN-3.jpg",                    category:"Sketches",      description:"Original design concept drafting.",                   featured:false },
+          { id:5, title:"Pleated Gown Detail",    image:"/VN-2.jpg",                    category:"Couture",       description:"Volume and texturing experimentation.",                featured:false },
+          { id:6, title:"Trench Coat Silhouette", image:"/VN-4.jpg",                    category:"Ready-To-Wear", description:"Modern structured silhouette.",                        featured:false },
+          { id:7, title:"Woven Tapestry Detail",  image:"/VN-5.jpg",                    category:"Textile Art",   description:"Hand-woven heritage textile close-up.",               featured:false },
+          { id:8, title:"Evening Drape",           image:"/VN-6.jpg",                    category:"Couture",       description:"Fluid silk evening silhouette.",                       featured:false },
         ];
-        setAllWorks(defaultWorks);
-        setCategories(["All", "Couture", "Textile Art", "Ready-To-Wear", "Sketches"]);
+        setAllWorks(fallback);
+        setCategories(["All","Couture","Textile Art","Ready-To-Wear","Sketches"]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchGallery();
   }, []);
 
-  const filteredWorks = useMemo(() => {
-    return selectedCategory === "All" 
-      ? allWorks 
-      : allWorks.filter(work => work.category === selectedCategory);
-  }, [allWorks, selectedCategory]);
+  const filteredWorks = useMemo(() =>
+    selectedCategory === "All"
+      ? allWorks
+      : allWorks.filter(w => w.category === selectedCategory),
+    [allWorks, selectedCategory]
+  );
 
-  const openLightbox = useCallback((work) => {
-    setLightboxImage(work);
-  }, []);
+  const openLightbox  = useCallback(w  => setLightboxImage(w),    []);
+  const closeLightbox = useCallback(()  => setLightboxImage(null), []);
 
-  const closeLightbox = useCallback(() => {
-    setLightboxImage(null);
-  }, []);
-
-  const navigateLightbox = useCallback((direction) => {
+  const navigateLightbox = useCallback((dir) => {
     if (!lightboxImage) return;
-    const currentIndex = filteredWorks.findIndex(w => w.id === lightboxImage.id);
-    let newIndex;
-    if (direction === 'next') {
-      newIndex = (currentIndex + 1) % filteredWorks.length;
-    } else {
-      newIndex = (currentIndex - 1 + filteredWorks.length) % filteredWorks.length;
-    }
-    setLightboxImage(filteredWorks[newIndex]);
+    const idx = filteredWorks.findIndex(w => w.id === lightboxImage.id);
+    const next = dir === "next"
+      ? (idx + 1) % filteredWorks.length
+      : (idx - 1 + filteredWorks.length) % filteredWorks.length;
+    setLightboxImage(filteredWorks[next]);
   }, [lightboxImage, filteredWorks]);
 
-  // Keyboard navigation for lightbox
   useEffect(() => {
     if (!lightboxImage) return;
-    const handleKeyPress = (e) => {
-      if (e.key === 'ArrowLeft') {
-        navigateLightbox('prev');
-      } else if (e.key === 'ArrowRight') {
-        navigateLightbox('next');
-      } else if (e.key === 'Escape') {
-        closeLightbox();
-      }
+    const handle = (e) => {
+      if (e.key === "ArrowLeft")  navigateLightbox("prev");
+      if (e.key === "ArrowRight") navigateLightbox("next");
+      if (e.key === "Escape")     closeLightbox();
     };
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener("keydown", handle);
+    return () => window.removeEventListener("keydown", handle);
   }, [lightboxImage, navigateLightbox, closeLightbox]);
 
-  // Define alternating crop ratios for grid items to match high-end editorial layout
-  const getGridAspect = (index) => {
-    const crops = ["aspect-[3/4]", "aspect-[4/3]", "aspect-[3/4]", "aspect-square", "aspect-[4/5]", "aspect-[3/4]"];
-    return crops[index % crops.length];
+  /* Staggered masonry: pattern repeats every 8 items */
+  const getSpan = (index) => {
+    const spans = [2, 1, 2, 2, 1, 2, 2, 1];
+    return spans[index % spans.length];
   };
 
-  return (
-    <div className="min-h-screen bg-[#f5f4f2] overflow-x-hidden font-sans text-gray-950">
-      <Navbar />
-      <div className="pt-32 pb-24 px-8 lg:px-20">
-        <div className="max-w-6xl mx-auto w-full">
-          {/* Header */}
-          <motion.div
-            className="mb-16 text-left"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <p className="text-xs sm:text-sm tracking-[0.3em] uppercase text-gray-400 mb-2 font-bold">COLLECTIONS</p>
-            <h1 className="text-[3.5rem] sm:text-[5rem] md:text-[6rem] lg:text-[6.8rem] font-light leading-[0.95] tracking-tight text-gray-950 mb-8" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-              Archive 01
-            </h1>
+  const css = String.raw`
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap');
 
-            {/* Filter Pills */}
-            <div className="flex flex-wrap gap-x-8 gap-y-3 mt-4 border-b border-gray-300 pb-5">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`text-xs sm:text-sm tracking-[0.25em] uppercase transition-colors duration-300 pb-1 border-b-2 font-bold ${
-                    selectedCategory === category
-                      ? "border-gray-900 text-gray-900"
-                      : "border-transparent text-gray-400 hover:text-gray-900"
-                  }`}
-                >
-                  {category}
+    .glry { background:#fbfbfa; color:#1a1a1a; font-family:'Inter',sans-serif; min-height:100vh; overflow-x:hidden; position:relative; }
+
+    .glry::before {
+      content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity:0.022; mix-blend-mode:multiply;
+    }
+    .glry-wm { position:fixed; inset:0; z-index:0; pointer-events:none;
+      background-image:url('/VN-5.jpg'); background-size:cover; background-position:center;
+      opacity:0.04; filter:grayscale(1); }
+    .glry-bd { position:relative; z-index:1; }
+
+    .ftab { font-size:0.62rem; letter-spacing:0.25em; text-transform:uppercase; font-weight:600;
+      padding:0 0 6px; border-top:none; border-left:none; border-right:none;
+      border-bottom:1.5px solid transparent; color:#888;
+      transition:color 0.25s,border-color 0.25s; background:none; cursor:pointer; }
+    .ftab.on { color:#1a1a1a; border-bottom-color:#b8860b; }
+    .ftab:hover { color:#1a1a1a; }
+
+    .mgrid { display:grid; grid-template-columns:repeat(3,1fr); grid-auto-rows:220px; gap:14px; }
+    @media(max-width:1024px){ .mgrid { grid-template-columns:repeat(2,1fr); grid-auto-rows:200px; } }
+    @media(max-width:640px) { .mgrid { grid-template-columns:1fr; grid-auto-rows:280px; } }
+
+    .mitem { overflow:hidden; cursor:pointer; position:relative; }
+    .mitem.s2 { grid-row:span 2; }
+    .mitem.s1 { grid-row:span 1; }
+    .mitem img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.65s ease; }
+    .mitem:hover img { transform:scale(1.06); }
+
+    .mov { position:absolute; inset:0;
+      background:linear-gradient(to top, rgba(26,26,26,0.82) 0%, rgba(26,26,26,0.08) 50%, transparent 100%);
+      opacity:0; transition:opacity 0.4s ease; display:flex; flex-direction:column;
+      justify-content:flex-end; padding:20px 18px; }
+    .mitem:hover .mov { opacity:1; }
+
+    .ocat { font-size:0.58rem; letter-spacing:0.2em; text-transform:uppercase; color:#b8860b; font-weight:600; margin-bottom:4px; }
+    .otit { font-family:'Cormorant Garamond',serif; font-weight:300; font-size:1.35rem; color:#fff; line-height:1.1; }
+    .oarr { position:absolute; top:14px; right:14px; width:30px; height:30px;
+      border:1px solid rgba(255,255,255,0.35); border-radius:50%;
+      display:flex; align-items:center; justify-content:center; color:#fff; }
+    .fbg { position:absolute; top:14px; left:14px; font-size:0.52rem; letter-spacing:0.2em;
+      text-transform:uppercase; font-weight:700; color:#fff; background:#b8860b; padding:4px 9px; }
+
+    .lbwrap { position:fixed; inset:0; z-index:9999; background:rgba(8,7,6,0.96);
+      backdrop-filter:blur(12px); display:flex; align-items:center; justify-content:center; }
+    .lbx { position:absolute; top:18px; right:18px; width:38px; height:38px;
+      border:1px solid rgba(255,255,255,0.18); border-radius:50%;
+      display:flex; align-items:center; justify-content:center; color:#fff;
+      cursor:pointer; transition:background 0.2s; background:none; }
+    .lbx:hover { background:rgba(255,255,255,0.1); }
+    .lbn { position:absolute; top:50%; transform:translateY(-50%); width:42px; height:42px;
+      border:1px solid rgba(255,255,255,0.18); border-radius:50%;
+      display:flex; align-items:center; justify-content:center; color:#fff;
+      cursor:pointer; transition:background 0.2s; background:none; }
+    .lbn:hover { background:rgba(255,255,255,0.1); }
+    .lbbk { display:inline-block; background:#b8860b; color:#fff; font-size:0.62rem;
+      letter-spacing:0.25em; text-transform:uppercase; font-weight:600; padding:12px 30px;
+      text-decoration:none; transition:opacity 0.22s; }
+    .lbbk:hover { opacity:0.82; }
+    .ctabk { display:inline-block; background:#1a1a1a; color:#fbfbfa; font-size:0.62rem;
+      letter-spacing:0.25em; text-transform:uppercase; font-weight:600; padding:14px 34px;
+      text-decoration:none; transition:background 0.25s; }
+    .ctabk:hover { background:#b8860b; }
+
+    @keyframes glry-spin { to { transform:rotate(360deg); } }
+  `;
+
+  const padStyle = { paddingTop:"128px", paddingBottom:"96px", paddingLeft:"clamp(20px,5vw,80px)", paddingRight:"clamp(20px,5vw,80px)" };
+  const serif = { fontFamily:"'Cormorant Garamond', serif" };
+
+  return (
+    <div className="glry">
+      <style>{css}</style>
+      <div className="glry-wm" />
+      <Navbar />
+
+      <div className="glry-bd" style={padStyle}>
+        <div style={{ maxWidth:"1380px", margin:"0 auto" }}>
+
+          {/* ── Hero Header ─────────────────────────────── */}
+          <motion.div style={{ marginBottom:"56px" }}
+            initial={{ opacity:0, y:28 }}
+            animate={{ opacity:1, y:0 }}
+            transition={{ duration:0.7, ease:[0.22,0.61,0.36,1] }}
+          >
+            <p style={{ fontSize:"0.62rem", letterSpacing:"0.28em", textTransform:"uppercase", fontWeight:600, color:"#b8860b", marginBottom:"14px" }}>
+              Portfolio &amp; Works
+            </p>
+
+            <div style={{ display:"flex", flexWrap:"wrap", alignItems:"flex-end", justifyContent:"space-between", gap:"20px", marginBottom:"28px" }}>
+              <h1 style={{ ...serif, fontSize:"clamp(3rem,8vw,7rem)", fontWeight:300, lineHeight:0.92, letterSpacing:"-0.02em", color:"#1a1a1a", margin:0 }}>
+                The&nbsp;<em style={{ fontStyle:"italic" }}>Archive</em>
+              </h1>
+              <p style={{ fontSize:"0.82rem", color:"#888", lineHeight:1.75, fontWeight:300, maxWidth:"340px", margin:0 }}>
+                An editorial collection of couture, textile experimentation, and ready-to-wear — each piece a study in proportion, material, and restraint.
+              </p>
+            </div>
+
+            {/* Filter bar */}
+            <div style={{ display:"flex", flexWrap:"wrap", alignItems:"center", gap:"24px", paddingTop:"16px", borderTop:"1px solid #e0dbd3" }}>
+              {categories.map(cat => (
+                <button key={cat} className={"ftab" + (selectedCategory === cat ? " on" : "")} onClick={() => setSelectedCategory(cat)}>
+                  {cat}
                 </button>
               ))}
+              <div style={{ marginLeft:"auto", fontSize:"0.62rem", letterSpacing:"0.15em", textTransform:"uppercase", color:"#888", fontWeight:500, display:"flex", alignItems:"center", gap:"6px" }}>
+                <span style={{ color:"#1a1a1a", fontWeight:700, fontSize:"0.88rem" }}>{filteredWorks.length}</span>
+                {filteredWorks.length === 1 ? "piece" : "pieces"}
+              </div>
             </div>
           </motion.div>
 
-          {/* Corrected Grid Layout */}
+          {/* ── Masonry Grid ─────────────────────────────── */}
           {loading ? (
-            <div className="flex justify-center items-center py-24">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            <div style={{ display:"flex", justifyContent:"center", padding:"100px 0" }}>
+              <div style={{ width:"32px", height:"32px", borderRadius:"50%", border:"2px solid transparent", borderTopColor:"#b8860b", animation:"glry-spin 0.8s linear infinite" }} />
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-12 items-start">
-              {filteredWorks.map((work, idx) => (
-                <motion.div
-                  key={work.id}
-                  className="flex flex-col relative overflow-hidden group cursor-pointer"
-                  onClick={() => openLightbox(work)}
-                  initial={{ opacity: 0, y: 25 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: Math.min(idx * 0.05, 0.3) }}
-                >
-                  {/* Image Container with specific uniform crop ratio for alignment */}
-                  <div className="w-full overflow-hidden bg-gray-100 aspect-[3/4]">
-                    <img
-                      src={work.image}
-                      alt={work.title}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                      loading="lazy"
-                      onError={(e) => {
-                        e.target.src = "/VN-1.jpg";
-                      }}
-                    />
-                  </div>
-                  
-                  {/* Label & Description under image */}
-                  <div className="mt-4 flex flex-col items-start gap-1">
-                    <span className="text-xs tracking-[0.2em] text-gray-400 uppercase font-bold">
-                      {work.category}
-                    </span>
-                    <span className="text-2xl font-light text-gray-955 hover:text-gray-600 transition-colors" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                      {work.title}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
+            <AnimatePresence mode="wait">
+              <motion.div key={selectedCategory} className="mgrid"
+                initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+                transition={{ duration:0.35 }}
+              >
+                {filteredWorks.map((work, idx) => {
+                  const span = getSpan(idx);
+                  return (
+                    <motion.div key={work.id}
+                      className={"mitem s" + span}
+                      initial={{ opacity:0, y:20 }}
+                      animate={{ opacity:1, y:0 }}
+                      transition={{ duration:0.55, delay:Math.min(idx * 0.06, 0.42), ease:[0.22,0.61,0.36,1] }}
+                      onClick={() => openLightbox(work)}
+                    >
+                      <img src={work.image} alt={work.title} loading="lazy"
+                        onError={e => { e.target.src = "/VN-1.jpg"; }} />
+                      <div className="mov">
+                        <div className="oarr"><ArrowUpRight size={13} /></div>
+                        <p className="ocat">{work.category}</p>
+                        <h3 className="otit">{work.title}</h3>
+                      </div>
+                      {work.featured && <div className="fbg">Featured</div>}
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            </AnimatePresence>
+          )}
+
+          {!loading && filteredWorks.length === 0 && (
+            <div style={{ textAlign:"center", padding:"80px 0", color:"#888" }}>
+              <p style={{ ...serif, fontSize:"2rem", fontWeight:300 }}>No pieces in this category yet.</p>
             </div>
           )}
 
-          {/* Interested in a Collaboration */}
+          {/* ── CTA ─────────────────────────────────────── */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="mt-32 pt-20 border-t border-gray-300 text-center flex flex-col items-center"
+            style={{ marginTop:"120px", paddingTop:"52px", borderTop:"1px solid #e0dbd3" }}
+            initial={{ opacity:0, y:30 }}
+            whileInView={{ opacity:1, y:0 }}
+            viewport={{ once:true, margin:"-80px" }}
+            transition={{ duration:0.8, ease:[0.22,0.61,0.36,1] }}
           >
-            <h2 className="text-4xl font-light text-gray-950 mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-              Interested in a Collaboration?
-            </h2>
-            <p className="text-sm sm:text-base text-gray-500 leading-relaxed max-w-md mb-8 font-light tracking-wide">
-              We are always looking for fresh perspectives and collaborative endeavors. Let's create something together.
-            </p>
-            <Link
-              to="/contact"
-              className="inline-flex flex-col items-start gap-1.5 text-xs tracking-[0.25em] uppercase text-gray-950 font-bold group"
-            >
-              <span>GET IN TOUCH</span>
-              <span className="h-[1.5px] w-12 bg-gray-950 group-hover:w-20 transition-all duration-500" />
-            </Link>
+            <div style={{ display:"flex", flexWrap:"wrap", alignItems:"flex-end", justifyContent:"space-between", gap:"28px" }}>
+              <div>
+                <p style={{ fontSize:"0.62rem", letterSpacing:"0.25em", textTransform:"uppercase", fontWeight:600, color:"#b8860b", marginBottom:"14px" }}>
+                  Commission &amp; Collaboration
+                </p>
+                <h2 style={{ ...serif, fontSize:"clamp(2rem,5vw,3.5rem)", fontWeight:300, lineHeight:1.1, color:"#1a1a1a", letterSpacing:"-0.01em", margin:0 }}>
+                  Every garment begins<br />with a conversation.
+                </h2>
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:"18px", alignItems:"flex-start" }}>
+                <p style={{ fontSize:"0.82rem", color:"#888", lineHeight:1.75, fontWeight:300, maxWidth:"300px", margin:0 }}>
+                  We are always seeking fresh perspectives and meaningful collaborations. Let's build something extraordinary together.
+                </p>
+                <Link to="/contact" className="ctabk">Get In Touch</Link>
+              </div>
+            </div>
           </motion.div>
+
         </div>
       </div>
+
       <Footer />
 
-      {/* Lightbox Modal */}
+      {/* ── Lightbox ─────────────────────────────────────── */}
       <AnimatePresence>
         {lightboxImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-4"
+          <motion.div className="lbwrap"
+            initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+            transition={{ duration:0.3 }}
             onClick={closeLightbox}
           >
-            <div 
-              className="relative max-w-4xl w-full flex flex-col items-center gap-6"
-              onClick={(e) => e.stopPropagation()}
+            <button className="lbx" onClick={closeLightbox}><X size={15} /></button>
+            <button className="lbn" style={{ left:"14px" }} onClick={e => { e.stopPropagation(); navigateLightbox("prev"); }}><ChevronLeft size={17} /></button>
+
+            <motion.div key={lightboxImage.id}
+              style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:"24px", maxWidth:"760px", width:"100%", padding:"20px 16px" }}
+              onClick={e => e.stopPropagation()}
+              initial={{ opacity:0, scale:0.97 }}
+              animate={{ opacity:1, scale:1 }}
+              exit={{ opacity:0, scale:0.97 }}
+              transition={{ duration:0.28 }}
             >
-              {/* Image Container */}
-              <div className="relative max-h-[70vh] flex items-center justify-center">
-                <img
-                  src={lightboxImage.image}
-                  alt={lightboxImage.title}
-                  className="max-w-full max-h-[70vh] object-contain"
-                  onError={(e) => {
-                    e.target.src = "/VN-1.jpg";
-                  }}
-                />
-
-                {/* Navigation */}
-                <button
-                  onClick={() => navigateLightbox('prev')}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/60 rounded-full flex items-center justify-center text-white border border-white/20 transition-colors"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button
-                  onClick={() => navigateLightbox('next')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 hover:bg-black/60 rounded-full flex items-center justify-center text-white border border-white/20 transition-colors"
-                >
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-
-              {/* Text Info */}
-              <div className="text-center text-white max-w-xl px-4">
-                <span className="text-xs tracking-[0.2em] text-gray-400 uppercase font-bold mb-1 block">
-                  {lightboxImage.category}
-                </span>
-                <h3 className="text-4xl font-light mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                  {lightboxImage.title}
-                </h3>
+              <img src={lightboxImage.image} alt={lightboxImage.title}
+                style={{ maxHeight:"60vh", maxWidth:"100%", objectFit:"contain" }}
+                onError={e => { e.target.src = "/VN-1.jpg"; }} />
+              <div style={{ textAlign:"center", color:"#fff" }}>
+                <p style={{ fontSize:"0.58rem", letterSpacing:"0.2em", textTransform:"uppercase", color:"#b8860b", fontWeight:600, marginBottom:"8px" }}>{lightboxImage.category}</p>
+                <h3 style={{ ...serif, fontWeight:300, fontSize:"clamp(1.5rem,4vw,2.4rem)", lineHeight:1.1, marginBottom:"10px" }}>{lightboxImage.title}</h3>
                 {lightboxImage.description && (
-                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed font-light mb-5">
-                    {lightboxImage.description}
-                  </p>
+                  <p style={{ fontSize:"0.82rem", color:"rgba(255,255,255,0.58)", lineHeight:1.75, maxWidth:"460px", margin:"0 auto 20px", fontWeight:300 }}>{lightboxImage.description}</p>
                 )}
-                <Link
-                  to="/booking"
-                  state={{
-                    designId: lightboxImage.id,
-                    designTitle: lightboxImage.title,
-                    designCategory: lightboxImage.category,
-                    designPrice: lightboxImage.price,
-                    designImage: lightboxImage.image
-                  }}
-                  className="inline-block bg-white text-black text-xs tracking-[0.25em] uppercase px-8 py-4 hover:bg-gray-200 transition-colors font-bold"
-                >
-                  Book This Design
-                </Link>
+                <Link to="/booking"
+                  state={{ designId:lightboxImage.id, designTitle:lightboxImage.title, designCategory:lightboxImage.category, designPrice:lightboxImage.price, designImage:lightboxImage.image }}
+                  className="lbbk"
+                  onClick={closeLightbox}
+                >Book This Design</Link>
               </div>
+            </motion.div>
 
-              {/* Close Button */}
-              <button
-                onClick={closeLightbox}
-                className="absolute -top-12 right-0 text-white/70 hover:text-white transition-colors"
-              >
-                <X size={24} />
-              </button>
-            </div>
+            <button className="lbn" style={{ right:"14px" }} onClick={e => { e.stopPropagation(); navigateLightbox("next"); }}><ChevronRight size={17} /></button>
           </motion.div>
         )}
       </AnimatePresence>
