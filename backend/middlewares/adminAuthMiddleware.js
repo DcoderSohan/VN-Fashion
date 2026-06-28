@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import Admin from "../models/Admin.js";
+import { JWT_CONFIG } from "../config/serverConfig.js";
 
 const protectAdmin = async (req, res, next) => {
   let token;
@@ -10,7 +11,7 @@ const protectAdmin = async (req, res, next) => {
   ) {
     try {
       token = req.headers.authorization.split(" ")[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, JWT_CONFIG.SECRET);
 
       req.admin = await Admin.findById(decoded.id).select("-password");
       

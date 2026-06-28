@@ -2,11 +2,12 @@ import Admin from "../models/Admin.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { uploadToCloudinary, deleteFromCloudinary, extractPublicIdFromUrl } from "../config/cloudinary.js";
+import { JWT_CONFIG, SERVER_CONFIG } from "../config/serverConfig.js";
 
 // Generate JWT
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
+  return jwt.sign({ id }, JWT_CONFIG.SECRET, {
+    expiresIn: JWT_CONFIG.EXPIRES_IN
   });
 };
 
@@ -333,13 +334,13 @@ export const updateAvatar = async (req, res) => {
     if (error.http_code) {
       return res.status(500).json({ 
         message: `Cloudinary error: ${error.message || 'Failed to upload image'}`,
-        error: process.env.NODE_ENV !== 'production' ? error?.message : undefined
+        error: SERVER_CONFIG.NODE_ENV !== 'production' ? error?.message : undefined
       });
     }
 
     res.status(500).json({ 
       message: error?.message || 'Internal server error',
-      error: process.env.NODE_ENV !== 'production' ? error?.message : undefined
+      error: SERVER_CONFIG.NODE_ENV !== 'production' ? error?.message : undefined
     });
   }
 };

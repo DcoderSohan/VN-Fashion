@@ -10,6 +10,7 @@ import Certificate from "../models/Certificate.js";
 import Testimonial from "../models/Testimonial.js";
 import Settings from "../models/Settings.js";
 import ClassBanner from "../models/ClassBanner.js";
+import { SERVER_CONFIG } from "../config/serverConfig.js";
 
 // ================= GALLERY =================
 export const getGallery = async (req, res) => {
@@ -207,7 +208,7 @@ export const updateAbout = async (req, res) => {
     console.error('Error stack:', error.stack);
     res.status(500).json({ 
       message: error.message || 'Failed to update about content',
-      error: process.env.NODE_ENV !== 'production' ? error.stack : undefined
+      error: SERVER_CONFIG.NODE_ENV !== 'production' ? error.stack : undefined
     });
   }
 };

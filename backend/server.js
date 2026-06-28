@@ -2,31 +2,19 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
-import { SERVER_CONFIG, CORS_CONFIG } from "./config/constants.js";
+import { SERVER_CONFIG, CORS_CONFIG, CLOUDINARY_CONFIG } from "./config/serverConfig.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
 
+// Initialize dotenv first to load env vars (if any, although Render provides them)
 dotenv.config();
-
-// Validate required environment variables (with fallbacks for development)
-if (!process.env.JWT_SECRET) {
-  console.warn("⚠️  WARNING: JWT_SECRET is not defined in .env file");
-  console.warn("   Using default secret for development. Please add JWT_SECRET to .env for production!");
-  process.env.JWT_SECRET = 'dev-secret-key-change-in-production-' + Date.now();
-}
-
-if (!process.env.MONGO_URI) {
-  console.warn("⚠️  WARNING: MONGO_URI is not defined in .env file");
-  console.warn("   Using default MongoDB URI. Please add MONGO_URI to .env!");
-  process.env.MONGO_URI = 'mongodb://localhost:27017/vnfashion';
-}
 
 // Validate Cloudinary configuration (required)
 // Note: Cloudinary will be configured lazily when first used, but we validate here to fail fast
-if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+if (!CLOUDINARY_CONFIG.CLOUD_NAME || !CLOUDINARY_CONFIG.API_KEY || !CLOUDINARY_CONFIG.API_SECRET) {
   console.error("❌ ERROR: Cloudinary configuration is required!");
-  console.error("   Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your .env file");
+  console.error("   Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your environment variables");
   process.exit(1);
 }
 
@@ -188,11 +176,11 @@ app.use((err, req, res, next) => {
 //   console.log(`📦 Environment: ${SERVER_CONFIG.NODE_ENV}`);
 // });
 
-const PORT = process.env.PORT || 5000;
+const PORT = SERVER_CONFIG.PORT;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📦 Environment: ${process.env.NODE_ENV}`);
+  console.log(`📦 Environment: ${SERVER_CONFIG.NODE_ENV}`);
 });
 
 

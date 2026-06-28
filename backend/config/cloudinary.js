@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
 import { Buffer } from 'buffer';
+import { CLOUDINARY_CONFIG } from './serverConfig.js';
 
 // Lazy configuration - only configure when first used
 let isConfigured = false;
@@ -10,15 +11,15 @@ const ensureConfigured = () => {
   if (isConfigured) return;
   
   // Validate Cloudinary configuration
-  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  if (!CLOUDINARY_CONFIG.CLOUD_NAME || !CLOUDINARY_CONFIG.API_KEY || !CLOUDINARY_CONFIG.API_SECRET) {
     throw new Error('Cloudinary configuration is required. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your .env file');
   }
 
   // Configure Cloudinary
   cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: CLOUDINARY_CONFIG.CLOUD_NAME,
+    api_key: CLOUDINARY_CONFIG.API_KEY,
+    api_secret: CLOUDINARY_CONFIG.API_SECRET,
   });
   
   isConfigured = true;
