@@ -151,7 +151,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Debug: Log registered routes (only in development)
-if (process.env.NODE_ENV !== 'production') {
+if (SERVER_CONFIG.NODE_ENV !== 'production') {
   console.log("\n✅ Routes registered:");
   console.log("   Admin: /api/admin/*");
   console.log("   Content: /api/content/* (protected)\n");
@@ -165,7 +165,7 @@ app.use((err, req, res, next) => {
   console.error('Error stack:', err?.stack);
   res.status(err?.status || 500).json({
     message: err?.message || 'Internal server error',
-    error: process.env.NODE_ENV !== 'production' ? err?.stack : undefined
+    error: SERVER_CONFIG.NODE_ENV !== 'production' ? err?.stack : undefined
   });
 });
 
