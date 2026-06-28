@@ -4,12 +4,12 @@
  */
 
 // API Configuration
-// In production, use relative paths (same domain)
-// In development, use localhost
-const isProduction = import.meta.env.PROD;
+// Using Render backend URL as the default fallback
+const DEFAULT_BACKEND_URL = 'https://vn-fashion-backend-111.onrender.com';
+
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || (isProduction ? '/api' : 'http://localhost:5000/api'),
-  SERVER_BASE_URL: import.meta.env.VITE_SERVER_BASE_URL || (isProduction ? '' : 'http://localhost:5000'),
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || `${DEFAULT_BACKEND_URL}/api`,
+  SERVER_BASE_URL: import.meta.env.VITE_SERVER_BASE_URL || DEFAULT_BACKEND_URL,
   TIMEOUT: 30000, // 30 seconds
 };
 
