@@ -60,7 +60,7 @@ if (process.env.NODE_ENV === 'production') {
   const rootDir = path.resolve(__dirname, '..');
   const frontendDist = path.join(rootDir, 'frontend/dist');
   const adminDist = path.join(rootDir, 'admin/dist');
-  
+
   // Check if dist folders exist
   if (!fs.existsSync(frontendDist)) {
     console.error(`❌ ERROR: Frontend dist folder not found at: ${frontendDist}`);
@@ -69,7 +69,7 @@ if (process.env.NODE_ENV === 'production') {
   } else {
     console.log(`✅ Frontend dist found at: ${frontendDist}`);
   }
-  
+
   if (!fs.existsSync(adminDist)) {
     console.error(`❌ ERROR: Admin dist folder not found at: ${adminDist}`);
     console.error('   Make sure admin/dist is committed to GitHub');
@@ -77,10 +77,10 @@ if (process.env.NODE_ENV === 'production') {
   } else {
     console.log(`✅ Admin dist found at: ${adminDist}`);
   }
-  
+
   // Serve frontend (client) - root path
   app.use(express.static(frontendDist));
-  
+
   // Serve admin static files - /admin path
   // This must come BEFORE the catch-all middleware to serve JS/CSS files correctly
   app.use('/admin', express.static(adminDist, {
@@ -95,7 +95,7 @@ if (process.env.NODE_ENV === 'production') {
       }
     }
   }));
-  
+
   // Also serve admin assets from /assets path (for admin panel asset requests)
   // Admin HTML references /assets/... but files are in /admin/assets/...
   app.use('/assets', express.static(path.join(adminDist, 'assets'), {
@@ -109,7 +109,7 @@ if (process.env.NODE_ENV === 'production') {
       }
     }
   }));
-  
+
   // Client and Admin routing fix - handle all routes (SPA routing)
   // This must be LAST to catch all non-API routes
   // Express 5 compatible: use middleware instead of '*' pattern
@@ -118,14 +118,14 @@ if (process.env.NODE_ENV === 'production') {
     if (req.path.startsWith('/api')) {
       return next(); // Let API routes be handled by their routes
     }
-    
+
     // Skip if request is for a static file (has file extension)
     // This prevents serving index.html for JS/CSS/image files
     const hasFileExtension = /\.\w+$/.test(req.path);
     if (hasFileExtension) {
       return next(); // Let static file middleware handle it (or 404 if not found)
     }
-    
+
     // For GET requests that aren't API routes and aren't static files, serve the appropriate index.html
     if (req.method === 'GET') {
       // Serve admin index.html for /admin routes
@@ -138,7 +138,7 @@ if (process.env.NODE_ENV === 'production') {
           }
         });
       }
-      
+
       // Serve frontend index.html for all other routes
       const frontendIndex = path.join(frontendDist, 'index.html');
       return res.sendFile(frontendIndex, (err) => {
@@ -148,13 +148,13 @@ if (process.env.NODE_ENV === 'production') {
         }
       });
     }
-    
+
     next();
   });
 } else {
   // Development: Just show API status
   app.get("/", (req, res) => {
-    res.json({ 
+    res.json({
       message: "API is running",
       environment: "development",
       note: "Frontends are served separately in development mode"
@@ -181,11 +181,18 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-const PORT = SERVER_CONFIG.PORT;
+// // Start server
+// const PORT = SERVER_CONFIG.PORT;
+// app.listen(PORT, () => {
+//   console.log(`🚀 Server is running on port ${PORT}`);
+//   console.log(`📦 Environment: ${SERVER_CONFIG.NODE_ENV}`);
+// });
+
+const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📦 Environment: ${SERVER_CONFIG.NODE_ENV}`);
+  console.log(`📦 Environment: ${process.env.NODE_ENV}`);
 });
 
 
