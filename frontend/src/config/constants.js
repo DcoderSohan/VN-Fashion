@@ -6,12 +6,8 @@
 // API Configuration
 // Using local fallback in development and dynamic relative paths in production to prevent hardcoding issues
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.DEV
-    ? (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api')
-    : '/api',
-  SERVER_BASE_URL: import.meta.env.DEV
-    ? (import.meta.env.VITE_SERVER_BASE_URL || 'http://localhost:5000')
-    : window.location.origin,
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://vn-fashion-backend-111.onrender.com/api'),
+  SERVER_BASE_URL: import.meta.env.VITE_SERVER_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5000' : 'https://vn-fashion-backend-111.onrender.com'),
   TIMEOUT: 30000, // 30 seconds
 };
 
