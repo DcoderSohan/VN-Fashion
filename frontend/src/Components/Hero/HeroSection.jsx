@@ -75,36 +75,37 @@ const HeroSection = () => {
 
         {/* RIGHT — Images */}
         <div className="hero-right">
+          <div className="hero-images-container">
+            {/* Primary tall image */}
+            <div className="hero-img-primary">
+              <img
+                src="/VN-1.jpg"
+                alt="VN Fashion editorial — main look"
+                className="hero-img"
+                loading="eager"
+                onError={(e) => { e.target.src = "/hero_fashion_model.png"; }}
+              />
+              {/* Color reveal overlay — fades out on hover to show full color */}
+              <div className="hero-img-overlay" aria-hidden="true" />
+              {/* Dark gradient at bottom */}
+              <div className="hero-img-gradient" />
+            </div>
 
-          {/* Primary tall image */}
-          <div className="hero-img-primary">
-            <img
-              src="/VN-1.jpg"
-              alt="VN Fashion editorial — main look"
-              className="hero-img"
-              loading="eager"
-              onError={(e) => { e.target.src = "/hero_fashion_model.png"; }}
-            />
-            {/* Color reveal overlay — fades out on hover to show full color */}
-            <div className="hero-img-overlay" aria-hidden="true" />
-            {/* Dark gradient at bottom */}
-            <div className="hero-img-gradient" />
-          </div>
-
-          {/* Floating secondary card */}
-          <div className="hero-float-card">
-            <img
-              src="/VN-2.jpg"
-              alt="VN Fashion — secondary editorial"
-              className="hero-float-img"
-              loading="eager"
-              onError={(e) => { e.target.src = "/VN.jpg"; }}
-            />
-            {/* Color reveal overlay */}
-            <div className="hero-float-overlay" aria-hidden="true" />
-            <div className="hero-float-label" style={{ fontFamily: SANS }}>
-              <span>S/S '24</span>
-              <span className="hero-float-arrow">→</span>
+            {/* Floating secondary card */}
+            <div className="hero-float-card">
+              <img
+                src="/VN-2.jpg"
+                alt="VN Fashion — secondary editorial"
+                className="hero-float-img"
+                loading="eager"
+                onError={(e) => { e.target.src = "/VN.jpg"; }}
+              />
+              {/* Color reveal overlay */}
+              <div className="hero-float-overlay" aria-hidden="true" />
+              <div className="hero-float-label" style={{ fontFamily: SANS }}>
+                <span>S/S '24</span>
+                <span className="hero-float-arrow">→</span>
+              </div>
             </div>
           </div>
 
@@ -384,12 +385,33 @@ const HeroSection = () => {
         @media (max-width: 1023px) {
           .hero-right {
             order: 1;
-            height: min(60vw, 420px);
+            height: min(75vw, 440px);
             justify-content: center;
           }
         }
         @media (max-width: 640px) {
-          .hero-right { height: 70vw; min-height: 260px; }
+          .hero-right { height: 85vw; min-height: 300px; }
+        }
+
+        /* Centered composition container for primary & secondary images */
+        .hero-images-container {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: flex-end;
+        }
+        @media (max-width: 1023px) {
+          .hero-images-container {
+            width: 85%;
+            max-width: 380px;
+          }
+        }
+        @media (max-width: 640px) {
+          .hero-images-container {
+            width: 90%;
+            max-width: 320px;
+          }
         }
 
         /* Primary image */
@@ -401,8 +423,8 @@ const HeroSection = () => {
           border-radius: 2px;
           background: #e5e7eb;
         }
-        @media (max-width: 1023px) { .hero-img-primary { width: 65%; } }
-        @media (max-width: 640px)  { .hero-img-primary { width: 72%; } }
+        @media (max-width: 1023px) { .hero-img-primary { width: 72%; } }
+        @media (max-width: 640px)  { .hero-img-primary { width: 75%; } }
 
         /* ---- Image: grayscale → color on hover ---- */
         .hero-img {
@@ -467,12 +489,16 @@ const HeroSection = () => {
         @media (max-width: 1023px) {
           .hero-float-card {
             bottom: 8%;
-            left: 4%;
-            width: 30%;
+            left: 0;
+            width: 35%;
           }
         }
         @media (max-width: 640px) {
-          .hero-float-card { width: 32%; bottom: 6%; left: 2%; }
+          .hero-float-card {
+            bottom: 6%;
+            left: -2%;
+            width: 36%;
+          }
         }
 
         .hero-float-img {

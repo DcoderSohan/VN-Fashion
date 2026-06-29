@@ -4,12 +4,14 @@
  */
 
 // API Configuration
-// Using Render backend URL as the default fallback
-const DEFAULT_BACKEND_URL = 'https://vn-fashion-backend-111.onrender.com';
-
+// Using local fallback in development and dynamic relative paths in production to prevent hardcoding issues
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || `${DEFAULT_BACKEND_URL}/api`,
-  SERVER_BASE_URL: import.meta.env.VITE_SERVER_BASE_URL || DEFAULT_BACKEND_URL,
+  BASE_URL: import.meta.env.DEV
+    ? (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api')
+    : '/api',
+  SERVER_BASE_URL: import.meta.env.DEV
+    ? (import.meta.env.VITE_SERVER_BASE_URL || 'http://localhost:5000')
+    : window.location.origin,
   TIMEOUT: 30000, // 30 seconds
 };
 

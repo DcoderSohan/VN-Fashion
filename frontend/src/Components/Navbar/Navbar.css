@@ -281,17 +281,20 @@
 
 /* ---- Mobile drawer overlay ---- */
 .vn-overlay {
-  display: none;
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
   z-index: 9997;
   opacity: 0;
-  transition: opacity 0.35s ease;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
 }
 
 .vn-overlay.visible {
   opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 /* ---- Mobile drawer ---- */
@@ -437,10 +440,6 @@
 
   .vn-hamburger {
     display: flex;
-  }
-
-  .vn-overlay {
-    display: block;
   }
 
   .vn-nav-inner {
