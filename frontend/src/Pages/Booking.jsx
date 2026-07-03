@@ -85,15 +85,16 @@ const Booking = () => {
   const maxDateStr = maxDate.toISOString().split('T')[0];
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if ((!formData.serviceId && !formData.designId) || !formData.date || !formData.time || !formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
       setErrorMessage('Please fill in all required fields to place your order');
       setShowErrorModal(true);
@@ -123,7 +124,7 @@ const Booking = () => {
       };
 
       const response = await contentApi.createBooking(bookingData);
-      
+
       const booking = {
         ...bookingData,
         _id: response._id,
@@ -336,6 +337,10 @@ const Booking = () => {
     { icon: <Calendar size={14} />, label: 'Booking Window', value: 'Up to 3 months in advance' },
   ];
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [])
+
   return (
     <div className="bpage">
       <style>{css}</style>
@@ -405,16 +410,34 @@ const Booking = () => {
 
             {(formData.designTitle || formData.serviceTitle) && (
               <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                <p style={{ fontSize: '0.56rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', fontWeight: 600, marginBottom: '6px' }}>
-                  Selected Item
+                <p style={{ fontSize: '0.56rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', fontWeight: 600, marginBottom: '12px' }}>
+                  Selected Items
                 </p>
-                <p style={{ ...serif, fontSize: '1.3rem', fontWeight: 300, color: 'rgba(255,255,255,0.9)', marginBottom: '4px' }}>
-                  {formData.designTitle || formData.serviceTitle}
-                </p>
-                {(formData.designPrice || formData.servicePrice) && (
-                  <p style={{ fontSize: '0.75rem', color: '#b8860b', fontWeight: 500, letterSpacing: '0.1em' }}>
-                    {formatPrice(formData.designPrice || formData.servicePrice)}
-                  </p>
+                {formData.designTitle && (
+                  <div style={{ marginBottom: formData.serviceTitle ? '16px' : '0' }}>
+                    <span style={{ fontSize: '0.55rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '2px' }}>Design</span>
+                    <p style={{ ...serif, fontSize: '1.2rem', fontWeight: 300, color: 'rgba(255,255,255,0.9)', marginBottom: '4px' }}>
+                      {formData.designTitle}
+                    </p>
+                    {formData.designPrice && (
+                      <p style={{ fontSize: '0.75rem', color: '#b8860b', fontWeight: 500, letterSpacing: '0.1em' }}>
+                        {formatPrice(formData.designPrice)}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {formData.serviceTitle && (
+                  <div>
+                    <span style={{ fontSize: '0.55rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '2px' }}>Service</span>
+                    <p style={{ ...serif, fontSize: '1.2rem', fontWeight: 300, color: 'rgba(255,255,255,0.9)', marginBottom: '4px' }}>
+                      {formData.serviceTitle}
+                    </p>
+                    {formData.servicePrice && (
+                      <p style={{ fontSize: '0.75rem', color: '#b8860b', fontWeight: 500, letterSpacing: '0.1em' }}>
+                        {formatPrice(formData.servicePrice)}
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
             )}
@@ -511,37 +534,47 @@ const Booking = () => {
                   {/* Service Select */}
                   <div style={{ marginBottom: '28px' }}>
                     <div className={`bfield${focused === 'serviceId' ? ' focused' : ''}`}>
-                      <label htmlFor="serviceId">Select Service *</label>
+                      <label htmlFor="serviceId">Select Service {!formData.designTitle ? '*' : '(optional)'}</label>
                       <select
                         id="serviceId"
                         name="serviceId"
                         value={formData.serviceId}
                         onChange={(e) => {
                           const selectedService = services.find(s => s._id === e.target.value);
-                          setFormData({
-                            ...formData,
+                          setFormData(prev => ({
+                            ...prev,
                             serviceId: e.target.value,
                             serviceTitle: selectedService?.title || '',
                             servicePrice: selectedService?.price || '',
                             serviceCategory: selectedService?.category || '',
-                            designId: e.target.value ? '' : formData.designId,
-                            designTitle: e.target.value ? '' : formData.designTitle,
-                            designCategory: e.target.value ? '' : formData.designCategory,
-                            designPrice: e.target.value ? '' : formData.designPrice,
-                          });
+                          }));
                         }}
                         required={!formData.serviceTitle && !formData.designTitle}
                         onFocus={() => setFocused('serviceId')}
                         onBlur={() => setFocused('')}
+                        disabled={loading}
                       >
-                        <option value="">Choose a service...</option>
-                        {services.map((service) => (
-                          <option key={service._id} value={service._id}>
-                            {service.title} {service.price ? `— ${formatPrice(service.price)}` : ''}
-                          </option>
-                        ))}
+                        {loading ? (
+                          <option value="">Loading services...</option>
+                        ) : services.length === 0 ? (
+                          <option value="">No services available</option>
+                        ) : (
+                          <>
+                            <option value="">{formData.designTitle ? 'Add a service (optional)...' : 'Choose a service...'}</option>
+                            {services.map((service) => (
+                              <option key={service._id} value={service._id}>
+                                {service.title} {service.price ? `— ${formatPrice(service.price)}` : ''}
+                              </option>
+                            ))}
+                          </>
+                        )}
                       </select>
                     </div>
+                    {formData.designTitle && !formData.serviceId && (
+                      <p style={{ fontSize: '0.58rem', color: '#b8860b', marginTop: '6px', letterSpacing: '0.1em' }}>
+                        A design is already selected. You may optionally add a service.
+                      </p>
+                    )}
                   </div>
 
                   {/* Date & Time */}

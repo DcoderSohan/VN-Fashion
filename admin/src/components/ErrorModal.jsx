@@ -14,53 +14,54 @@ const ErrorModal = ({ isOpen, onClose, title, message }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
           />
 
           {/* Modal */}
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.97, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative pointer-events-auto"
+              exit={{ opacity: 0, scale: 0.97, y: 12 }}
+              transition={{ type: "spring", damping: 30, stiffness: 350 }}
+              className="bg-white border border-gray-200 max-w-md w-full p-6 sm:p-8 relative pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-100 transition-colors rounded-sm"
                 aria-label="Close modal"
               >
-                <X size={20} className="text-gray-500" />
+                <X size={18} />
               </button>
 
               {/* Icon */}
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                  <AlertCircle size={40} className="text-red-600" />
+              <div className="flex justify-center mb-5">
+                <div className="w-14 h-14 border border-red-200 bg-red-50 flex items-center justify-center">
+                  <AlertCircle size={28} className="text-red-600" />
                 </div>
               </div>
 
               {/* Content */}
               <div className="text-center">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3
+                  className="text-lg font-semibold text-black mb-2 tracking-wide"
+                  style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                >
                   {title || "Error"}
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-sm text-gray-500 mb-6 leading-relaxed">
                   {message}
                 </p>
-                
+
                 {/* Button */}
-                <motion.button
+                <button
                   onClick={onClose}
-                  className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl hover:bg-red-700 transition-all duration-300"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="px-6 py-2.5 bg-black text-white text-xs font-medium tracking-widest uppercase hover:bg-gray-800 transition-all duration-200"
                 >
                   Close
-                </motion.button>
+                </button>
               </div>
             </motion.div>
           </div>
@@ -71,4 +72,3 @@ const ErrorModal = ({ isOpen, onClose, title, message }) => {
 };
 
 export default ErrorModal;
-

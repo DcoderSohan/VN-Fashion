@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import { 
   Calendar, 
   MessageSquare, 
-  TrendingUp, 
-  Users,
+  TrendingUp,
   Loader2,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  RefreshCw
 } from 'lucide-react';
 import { bookingsApi, contactsApi } from '../utils/contentApi';
 import { 
@@ -26,6 +26,17 @@ import {
   Line
 } from 'recharts';
 
+const THEME_COLORS = ['#1a1a1a', '#555555', '#888888', '#cccccc'];
+
+const statCards = (stats) => [
+  { label: 'Total Orders', value: stats.totalOrders, icon: Calendar, trend: 'up', note: 'All time' },
+  { label: 'Pending', value: stats.pendingOrders, icon: TrendingUp, trend: 'up', note: 'Needs attention' },
+  { label: 'Confirmed', value: stats.confirmedOrders, icon: Calendar, trend: 'up', note: 'In progress' },
+  { label: 'Completed', value: stats.completedOrders, icon: ArrowUpRight, trend: 'up', note: 'Fulfilled' },
+  { label: 'Cancelled', value: stats.cancelledOrders, icon: ArrowDownRight, trend: 'down', note: 'Closed' },
+  { label: 'Contacts', value: stats.totalContacts, icon: MessageSquare, trend: 'up', note: 'Enquiries' },
+];
+
 const Dashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -42,38 +53,23 @@ const Dashboard = () => {
   useEffect(() => {
     fetchData();
     
-    // Listen for custom booking update events (only refresh when booking is actually updated)
-    const handleBookingUpdate = () => {
-      fetchData();
-    };
+    const handleBookingUpdate = () => fetchData();
     window.addEventListener('bookingUpdated', handleBookingUpdate);
     
-    // Only auto-refresh when tab is visible and user is not actively working
     let interval;
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        // Tab is hidden, clear interval
-        if (interval) {
-          clearInterval(interval);
-          interval = null;
-        }
+        if (interval) { clearInterval(interval); interval = null; }
       } else {
-        // Tab is visible, start refresh (every 60 seconds - less intrusive)
         interval = setInterval(fetchData, 60000);
       }
     };
     
-    // Start interval only if tab is visible
-    if (!document.hidden) {
-      interval = setInterval(fetchData, 60000); // Refresh every 60 seconds
-    }
-    
+    if (!document.hidden) interval = setInterval(fetchData, 60000);
     document.addEventListener('visibilitychange', handleVisibilityChange);
     
     return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
+      if (interval) clearInterval(interval);
       window.removeEventListener('bookingUpdated', handleBookingUpdate);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
@@ -93,7 +89,6 @@ const Dashboard = () => {
       setBookings(bookingsData);
       setContacts(contactsData);
 
-      // Calculate statistics
       const pending = bookingsData.filter(b => b.status === 'pending').length;
       const confirmed = bookingsData.filter(b => b.status === 'confirmed').length;
       const completed = bookingsData.filter(b => b.status === 'completed').length;
@@ -114,18 +109,15 @@ const Dashboard = () => {
     }
   };
 
-  // Prepare data for charts
   const allStatusData = [
-    { name: 'Pending', value: stats.pendingOrders, color: '#fbbf24' },
-    { name: 'Confirmed', value: stats.confirmedOrders, color: '#10b981' },
-    { name: 'Completed', value: stats.completedOrders, color: '#3b82f6' },
-    { name: 'Cancelled', value: stats.cancelledOrders, color: '#ef4444' },
+    { name: 'Pending', value: stats.pendingOrders, color: '#1a1a1a' },
+    { name: 'Confirmed', value: stats.confirmedOrders, color: '#555555' },
+    { name: 'Completed', value: stats.completedOrders, color: '#888888' },
+    { name: 'Cancelled', value: stats.cancelledOrders, color: '#cccccc' },
   ];
   
-  // Filter out zero values for pie chart rendering (but keep all for legend)
   const statusData = allStatusData.filter(item => item.value > 0);
 
-  // Orders by date (last 7 days)
   const getOrdersByDate = () => {
     const last7Days = [];
     for (let i = 6; i >= 0; i--) {
@@ -144,7 +136,6 @@ const Dashboard = () => {
     return last7Days;
   };
 
-  // Orders by status for bar chart
   const statusBarData = [
     { name: 'Pending', orders: stats.pendingOrders },
     { name: 'Confirmed', orders: stats.confirmedOrders },
@@ -152,143 +143,102 @@ const Dashboard = () => {
     { name: 'Cancelled', orders: stats.cancelledOrders },
   ];
 
-  const COLORS = ['#fbbf24', '#10b981', '#3b82f6', '#ef4444'];
+  const getStatusStyle = (status) => {
+    const styles = {
+      pending: 'border border-gray-300 text-gray-700 bg-gray-50',
+      confirmed: 'border border-black text-black bg-white',
+      completed: 'border border-gray-700 text-white bg-gray-800',
+      cancelled: 'border border-red-200 text-red-600 bg-red-50',
+    };
+    return styles[status] || styles.pending;
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <Loader2 className="animate-spin text-blue-600" size={48} />
+        <Loader2 className="animate-spin text-black" size={36} />
       </div>
     );
   }
 
+  const cards = statCards(stats);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Dashboard Overview</h1>
-        <p className="text-gray-600">Monitor your orders, contacts, and business analytics</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 
+            className="text-4xl sm:text-5xl font-light text-black mb-1"
+            style={{ fontFamily: "'Cormorant Garamond', 'Times New Roman', serif" }}
+          >
+            Dashboard
+          </h1>
+          <p className="text-xs text-gray-400 tracking-widest uppercase">Overview & Analytics</p>
+        </div>
+        <button
+          onClick={fetchData}
+          className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-xs font-medium tracking-widest uppercase text-gray-600 hover:bg-black hover:text-white hover:border-black transition-all duration-200"
+        >
+          <RefreshCw size={13} />
+          Refresh
+        </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <Calendar className="w-8 h-8 opacity-80" />
-            <ArrowUpRight className="w-5 h-5 opacity-80" />
-          </div>
-          <h3 className="text-2xl font-bold">{stats.totalOrders}</h3>
-          <p className="text-sm opacity-90">Total Orders</p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-6 text-white"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <Calendar className="w-8 h-8 opacity-80" />
-            <ArrowUpRight className="w-5 h-5 opacity-80" />
-          </div>
-          <h3 className="text-2xl font-bold">{stats.pendingOrders}</h3>
-          <p className="text-sm opacity-90">Pending Orders</p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <Calendar className="w-8 h-8 opacity-80" />
-            <ArrowUpRight className="w-5 h-5 opacity-80" />
-          </div>
-          <h3 className="text-2xl font-bold">{stats.confirmedOrders}</h3>
-          <p className="text-sm opacity-90">Confirmed Orders</p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl shadow-lg p-6 text-white"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <Calendar className="w-8 h-8 opacity-80" />
-            <ArrowUpRight className="w-5 h-5 opacity-80" />
-          </div>
-          <h3 className="text-2xl font-bold">{stats.completedOrders}</h3>
-          <p className="text-sm opacity-90">Completed Orders</p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-6 text-white"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <Calendar className="w-8 h-8 opacity-80" />
-            <ArrowDownRight className="w-5 h-5 opacity-80" />
-          </div>
-          <h3 className="text-2xl font-bold">{stats.cancelledOrders}</h3>
-          <p className="text-sm opacity-90">Cancelled Orders</p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <MessageSquare className="w-8 h-8 opacity-80" />
-            <ArrowUpRight className="w-5 h-5 opacity-80" />
-          </div>
-          <h3 className="text-2xl font-bold">{stats.totalContacts}</h3>
-          <p className="text-sm opacity-90">Total Contacts</p>
-        </motion.div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
+        {cards.map((card, i) => {
+          const Icon = card.icon;
+          return (
+            <motion.div
+              key={card.label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.07 }}
+              className="bg-white border border-gray-200 p-5 hover:border-black transition-colors duration-200"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <Icon size={18} className="text-gray-400" />
+                {card.trend === 'up' 
+                  ? <ArrowUpRight size={14} className="text-gray-400" />
+                  : <ArrowDownRight size={14} className="text-gray-400" />
+                }
+              </div>
+              <p className="text-3xl font-light text-black mb-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                {card.value}
+              </p>
+              <p className="text-[10px] font-medium text-gray-500 tracking-widest uppercase">{card.label}</p>
+              <p className="text-[10px] text-gray-300 mt-0.5">{card.note}</p>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Orders Status Pie Chart */}
+        {/* Pie Chart */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+          transition={{ delay: 0.5 }}
+          className="bg-white border border-gray-200 p-6"
         >
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Orders by Status</h2>
+          <h2 className="text-sm font-medium text-black tracking-widest uppercase mb-6">Orders by Status</h2>
           {statusData.length === 0 ? (
-            <div className="flex items-center justify-center h-[300px] text-gray-500">
-              <p>No orders data available</p>
+            <div className="flex items-center justify-center h-[280px] text-gray-400 text-sm">
+              No orders data available
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie
                   data={statusData}
                   cx="50%"
                   cy="50%"
-                  labelLine={true}
-                  label={({ name, value, percent }) => {
-                    // Only show label if value is significant (> 5% of total)
-                    if (percent > 0.05) {
-                      return `${name}: ${value}`;
-                    }
-                    return '';
-                  }}
+                  labelLine={false}
+                  label={({ name, percent }) => percent > 0.08 ? `${(percent * 100).toFixed(0)}%` : ''}
                   outerRadius={100}
-                  innerRadius={30}
-                  fill="#8884d8"
+                  innerRadius={50}
                   dataKey="value"
                   paddingAngle={2}
                 >
@@ -296,14 +246,14 @@ const Dashboard = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   formatter={(value, name) => [`${value} orders`, name]}
-                  contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                  contentStyle={{ border: '1px solid #e5e7eb', borderRadius: 0, fontSize: '12px' }}
                 />
-                <Legend 
-                  verticalAlign="bottom" 
-                  height={60}
-                  wrapperStyle={{ paddingTop: '20px' }}
+                <Legend
+                  verticalAlign="bottom"
+                  height={50}
+                  wrapperStyle={{ paddingTop: '16px', fontSize: '11px' }}
                   payload={allStatusData.map((item) => ({
                     value: `${item.name} (${item.value})`,
                     type: 'square',
@@ -316,24 +266,23 @@ const Dashboard = () => {
           )}
         </motion.div>
 
-        {/* Orders Status Bar Chart */}
+        {/* Bar Chart */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+          transition={{ delay: 0.6 }}
+          className="bg-white border border-gray-200 p-6"
         >
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Orders Distribution</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={statusBarData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="orders" fill="#3b82f6" radius={[8, 8, 0, 0]}>
+          <h2 className="text-sm font-medium text-black tracking-widest uppercase mb-6">Orders Distribution</h2>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={statusBarData} barSize={28}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} />
+              <Tooltip contentStyle={{ border: '1px solid #e5e7eb', borderRadius: 0, fontSize: '12px' }} />
+              <Bar dataKey="orders" radius={[0, 0, 0, 0]}>
                 {statusBarData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                  <Cell key={`cell-${index}`} fill={THEME_COLORS[index]} />
                 ))}
               </Bar>
             </BarChart>
@@ -341,28 +290,27 @@ const Dashboard = () => {
         </motion.div>
       </div>
 
-      {/* Orders Trend Line Chart */}
+      {/* Line Chart */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9 }}
-        className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+        transition={{ delay: 0.7 }}
+        className="bg-white border border-gray-200 p-6"
       >
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Orders Trend (Last 7 Days)</h2>
-        <ResponsiveContainer width="100%" height={300}>
+        <h2 className="text-sm font-medium text-black tracking-widest uppercase mb-6">Orders Trend — Last 7 Days</h2>
+        <ResponsiveContainer width="100%" height={260}>
           <LineChart data={getOrdersByDate()}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="orders" 
-              stroke="#3b82f6" 
-              strokeWidth={3}
-              dot={{ fill: '#3b82f6', r: 6 }}
-              activeDot={{ r: 8 }}
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+            <YAxis tick={{ fontSize: 11 }} />
+            <Tooltip contentStyle={{ border: '1px solid #e5e7eb', borderRadius: 0, fontSize: '12px' }} />
+            <Line
+              type="monotone"
+              dataKey="orders"
+              stroke="#1a1a1a"
+              strokeWidth={2}
+              dot={{ fill: '#1a1a1a', r: 4, strokeWidth: 0 }}
+              activeDot={{ r: 6, strokeWidth: 0 }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -370,64 +318,49 @@ const Dashboard = () => {
 
       {/* Recent Orders Table */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.0 }}
-        className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+        transition={{ delay: 0.8 }}
+        className="bg-white border border-gray-200"
       >
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
-          <button
-            onClick={fetchData}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-          >
-            Refresh
-          </button>
+        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+          <h2 className="text-sm font-medium text-black tracking-widest uppercase">Recent Orders</h2>
         </div>
+        
         {bookings.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>No orders yet</p>
+          <div className="text-center py-16 text-gray-400">
+            <Calendar className="w-10 h-10 mx-auto mb-3 opacity-30" />
+            <p className="text-xs tracking-widest uppercase">No orders yet</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+            <table className="w-full">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="border border-gray-200 p-3 text-left text-sm font-semibold text-gray-700">Order ID</th>
-                  <th className="border border-gray-200 p-3 text-left text-sm font-semibold text-gray-700">Customer</th>
-                  <th className="border border-gray-200 p-3 text-left text-sm font-semibold text-gray-700">Service/Design</th>
-                  <th className="border border-gray-200 p-3 text-left text-sm font-semibold text-gray-700">Date</th>
-                  <th className="border border-gray-200 p-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                <tr className="border-b border-gray-100 bg-gray-50">
+                  <th className="text-left text-[10px] font-medium tracking-widest uppercase text-gray-400 px-6 py-3">Order ID</th>
+                  <th className="text-left text-[10px] font-medium tracking-widest uppercase text-gray-400 px-4 py-3">Customer</th>
+                  <th className="text-left text-[10px] font-medium tracking-widest uppercase text-gray-400 px-4 py-3">Service</th>
+                  <th className="text-left text-[10px] font-medium tracking-widest uppercase text-gray-400 px-4 py-3">Date</th>
+                  <th className="text-left text-[10px] font-medium tracking-widest uppercase text-gray-400 px-4 py-3">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {bookings.slice(0, 10).map((booking) => (
-                  <tr key={booking._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="border border-gray-200 p-3 text-sm text-gray-900">
-                      {booking._id?.substring(0, 8) || 'N/A'}
+                {bookings.slice(0, 10).map((booking, i) => (
+                  <tr key={booking._id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-3.5 text-xs text-gray-500 font-mono">
+                      #{booking._id?.substring(0, 8) || 'N/A'}
                     </td>
-                    <td className="border border-gray-200 p-3 text-sm text-gray-900">
+                    <td className="px-4 py-3.5 text-xs text-black font-medium">
                       {booking.firstName} {booking.lastName}
                     </td>
-                    <td className="border border-gray-200 p-3 text-sm text-gray-900">
+                    <td className="px-4 py-3.5 text-xs text-gray-500">
                       {booking.serviceTitle || booking.designTitle || 'N/A'}
                     </td>
-                    <td className="border border-gray-200 p-3 text-sm text-gray-900">
+                    <td className="px-4 py-3.5 text-xs text-gray-400">
                       {new Date(booking.timestamp).toLocaleDateString()}
                     </td>
-                    <td className="border border-gray-200 p-3 text-sm">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          booking.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : booking.status === 'confirmed'
-                            ? 'bg-green-100 text-green-700'
-                            : booking.status === 'completed'
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'bg-red-100 text-red-700'
-                        }`}
-                      >
+                    <td className="px-4 py-3.5">
+                      <span className={`px-2.5 py-1 text-[10px] font-medium tracking-widest uppercase ${getStatusStyle(booking.status)}`}>
                         {booking.status || 'pending'}
                       </span>
                     </td>

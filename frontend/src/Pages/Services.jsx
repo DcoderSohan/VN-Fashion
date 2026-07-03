@@ -54,13 +54,17 @@ const ServicesPage = () => {
 
   const displayServices = services.length > 0 ? services : fallbackServices;
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [])
+
   return (
     <div className="ab-page-root min-h-screen bg-[#fbfbfa] text-gray-900 overflow-x-hidden relative font-sans">
       {/* Faded background watermark image */}
       <div className="ab-faded-bg" aria-hidden="true">
-        <img 
-          src="/VN-6.jpg" 
-          alt="" 
+        <img
+          src="/VN-6.jpg"
+          alt=""
           onError={(e) => {
             e.target.src = "/HeroBg.jpg";
           }}
@@ -69,7 +73,7 @@ const ServicesPage = () => {
 
       {/* Organic film grain texture */}
       <div className="ab-grain" aria-hidden="true" />
-      
+
       <Navbar />
 
       {/* ── 1. EDITORIAL HERO HEADER & INTRODUCTION ── */}
@@ -89,7 +93,7 @@ const ServicesPage = () => {
         </motion.div>
 
         {/* Spacious centered intro statement */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -173,7 +177,7 @@ const ServicesPage = () => {
       <div className="pt-28 pb-12 px-8 lg:px-20 relative z-10 border-t border-gray-200">
         <div className="max-w-6xl mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            
+
             {/* Left Column: Visionary Statement */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -197,8 +201,8 @@ const ServicesPage = () => {
                 { title: "Artisanal Hand Embroidery", desc: "Intricate Aari work and traditional threadwork crafted by generational master artisans." },
                 { title: "Sourced Fine Textiles", desc: "Only the finest organic cotton, silks, brocades, and custom woven textiles make it to our cutting boards." }
               ].map((item, idx) => (
-                <motion.div 
-                  key={idx} 
+                <motion.div
+                  key={idx}
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}

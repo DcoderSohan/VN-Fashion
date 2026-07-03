@@ -394,7 +394,31 @@ export const deleteTimeline = async (req, res) => {
 // ================= SERVICES =================
 export const getServices = async (req, res) => {
   try {
-    const services = await Service.find().sort({ timestamp: -1 });
+    let services = await Service.find().sort({ timestamp: -1 });
+    if (services.length === 0) {
+      const defaultServices = [
+        {
+          title: 'Bespoke Tailoring',
+          description: 'Exclusive custom apparel crafted to your precise measurements. Includes fabric consultation, custom pattern drafting, and multiple fittings for perfection.',
+          price: '5000',
+          category: 'Couture'
+        },
+        {
+          title: 'Creative Direction',
+          description: 'Consultation and conceptual direction for luxury collections, fashion editorials, and brand styling to define unique aesthetic statements.',
+          price: '15000',
+          category: 'Consulting'
+        },
+        {
+          title: 'Consultancy',
+          description: 'One-on-one personal style analysis, wardrobe curations, and wardrobe audits matching traditional artisan crafts with modern silhouettes.',
+          price: '3000',
+          category: 'Styling'
+        }
+      ];
+      await Service.insertMany(defaultServices);
+      services = await Service.find().sort({ timestamp: -1 });
+    }
     res.json(services);
   } catch (error) {
     res.status(500).json({ message: error.message });

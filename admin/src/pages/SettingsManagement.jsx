@@ -1,36 +1,41 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Settings, ArrowRight } from 'lucide-react';
+import { Share2, ArrowRight } from 'lucide-react';
 
 const SettingsManagement = () => {
   return (
     <div>
       <div className="mb-8">
-        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Settings</h2>
-        <p className="text-gray-600">Manage your website settings</p>
+        <h1
+          className="text-4xl sm:text-5xl font-light text-black mb-1"
+          style={{ fontFamily: "'Cormorant Garamond', 'Times New Roman', serif" }}
+        >
+          Settings
+        </h1>
+        <p className="text-[10px] text-gray-400 tracking-widest uppercase">Manage your website settings</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Social Links Management Card */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Social Links Card */}
         <Link
           to="/settings/social-links"
-          className="group bg-white rounded-2xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+          className="group bg-white border border-gray-200 p-6 hover:border-black transition-colors duration-200 block"
         >
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Settings className="w-8 h-8 text-white" />
+          <div className="flex items-center gap-4 mb-3">
+            <div className="w-12 h-12 border border-gray-200 flex items-center justify-center group-hover:bg-black group-hover:border-black transition-all duration-200">
+              <Share2 className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-900">Social Media Links</h3>
-              <p className="text-sm text-gray-600">Manage social links and icons</p>
+              <h3 className="text-sm font-medium text-black tracking-wide">Social Media Links</h3>
+              <p className="text-[10px] text-gray-400 tracking-widest uppercase">Manage social links</p>
             </div>
           </div>
-          <p className="text-gray-600 mb-4">
+          <p className="text-xs text-gray-500 leading-relaxed mb-4">
             Add, edit, or delete social media links. Choose custom icons for each link and control their display order.
           </p>
-          <div className="flex items-center text-blue-600 font-semibold group-hover:gap-2 transition-all">
+          <div className="flex items-center gap-1 text-[10px] font-medium tracking-widest uppercase text-black group-hover:gap-2 transition-all duration-200">
             <span>Manage Links</span>
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight size={12} />
           </div>
         </Link>
       </div>
@@ -39,4 +44,3 @@ const SettingsManagement = () => {
 };
 
 export default SettingsManagement;
-

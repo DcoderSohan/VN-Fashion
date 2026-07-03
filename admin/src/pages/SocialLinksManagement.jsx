@@ -227,7 +227,7 @@ const SocialLinksManagement = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-black" />
       </div>
     );
   }
@@ -236,12 +236,12 @@ const SocialLinksManagement = () => {
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Social Media Links</h2>
-          <p className="text-gray-600">Manage your social media links and icons</p>
+          <h2 className="text-4xl sm:text-5xl font-light text-black mb-1">Social Media Links</h2>
+          <p className="text-gray-500">Manage your social media links and icons</p>
         </div>
         <button
           onClick={handleAdd}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 font-semibold"
+          className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-lg hover: transition-all duration-300 font-semibold"
         >
           <Plus size={20} />
           <span>Add Social Link</span>
@@ -250,11 +250,11 @@ const SocialLinksManagement = () => {
 
       {/* Social Links List */}
       {socialLinks.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl shadow-xl">
-          <div className="inline-block p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full mb-4">
+        <div className="text-center py-16 bg-white rounded-2xl ">
+          <div className="inline-block p-6 bg-gray-50 rounded-full mb-4">
             <Share2 size={48} className="text-blue-600" />
           </div>
-          <p className="text-gray-600 text-lg font-medium">No social links yet</p>
+          <p className="text-gray-500 text-lg font-medium">No social links yet</p>
           <p className="text-gray-500 text-sm mt-2">Click "Add Social Link" to get started</p>
         </div>
       ) : (
@@ -264,7 +264,7 @@ const SocialLinksManagement = () => {
             return (
               <div
                 key={index}
-                className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300"
+                className="bg-white rounded-2xl  p-6 border border-gray-200 hover: transition-all duration-300"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -300,14 +300,14 @@ const SocialLinksManagement = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(index)}
-                    className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 font-semibold text-sm"
+                    className="flex-1 px-4 py-2 bg-black text-white rounded-lg hover: transition-all duration-300 flex items-center justify-center gap-2 font-semibold text-sm"
                   >
                     <Edit size={16} />
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(index)}
-                    className="flex-1 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 font-semibold text-sm"
+                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover: transition-all duration-300 flex items-center justify-center gap-2 font-semibold text-sm"
                   >
                     <Trash2 size={16} />
                     Delete
@@ -337,7 +337,7 @@ const SocialLinksManagement = () => {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="e.g., Instagram, Facebook, WhatsApp"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black transition-all"
             />
           </div>
 
@@ -351,7 +351,7 @@ const SocialLinksManagement = () => {
               value={formData.url}
               onChange={(e) => setFormData({ ...formData, url: e.target.value })}
               placeholder="https://..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black transition-all"
             />
           </div>
 
@@ -373,10 +373,10 @@ const SocialLinksManagement = () => {
                 >
                   <IconComponent
                     className={`w-6 h-6 mx-auto ${
-                      formData.icon === iconName ? 'text-blue-600' : 'text-gray-600'
+                      formData.icon === iconName ? 'text-blue-600' : 'text-gray-500'
                     }`}
                   />
-                  <p className="text-xs mt-2 text-center text-gray-600">{iconName}</p>
+                  <p className="text-xs mt-2 text-center text-gray-500">{iconName}</p>
                 </button>
               ))}
             </div>
@@ -416,7 +416,7 @@ const SocialLinksManagement = () => {
             <button
               onClick={handleSave}
               disabled={saving || !formData.name.trim() || !formData.url.trim()}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-6 py-3 bg-black text-white rounded-lg hover: transition-all duration-300 flex items-center justify-center gap-2 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? (
                 <>
@@ -433,7 +433,7 @@ const SocialLinksManagement = () => {
             <button
               onClick={handleCancel}
               disabled={saving}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 text-white rounded-lg hover: transition-all duration-300 flex items-center justify-center gap-2 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <X size={18} />
               Cancel

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Edit, Trash2, CheckCircle, XCircle, Clock, Loader2, Phone, Mail, Calendar, User } from 'lucide-react';
+import { Edit, Trash2, CheckCircle, XCircle, Clock, Loader2, Phone, Mail, Calendar, User, Save, X } from 'lucide-react';
 import Modal from '../components/Modal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import ErrorModal from '../components/ErrorModal';
@@ -19,7 +19,6 @@ const BookingsManagement = () => {
 
   useEffect(() => {
     fetchBookings();
-    // Refresh bookings every 30 seconds
     const interval = setInterval(fetchBookings, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -30,36 +29,23 @@ const BookingsManagement = () => {
       const response = await bookingsApi.getAll();
       setBookings(response.data || []);
     } catch (error) {
-      console.error('Error fetching bookings:', error);
       setBookings([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleEdit = (booking) => {
     setFormData({
-      _id: booking._id,
-      firstName: booking.firstName || '',
-      lastName: booking.lastName || '',
-      email: booking.email || '',
-      phone: booking.phone || '',
-      contactNumber: booking.contactNumber || '',
-      serviceId: booking.serviceId || '',
-      serviceTitle: booking.serviceTitle || '',
-      servicePrice: booking.servicePrice || '',
-      serviceCategory: booking.serviceCategory || '',
-      designId: booking.designId || '',
-      designTitle: booking.designTitle || '',
-      designCategory: booking.designCategory || '',
-      designPrice: booking.designPrice || '',
-      date: booking.date || '',
-      time: booking.time || '',
-      notes: booking.notes || '',
+      _id: booking._id, firstName: booking.firstName || '', lastName: booking.lastName || '',
+      email: booking.email || '', phone: booking.phone || '', contactNumber: booking.contactNumber || '',
+      serviceId: booking.serviceId || '', serviceTitle: booking.serviceTitle || '',
+      servicePrice: booking.servicePrice || '', serviceCategory: booking.serviceCategory || '',
+      designId: booking.designId || '', designTitle: booking.designTitle || '',
+      designCategory: booking.designCategory || '', designPrice: booking.designPrice || '',
+      date: booking.date || '', time: booking.time || '', notes: booking.notes || '',
       status: booking.status || 'pending',
     });
     setEditingBooking(booking._id);
@@ -71,10 +57,8 @@ const BookingsManagement = () => {
       await bookingsApi.update(editingBooking, formData);
       await fetchBookings();
       handleCancel();
-      // Dispatch custom event to notify dashboard of update
       window.dispatchEvent(new CustomEvent('bookingUpdated'));
     } catch (error) {
-      console.error('Error updating booking:', error);
       setErrorMessage('Failed to update booking. Please try again.');
       setShowErrorModal(true);
     } finally {
@@ -86,18 +70,10 @@ const BookingsManagement = () => {
     try {
       const booking = bookings.find(b => b._id === bookingId);
       if (!booking) return;
-
-      const updateData = {
-        ...booking,
-        status: newStatus,
-      };
-
-      await bookingsApi.update(bookingId, updateData);
+      await bookingsApi.update(bookingId, { ...booking, status: newStatus });
       await fetchBookings();
-      // Dispatch custom event to notify dashboard of update
       window.dispatchEvent(new CustomEvent('bookingUpdated'));
     } catch (error) {
-      console.error('Error updating booking status:', error);
       setErrorMessage('Failed to update booking status. Please try again.');
       setShowErrorModal(true);
     }
@@ -110,7 +86,6 @@ const BookingsManagement = () => {
         await bookingsApi.delete(id);
         await fetchBookings();
       } catch (error) {
-        console.error('Error deleting booking:', error);
         setErrorMessage('Failed to delete booking. Please try again.');
         setShowErrorModal(true);
       }
@@ -118,93 +93,71 @@ const BookingsManagement = () => {
     setShowConfirmModal(true);
   };
 
-  const handleCancel = () => {
-    setEditingBooking(null);
-    setFormData({});
+  const handleCancel = () => { setEditingBooking(null); setFormData({}); };
+
+  const getStatusStyle = (status) => {
+    const styles = {
+      confirmed: 'border border-black text-black bg-white',
+      cancelled: 'border border-red-200 text-red-600 bg-red-50',
+      completed: 'border border-gray-700 text-white bg-gray-800',
+      pending: 'border border-gray-300 text-gray-700 bg-gray-50',
+    };
+    return styles[status] || styles.pending;
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'confirmed':
-        return 'bg-green-100 text-green-700';
-      case 'cancelled':
-        return 'bg-red-100 text-red-700';
-      case 'completed':
-        return 'bg-blue-100 text-blue-700';
-      default:
-        return 'bg-yellow-100 text-yellow-700';
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'confirmed':
-        return <CheckCircle size={16} className="text-green-600" />;
-      case 'cancelled':
-        return <XCircle size={16} className="text-red-600" />;
-      case 'completed':
-        return <CheckCircle size={16} className="text-blue-600" />;
-      default:
-        return <Clock size={16} className="text-yellow-600" />;
-    }
-  };
-
-  const filteredBookings = bookings;
+  const labelClass = "block text-[10px] font-medium tracking-widest uppercase text-gray-500 mb-2";
+  const inputClass = "w-full px-4 py-3 border border-gray-300 bg-white text-sm focus:outline-none focus:border-black transition-colors";
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
         <div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Bookings Management</h2>
-          <p className="text-gray-600">View and manage all customer bookings</p>
+          <h1
+            className="text-4xl sm:text-5xl font-light text-black mb-1"
+            style={{ fontFamily: "'Cormorant Garamond', 'Times New Roman', serif" }}
+          >
+            Bookings
+          </h1>
+          <p className="text-[10px] text-gray-400 tracking-widest uppercase">View and manage customer bookings</p>
         </div>
-        <div className="text-sm text-gray-600">
-          Total Bookings: <span className="font-semibold text-gray-900">{bookings.length}</span>
-        </div>
+        <span className="text-xs text-gray-400 tracking-widest">
+          Total: <strong className="text-black">{bookings.length}</strong>
+        </span>
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center py-16">
-          <Loader2 className="animate-spin text-blue-600" size={48} />
+        <div className="flex justify-center items-center py-24">
+          <Loader2 className="animate-spin text-black" size={36} />
         </div>
-      ) : filteredBookings.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="inline-block p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full mb-4">
-            <Calendar size={48} className="text-blue-600" />
-          </div>
-          <p className="text-gray-600 text-lg font-medium">No bookings found</p>
-          <p className="text-gray-500 text-sm mt-2">Bookings will appear here when customers submit orders</p>
+      ) : bookings.length === 0 ? (
+        <div className="text-center py-24 border border-gray-200 bg-white">
+          <Calendar size={40} className="text-gray-300 mx-auto mb-4" />
+          <p className="text-xs text-gray-400 tracking-widest uppercase mb-1">No bookings found</p>
+          <p className="text-xs text-gray-300">Bookings appear here when customers submit orders</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6">
-          {filteredBookings.map((booking) => (
-            <div
-              key={booking._id}
-              className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden"
-            >
-              <div className="p-4 sm:p-6">
-                {/* Header with Status */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+        <div className="space-y-4">
+          {bookings.map((booking) => (
+            <div key={booking._id} className="bg-white border border-gray-200 hover:border-gray-400 transition-colors overflow-hidden">
+              <div className="p-5">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                   <div className="flex items-center gap-3">
-                    <div className={`px-3 py-1.5 rounded-full flex items-center gap-2 text-xs font-semibold ${getStatusColor(booking.status)}`}>
-                      {getStatusIcon(booking.status)}
-                      <span className="capitalize">{booking.status}</span>
-                    </div>
-                    <span className="text-sm text-gray-500">
+                    <span className={`px-2.5 py-1 text-[10px] font-medium tracking-widest uppercase capitalize ${getStatusStyle(booking.status)}`}>
+                      {booking.status || 'pending'}
+                    </span>
+                    <span className="text-xs text-gray-400">
                       {new Date(booking.timestamp).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                       })}
                     </span>
                   </div>
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <select
                       value={booking.status || 'pending'}
                       onChange={(e) => handleQuickStatusUpdate(booking._id, e.target.value)}
-                      className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                      className="px-3 py-1.5 border border-gray-300 bg-white text-xs font-medium tracking-wider focus:outline-none focus:border-black transition-colors"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <option value="pending">Pending</option>
@@ -214,109 +167,81 @@ const BookingsManagement = () => {
                     </select>
                     <button
                       onClick={() => handleEdit(booking)}
-                      className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center gap-2 font-semibold text-sm"
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-black text-black text-[10px] font-medium tracking-widest uppercase hover:bg-black hover:text-white transition-all duration-200"
                     >
-                      <Edit size={16} />
-                      Edit
+                      <Edit size={11} /> Edit
                     </button>
                     <button
                       onClick={() => handleDelete(booking._id)}
-                      className="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center gap-2 font-semibold text-sm"
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-red-200 text-red-500 text-[10px] font-medium tracking-widest uppercase hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200"
                     >
-                      <Trash2 size={16} />
-                      Delete
+                      <Trash2 size={11} /> Delete
                     </button>
                   </div>
                 </div>
 
-                {/* Customer Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <User className="text-blue-600" size={20} />
-                    </div>
+                {/* Customer Info */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  <div className="flex items-start gap-2">
+                    <User size={14} className="text-gray-300 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-xs text-gray-500">Customer Name</p>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {booking.firstName} {booking.lastName}
-                      </p>
+                      <p className="text-[9px] text-gray-400 tracking-widest uppercase mb-0.5">Customer</p>
+                      <p className="text-xs font-medium text-black">{booking.firstName} {booking.lastName}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <Mail className="text-green-600" size={20} />
-                    </div>
+                  <div className="flex items-start gap-2">
+                    <Mail size={14} className="text-gray-300 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-xs text-gray-500">Email</p>
-                      <p className="text-sm font-semibold text-gray-900 break-all">{booking.email}</p>
+                      <p className="text-[9px] text-gray-400 tracking-widest uppercase mb-0.5">Email</p>
+                      <p className="text-xs font-medium text-black break-all">{booking.email}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-purple-100 rounded-lg">
-                      <Phone className="text-purple-600" size={20} />
-                    </div>
+                  <div className="flex items-start gap-2">
+                    <Phone size={14} className="text-gray-300 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-xs text-gray-500">Phone</p>
-                      <p className="text-sm font-semibold text-gray-900">{booking.phone}</p>
+                      <p className="text-[9px] text-gray-400 tracking-widest uppercase mb-0.5">Phone</p>
+                      <p className="text-xs font-medium text-black">{booking.phone || '—'}</p>
                     </div>
                   </div>
-                  {booking.contactNumber && (
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-orange-100 rounded-lg">
-                        <Phone className="text-orange-600" size={20} />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Contact Number</p>
-                        <p className="text-sm font-semibold text-gray-900">{booking.contactNumber}</p>
-                      </div>
+                  <div className="flex items-start gap-2">
+                    <Calendar size={14} className="text-gray-300 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-[9px] text-gray-400 tracking-widest uppercase mb-0.5">Date / Time</p>
+                      <p className="text-xs font-medium text-black">{booking.date || '—'} {booking.time && `· ${booking.time}`}</p>
                     </div>
-                  )}
+                  </div>
                 </div>
 
-                {/* Service/Design Information */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Booking Details</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Booking Details */}
+                <div className="border-t border-gray-100 pt-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {(booking.serviceTitle || booking.designTitle) && (
                       <div>
-                        <p className="text-xs text-gray-500">Service/Design</p>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {booking.serviceTitle || booking.designTitle}
-                        </p>
-                        {(booking.serviceCategory || booking.designCategory) && (
-                          <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
-                            {booking.serviceCategory || booking.designCategory}
-                          </span>
-                        )}
+                        <p className="text-[9px] text-gray-400 tracking-widest uppercase mb-0.5">Service / Design</p>
+                        <p className="text-xs font-medium text-black">{booking.serviceTitle || booking.designTitle}</p>
+                      </div>
+                    )}
+                    {(booking.serviceCategory || booking.designCategory) && (
+                      <div>
+                        <p className="text-[9px] text-gray-400 tracking-widest uppercase mb-0.5">Category</p>
+                        <span className="inline-block mt-0.5 px-2 py-0.5 border border-gray-200 text-[9px] font-medium tracking-widest uppercase text-gray-600">
+                          {booking.serviceCategory || booking.designCategory}
+                        </span>
                       </div>
                     )}
                     {(booking.servicePrice || booking.designPrice) && (
                       <div>
-                        <p className="text-xs text-gray-500">Price</p>
-                        <p className="text-sm font-semibold text-green-600">
-                          {booking.servicePrice || booking.designPrice}
-                        </p>
+                        <p className="text-[9px] text-gray-400 tracking-widest uppercase mb-0.5">Price</p>
+                        <p className="text-xs font-medium text-black">{booking.servicePrice || booking.designPrice}</p>
                       </div>
                     )}
-                    {booking.date && (
-                      <div>
-                        <p className="text-xs text-gray-500">Date</p>
-                        <p className="text-sm font-semibold text-gray-900">{booking.date}</p>
-                      </div>
-                    )}
-                    {booking.time && (
-                      <div>
-                        <p className="text-xs text-gray-500">Time</p>
-                        <p className="text-sm font-semibold text-gray-900">{booking.time}</p>
+                    {booking.notes && (
+                      <div className="col-span-2 sm:col-span-4">
+                        <p className="text-[9px] text-gray-400 tracking-widest uppercase mb-0.5">Notes</p>
+                        <p className="text-xs text-gray-600">{booking.notes}</p>
                       </div>
                     )}
                   </div>
-                  {booking.notes && (
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <p className="text-xs text-gray-500 mb-1">Notes</p>
-                      <p className="text-sm text-gray-700">{booking.notes}</p>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -325,191 +250,78 @@ const BookingsManagement = () => {
       )}
 
       {/* Edit Modal */}
-      <Modal
-        isOpen={editingBooking !== null}
-        onClose={handleCancel}
-        title="Edit Booking"
-        maxWidth="max-w-3xl"
-      >
+      <Modal isOpen={editingBooking !== null} onClose={handleCancel} title="Edit Booking" maxWidth="max-w-3xl">
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
-              <input
-                type="text"
-                name="firstName"
-                value={formData.firstName || ''}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                required
-              />
+              <label className={labelClass}>First Name *</label>
+              <input type="text" name="firstName" value={formData.firstName || ''} onChange={handleChange} className={inputClass} required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
-              <input
-                type="text"
-                name="lastName"
-                value={formData.lastName || ''}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                required
-              />
+              <label className={labelClass}>Last Name *</label>
+              <input type="text" name="lastName" value={formData.lastName || ''} onChange={handleChange} className={inputClass} required />
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email || ''}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                required
-              />
+              <label className={labelClass}>Email *</label>
+              <input type="email" name="email" value={formData.email || ''} onChange={handleChange} className={inputClass} required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone || ''}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                required
-              />
+              <label className={labelClass}>Phone *</label>
+              <input type="tel" name="phone" value={formData.phone || ''} onChange={handleChange} className={inputClass} required />
             </div>
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Contact Number (Optional)</label>
-            <input
-              type="tel"
-              name="contactNumber"
-              value={formData.contactNumber || ''}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-              placeholder="Alternative contact number"
-            />
+            <label className={labelClass}>Contact Number (Optional)</label>
+            <input type="tel" name="contactNumber" value={formData.contactNumber || ''} onChange={handleChange} className={inputClass} placeholder="Alternative contact number" />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Date *</label>
-              <input
-                type="date"
-                name="date"
-                value={formData.date || ''}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                required
-              />
+              <label className={labelClass}>Date *</label>
+              <input type="date" name="date" value={formData.date || ''} onChange={handleChange} className={inputClass} required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Time *</label>
-              <input
-                type="text"
-                name="time"
-                value={formData.time || ''}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                required
-              />
+              <label className={labelClass}>Time *</label>
+              <input type="text" name="time" value={formData.time || ''} onChange={handleChange} className={inputClass} required />
             </div>
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-            <select
-              name="status"
-              value={formData.status || 'pending'}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-            >
+            <label className={labelClass}>Status</label>
+            <select name="status" value={formData.status || 'pending'} onChange={handleChange} className={inputClass}>
               <option value="pending">Pending</option>
               <option value="confirmed">Confirmed</option>
               <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Service/Design Title</label>
-            <input
-              type="text"
-              name="serviceTitle"
-              value={formData.serviceTitle || formData.designTitle || ''}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-              readOnly
-            />
+            <label className={labelClass}>Service / Design Title</label>
+            <input type="text" name="serviceTitle" value={formData.serviceTitle || formData.designTitle || ''} onChange={handleChange} className={inputClass} readOnly />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-            <textarea
-              name="notes"
-              value={formData.notes || ''}
-              onChange={handleChange}
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
-            />
+            <label className={labelClass}>Notes</label>
+            <textarea name="notes" value={formData.notes || ''} onChange={handleChange} rows={3} className={`${inputClass} resize-none`} />
           </div>
-
-          <div className="flex gap-3 pt-4">
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="animate-spin" size={18} />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <CheckCircle size={18} />
-                  Save Changes
-                </>
-              )}
+          <div className="flex gap-3 pt-2">
+            <button onClick={handleSave} disabled={saving}
+              className="flex-1 py-3 bg-black text-white text-xs font-medium tracking-widest uppercase hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+              {saving ? <><Loader2 className="animate-spin" size={13} />Saving...</> : <><Save size={13} />Save Changes</>}
             </button>
-            <button
-              onClick={handleCancel}
-              disabled={saving}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <XCircle size={18} />
-              Cancel
+            <button onClick={handleCancel} disabled={saving}
+              className="flex-1 py-3 border border-gray-300 text-gray-600 text-xs font-medium tracking-widest uppercase hover:bg-gray-100 transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+              <X size={13} />Cancel
             </button>
           </div>
         </div>
       </Modal>
 
-      {/* Confirmation Modal */}
       <ConfirmationModal
-        isOpen={showConfirmModal}
-        onClose={() => setShowConfirmModal(false)}
-        onConfirm={() => {
-          if (confirmAction) {
-            confirmAction();
-          }
-        }}
-        title="Confirm Action"
-        message={confirmMessage}
-        confirmText="Confirm"
-        cancelText="Cancel"
-        type="warning"
+        isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)}
+        onConfirm={() => { if (confirmAction) confirmAction(); }}
+        title="Confirm Action" message={confirmMessage} confirmText="Confirm" cancelText="Cancel" type="error"
       />
-
-      {/* Error Modal */}
-      <ErrorModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        title="Error"
-        message={errorMessage}
-      />
+      <ErrorModal isOpen={showErrorModal} onClose={() => setShowErrorModal(false)} title="Error" message={errorMessage} />
     </div>
   );
 };

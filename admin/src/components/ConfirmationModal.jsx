@@ -14,78 +14,70 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
           />
 
           {/* Modal */}
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.97, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative pointer-events-auto"
+              exit={{ opacity: 0, scale: 0.97, y: 12 }}
+              transition={{ type: "spring", damping: 30, stiffness: 350 }}
+              className="bg-white border border-gray-200 max-w-md w-full p-6 sm:p-8 relative pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-100 transition-colors rounded-sm"
                 aria-label="Close modal"
               >
-                <X size={20} className="text-gray-500" />
+                <X size={18} />
               </button>
 
               {/* Icon */}
-              <div className="flex justify-center mb-4">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                  type === 'warning' ? 'bg-yellow-100' : 
-                  type === 'error' ? 'bg-red-100' : 
-                  'bg-blue-100'
+              <div className="flex justify-center mb-5">
+                <div className={`w-14 h-14 border flex items-center justify-center ${
+                  type === 'error' ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-gray-50'
                 }`}>
-                  <AlertTriangle 
-                    size={40} 
-                    className={type === 'warning' ? 'text-yellow-600' : 
-                              type === 'error' ? 'text-red-600' : 
-                              'text-blue-600'} 
+                  <AlertTriangle
+                    size={28}
+                    className={type === 'error' ? 'text-red-600' : 'text-black'}
                   />
                 </div>
               </div>
 
               {/* Content */}
               <div className="text-center">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-black mb-2 tracking-wide" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                   {title}
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-sm text-gray-500 mb-6 leading-relaxed">
                   {message}
                 </p>
-                
+
                 {/* Buttons */}
                 <div className="flex gap-3 justify-center">
-                  <motion.button
+                  <button
                     onClick={onClose}
-                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-300"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    className="px-5 py-2.5 border border-gray-300 text-gray-600 text-xs font-medium tracking-widest uppercase hover:bg-gray-100 hover:text-black transition-all duration-200"
                   >
                     {cancelText}
-                  </motion.button>
-                  <motion.button
+                  </button>
+                  <button
                     onClick={() => {
                       onConfirm();
                       onClose();
                     }}
-                    className={`px-6 py-3 rounded-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 ${
-                      type === 'warning' ? 'bg-yellow-600 hover:bg-yellow-700' :
-                      type === 'error' ? 'bg-red-600 hover:bg-red-700' :
-                      'bg-blue-600 hover:bg-blue-700'
+                    className={`px-5 py-2.5 text-xs font-medium tracking-widest uppercase transition-all duration-200 ${
+                      type === 'error'
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-black text-white hover:bg-gray-800'
                     }`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
                   >
                     {confirmText}
-                  </motion.button>
+                  </button>
                 </div>
               </div>
             </motion.div>
@@ -97,4 +89,3 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
 };
 
 export default ConfirmationModal;
-

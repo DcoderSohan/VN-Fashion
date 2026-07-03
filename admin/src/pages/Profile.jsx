@@ -278,12 +278,12 @@ const Profile = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
+      <div className="bg-white rounded-xl  p-6 sm:p-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-6 border-b">
           <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Profile Settings</h1>
-            <p className="text-gray-600">Manage your account information and preferences</p>
+            <p className="text-gray-500">Manage your account information and preferences</p>
           </div>
           <button
             onClick={handleLogout}
@@ -301,7 +301,7 @@ const Profile = () => {
             className={`px-4 py-2 font-medium transition-colors ${
               activeTab === 'profile'
                 ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-600 hover:text-gray-800'
+                : 'text-gray-500 hover:text-gray-800'
             }`}
           >
             <User size={18} className="inline mr-2" />
@@ -312,7 +312,7 @@ const Profile = () => {
             className={`px-4 py-2 font-medium transition-colors ${
               activeTab === 'password'
                 ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-600 hover:text-gray-800'
+                : 'text-gray-500 hover:text-gray-800'
             }`}
           >
             <Key size={18} className="inline mr-2" />
@@ -323,7 +323,7 @@ const Profile = () => {
             className={`px-4 py-2 font-medium transition-colors ${
               activeTab === 'avatar'
                 ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-600 hover:text-gray-800'
+                : 'text-gray-500 hover:text-gray-800'
             }`}
           >
             <Camera size={18} className="inline mr-2" />
@@ -359,7 +359,7 @@ const Profile = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black outline-none"
                 />
               </div>
             </div>
@@ -392,7 +392,7 @@ const Profile = () => {
                     value={formData.currentPassword}
                     onChange={handleChange}
                     required
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black outline-none"
                   />
                 </div>
               </div>
@@ -411,7 +411,7 @@ const Profile = () => {
                     onChange={handleChange}
                     required
                     minLength={6}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black outline-none"
                   />
                 </div>
               </div>
@@ -429,7 +429,7 @@ const Profile = () => {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     required
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black outline-none"
                   />
                 </div>
               </div>

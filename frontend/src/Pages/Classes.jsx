@@ -413,6 +413,11 @@ const Classes = () => {
     }
   `;
 
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [])
+
   return (
     <div className="cp-root">
       <style>{css}</style>
@@ -466,7 +471,7 @@ const Classes = () => {
                   {featured.description}
                 </p>
               )}
-              
+
               <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center', marginTop: 'auto', paddingTop: '20px' }}>
                 {featured.price && (
                   <span style={{ fontSize: '1.25rem', fontWeight: 500, color: '#b8860b', letterSpacing: '0.02em', fontFamily: "'Cormorant Garamond', serif" }}>
