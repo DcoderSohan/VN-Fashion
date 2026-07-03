@@ -32,9 +32,9 @@ export const API_ENDPOINTS = {
 export const DEFAULT_DATA = {
   ABOUT: {
     aboutText: "We specialize in exquisite Aari embroidery, a refined handcraft using a hooked needle to create delicate chain-stitch motifs enhanced with beads, mirrors, metallic zari threads, and intricate embellishments.",
-    designerName: "Vidisha",
+    designerName: "Vidisha Natekar",
     designerTitle: "Master Artisan & Designer",
-    designerBio: "With over a decade of experience in traditional Indian embroidery and contemporary fashion design, Vidisha brings together the best of both worlds. Specializing in Aari embroidery, she creates exquisite pieces that blend traditional craftsmanship with modern aesthetics.",
+    designerBio: "With over a decade of experience in traditional Indian embroidery and contemporary fashion design, Vidisha Natekar brings together the best of both worlds. Specializing in Aari embroidery, she creates exquisite pieces that blend traditional craftsmanship with modern aesthetics.",
     designerImage: "/vidisha.jpg"
   },
   ACHIEVEMENTS: [

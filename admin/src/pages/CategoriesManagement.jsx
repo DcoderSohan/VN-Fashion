@@ -113,7 +113,7 @@ const CategoriesManagement = () => {
               </div>
               <button
                 onClick={() => handleDelete(item._id)}
-                className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200 opacity-0 group-hover:opacity-100 rounded-sm"
+                className="p-1.5 text-gray-300 hover:text-black hover:bg-gray-100 transition-all duration-200 opacity-0 group-hover:opacity-100 rounded-sm"
                 title="Delete"
               >
                 <Trash2 size={13} />

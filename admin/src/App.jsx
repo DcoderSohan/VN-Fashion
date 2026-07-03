@@ -3,14 +3,14 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getImageUrl } from './utils/helpers';
 import api from './utils/api';
-import { 
+import {
   LayoutDashboard,
-  Image, 
-  FileText, 
-  Award, 
-  Clock, 
-  ShoppingBag, 
-  Tag, 
+  Image,
+  FileText,
+  Award,
+  Clock,
+  ShoppingBag,
+  Tag,
   Calendar,
   MessageSquare,
   Menu,
@@ -39,11 +39,11 @@ import Profile from './pages/Profile';
 function ProtectedRoute({ children }) {
   const adminToken = localStorage.getItem('adminToken');
   const currentAdmin = localStorage.getItem('currentAdmin');
-  
+
   if (!adminToken || !currentAdmin) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return children;
 }
 
@@ -60,7 +60,7 @@ function DashboardLayout({ children }) {
         navigate('/login');
         return;
       }
-      
+
       try {
         const response = await api.get('/admin/profile');
         setCurrentUser(response.data);
@@ -128,7 +128,7 @@ function DashboardLayout({ children }) {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f4f2', fontFamily: "'Unbounded', system-ui, sans-serif" }}>
-      
+
       {/* Top Navigation Bar */}
       <nav className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-4">
@@ -142,7 +142,7 @@ function DashboardLayout({ children }) {
 
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <span 
+            <span
               className="text-xl sm:text-2xl font-bold tracking-[0.2em] text-black uppercase"
               style={{ fontFamily: "'Cormorant Garamond', 'Times New Roman', serif" }}
             >
@@ -157,7 +157,7 @@ function DashboardLayout({ children }) {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => window.open('http://localhost:5174', '_blank')}
+            onClick={() => window.open('https://vn-fashion.vercel.app', '_blank')}
             className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-black text-white text-xs font-medium tracking-wider uppercase hover:bg-gray-800 transition-colors duration-200"
           >
             <ExternalLink size={14} />
@@ -203,11 +203,10 @@ function DashboardLayout({ children }) {
                   <button
                     key={item.id}
                     onClick={() => handleMenuClick(item.path)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-xs font-medium tracking-wider uppercase transition-all duration-150 rounded-sm ${
-                      active
-                        ? 'bg-black text-white'
-                        : 'text-gray-500 hover:bg-gray-100 hover:text-black'
-                    }`}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-xs font-medium tracking-wider uppercase transition-all duration-150 rounded-sm ${active
+                      ? 'bg-black text-white'
+                      : 'text-gray-500 hover:bg-gray-100 hover:text-black'
+                      }`}
                   >
                     <Icon size={15} />
                     <span>{item.label}</span>
@@ -290,11 +289,10 @@ function DashboardLayout({ children }) {
                       <button
                         key={item.id}
                         onClick={() => handleMenuClick(item.path)}
-                        className={`w-full flex items-center gap-3 px-3 py-3 text-xs font-medium tracking-wider uppercase transition-all duration-150 rounded-sm ${
-                          active
-                            ? 'bg-black text-white'
-                            : 'text-gray-500 hover:bg-gray-100 hover:text-black'
-                        }`}
+                        className={`w-full flex items-center gap-3 px-3 py-3 text-xs font-medium tracking-wider uppercase transition-all duration-150 rounded-sm ${active
+                          ? 'bg-black text-white'
+                          : 'text-gray-500 hover:bg-gray-100 hover:text-black'
+                          }`}
                       >
                         <Icon size={15} />
                         <span>{item.label}</span>
@@ -335,7 +333,7 @@ function App() {
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        
+
         {/* Protected Routes */}
         <Route path="/" element={
           <ProtectedRoute>
@@ -407,7 +405,7 @@ function App() {
             </DashboardLayout>
           </ProtectedRoute>
         } />
-        
+
         {/* Redirect unknown routes */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

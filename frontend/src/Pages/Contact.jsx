@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Mail, Phone, Clock, ArrowRight, CheckCircle } from "lucide-react";
 import Navbar from "../Components/Navbar/Navbar";

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Camera, Save, LogOut, Key } from 'lucide-react';
+import { Mail, Lock, User, Camera, Save, LogOut, Key, Loader2, X } from 'lucide-react';
 import api from '../utils/api';
 import { getImageUrl } from '../utils/helpers';
 
@@ -13,11 +13,11 @@ const Profile = () => {
     confirmPassword: '',
     avatar: '',
   });
-  const [avatarPreview, setAvatarPreview] = useState(''); // For local preview before upload
+  const [avatarPreview, setAvatarPreview] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'password', 'avatar'
+  const [activeTab, setActiveTab] = useState('profile');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const Profile = () => {
           confirmPassword: '',
           avatar: adminData.avatar || '',
         });
-        setAvatarPreview(''); // Clear preview on load
+        setAvatarPreview('');
       } catch (error) {
         console.error('Error fetching profile:', error);
         navigate('/login');
@@ -60,8 +60,6 @@ const Profile = () => {
         setError('Image size must be less than 2MB');
         return;
       }
-
-      // Preview the image locally (for preview only)
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result);
@@ -76,14 +74,12 @@ const Profile = () => {
     setSuccess('');
     setLoading(true);
 
-    // Client-side validation
     if (!formData.email || formData.email.trim() === '') {
       setError('Email is required');
       setLoading(false);
       return;
     }
 
-    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError('Please enter a valid email address');
@@ -91,7 +87,6 @@ const Profile = () => {
       return;
     }
 
-    // Check if email changed
     if (formData.email.toLowerCase().trim() === currentUser?.email?.toLowerCase()) {
       setError('New email must be different from current email');
       setLoading(false);
@@ -103,7 +98,6 @@ const Profile = () => {
         email: formData.email.trim(),
       });
 
-      // Update local state from MongoDB response
       setCurrentUser(response.data);
       setFormData(prev => ({
         ...prev,
@@ -113,7 +107,6 @@ const Profile = () => {
 
       setSuccess('Email updated successfully!');
       
-      // Refresh profile after 2 seconds
       setTimeout(async () => {
         try {
           const freshResponse = await api.get('/admin/profile');
@@ -130,7 +123,6 @@ const Profile = () => {
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Failed to update email';
       setError(errorMessage);
-      console.error('Email update error:', err);
     } finally {
       setLoading(false);
     }
@@ -142,7 +134,6 @@ const Profile = () => {
     setSuccess('');
     setLoading(true);
 
-    // Client-side validation
     if (!formData.currentPassword || !formData.newPassword || !formData.confirmPassword) {
       setError('All password fields are required');
       setLoading(false);
@@ -168,7 +159,7 @@ const Profile = () => {
     }
 
     try {
-      const response = await api.put('/admin/profile/password', {
+      await api.put('/admin/profile/password', {
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword,
         confirmPassword: formData.confirmPassword,
@@ -176,7 +167,6 @@ const Profile = () => {
 
       setSuccess('Password changed successfully!');
       
-      // Clear password fields
       setFormData({
         ...formData,
         currentPassword: '',
@@ -186,12 +176,10 @@ const Profile = () => {
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Failed to change password';
       setError(errorMessage);
-      console.error('Password update error:', err);
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleAvatarUpdate = async (e) => {
     e.preventDefault();
@@ -200,7 +188,6 @@ const Profile = () => {
     setLoading(true);
 
     try {
-      // Get the file input
       const fileInput = document.getElementById('avatar-upload');
       const file = fileInput?.files[0];
 
@@ -210,41 +197,33 @@ const Profile = () => {
         return;
       }
 
-      // Create FormData for file upload
       const formDataToSend = new FormData();
       formDataToSend.append('avatar', file);
 
       const response = await api.put('/admin/profile/avatar', formDataToSend);
 
-      // Verify response has avatar URL
       if (!response.data || !response.data.avatar) {
         throw new Error('Avatar URL not returned from server');
       }
 
-      // Update local state with data from MongoDB (not localStorage)
       setCurrentUser({
         _id: response.data._id,
         email: response.data.email,
         avatar: response.data.avatar,
       });
 
-      // Update form data with new avatar URL from MongoDB
       setFormData({
         ...formData,
         avatar: response.data.avatar,
       });
       
-      // Clear preview after successful upload
       setAvatarPreview('');
-      
-      // Reset file input
       if (fileInput) {
         fileInput.value = '';
       }
 
       setSuccess('Profile image updated successfully!');
       
-      // Force a re-render by fetching fresh data from MongoDB
       setTimeout(async () => {
         try {
           const freshResponse = await api.get('/admin/profile');
@@ -273,72 +252,77 @@ const Profile = () => {
   };
 
   if (!currentUser) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center py-24">
+        <Loader2 className="animate-spin text-black" size={36} />
+      </div>
+    );
   }
 
+  const labelClass = 'block text-[10px] font-medium tracking-widest uppercase text-gray-500 mb-2';
+  const inputClass = 'w-full pl-10 pr-4 py-3 border border-gray-200 bg-white text-sm focus:outline-none focus:border-black transition-colors font-light';
+
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-xl  p-6 sm:p-8">
+    <div className="max-w-3xl mx-auto">
+      <div className="bg-white border border-gray-200 p-6 sm:p-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-6 border-b">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-6 border-b border-gray-100">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Profile Settings</h1>
-            <p className="text-gray-500">Manage your account information and preferences</p>
+            <h1 
+              className="text-4xl font-light text-black mb-1"
+              style={{ fontFamily: "'Cormorant Garamond', 'Times New Roman', serif" }}
+            >
+              Profile Settings
+            </h1>
+            <p className="text-[10px] text-gray-400 tracking-widest uppercase">Manage account credentials and avatar</p>
           </div>
           <button
             onClick={handleLogout}
-            className="mt-4 sm:mt-0 flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="mt-4 sm:mt-0 flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-600 text-[10px] font-medium tracking-widest uppercase hover:bg-black hover:text-white hover:border-black transition-all duration-200"
           >
-            <LogOut size={20} />
+            <LogOut size={14} />
             <span>Logout</span>
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex flex-wrap gap-2 mb-6 border-b">
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`px-4 py-2 font-medium transition-colors ${
-              activeTab === 'profile'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-800'
-            }`}
-          >
-            <User size={18} className="inline mr-2" />
-            Profile
-          </button>
-          <button
-            onClick={() => setActiveTab('password')}
-            className={`px-4 py-2 font-medium transition-colors ${
-              activeTab === 'password'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-800'
-            }`}
-          >
-            <Key size={18} className="inline mr-2" />
-            Password
-          </button>
-          <button
-            onClick={() => setActiveTab('avatar')}
-            className={`px-4 py-2 font-medium transition-colors ${
-              activeTab === 'avatar'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-800'
-            }`}
-          >
-            <Camera size={18} className="inline mr-2" />
-            Avatar
-          </button>
+        <div className="flex gap-4 mb-6 border-b border-gray-100 pb-3">
+          {[
+            { id: 'profile', label: 'Profile', icon: User },
+            { id: 'password', label: 'Password', icon: Key },
+            { id: 'avatar', label: 'Avatar', icon: Camera },
+          ].map(tab => {
+            const Icon = tab.icon;
+            const active = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setError('');
+                  setSuccess('');
+                }}
+                className={`flex items-center gap-2 pb-3 text-[10px] font-medium tracking-widest uppercase border-b-2 transition-all ${
+                  active 
+                    ? 'border-[#b8860b] text-[#b8860b]' 
+                    : 'border-transparent text-gray-400 hover:text-black'
+                }`}
+              >
+                <Icon size={13} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Error/Success Messages */}
+        {/* Messages */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+          <div className="border border-gray-300 bg-gray-50 text-black px-4 py-3 text-xs tracking-wide mb-6">
             {error}
           </div>
         )}
         {success && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+          <div className="border border-[#b8860b]/30 bg-[#fbfbfa] text-[#b8860b] px-4 py-3 text-xs tracking-wide mb-6">
             {success}
           </div>
         )}
@@ -347,11 +331,11 @@ const Profile = () => {
         {activeTab === 'profile' && (
           <form onSubmit={handleEmailUpdate} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className={labelClass}>
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                 <input
                   type="email"
                   id="email"
@@ -359,7 +343,7 @@ const Profile = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black outline-none"
+                  className={inputClass}
                 />
               </div>
             </div>
@@ -367,9 +351,9 @@ const Profile = () => {
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-black text-white text-[10px] font-medium tracking-widest uppercase hover:bg-gray-800 transition-colors disabled:opacity-50"
             >
-              <Save size={20} />
+              <Save size={13} />
               {loading ? 'Updating...' : 'Update Email'}
             </button>
           </form>
@@ -377,122 +361,110 @@ const Profile = () => {
 
         {/* Password Tab */}
         {activeTab === 'password' && (
-          <div className="space-y-6">
-            <form onSubmit={handlePasswordChange} className="space-y-6">
-              <div>
-                <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Current Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="password"
-                    id="currentPassword"
-                    name="currentPassword"
-                    value={formData.currentPassword}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black outline-none"
-                  />
-                </div>
+          <form onSubmit={handlePasswordChange} className="space-y-6">
+            <div>
+              <label htmlFor="currentPassword" className={labelClass}>
+                Current Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="password"
+                  id="currentPassword"
+                  name="currentPassword"
+                  value={formData.currentPassword}
+                  onChange={handleChange}
+                  required
+                  className={inputClass}
+                />
               </div>
+            </div>
 
-              <div>
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  New Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="password"
-                    id="newPassword"
-                    name="newPassword"
-                    value={formData.newPassword}
-                    onChange={handleChange}
-                    required
-                    minLength={6}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black outline-none"
-                  />
-                </div>
+            <div>
+              <label htmlFor="newPassword" className={labelClass}>
+                New Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="password"
+                  id="newPassword"
+                  name="newPassword"
+                  value={formData.newPassword}
+                  onChange={handleChange}
+                  required
+                  minLength={6}
+                  className={inputClass}
+                />
               </div>
+            </div>
 
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm New Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black outline-none"
-                  />
-                </div>
+            <div>
+              <label htmlFor="confirmPassword" className={labelClass}>
+                Confirm New Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  className={inputClass}
+                />
               </div>
+            </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
-              >
-                <Save size={20} />
-                {loading ? 'Changing...' : 'Change Password'}
-              </button>
-            </form>
-          </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-black text-white text-[10px] font-medium tracking-widest uppercase hover:bg-gray-800 transition-colors disabled:opacity-50"
+            >
+              <Save size={13} />
+              {loading ? 'Changing...' : 'Change Password'}
+            </button>
+          </form>
         )}
 
         {/* Avatar Tab */}
         {activeTab === 'avatar' && (
           <form onSubmit={handleAvatarUpdate} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-4">
+              <label className={labelClass}>
                 Profile Image
               </label>
               
-              {/* Current Avatar Preview */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-6">
-                <div className="relative">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 mb-6">
+                <div className="relative w-32 h-32 border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
                   {avatarPreview ? (
-                    // Show local preview if available (before upload)
                     <img
                       src={avatarPreview}
                       alt="Profile Preview"
-                      className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
+                      className="w-full h-full object-cover"
                     />
                   ) : currentUser?.avatar || formData.avatar ? (
-                    // Show actual avatar from MongoDB (Cloudinary or local)
                     <img
-                      key={currentUser?.avatar || formData.avatar} // Force re-render when avatar changes
+                      key={currentUser?.avatar || formData.avatar}
                       src={getImageUrl(currentUser?.avatar || formData.avatar)}
                       alt="Profile"
-                      className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
+                      className="w-full h-full object-cover"
                       onError={(e) => {
-                        // Fallback if image fails to load
-                        console.error('Image load error:', currentUser?.avatar || formData.avatar);
                         e.target.style.display = 'none';
-                      }}
-                      onLoad={() => {
-                        console.log('Image loaded successfully:', currentUser?.avatar || formData.avatar);
                       }}
                     />
                   ) : (
-                    <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300">
-                      <User size={48} className="text-gray-400" />
-                    </div>
+                    <User size={32} className="text-gray-300" />
                   )}
                 </div>
 
-                <div className="flex-1">
+                <div className="flex-1 flex flex-col items-center sm:items-start">
                   <label
                     htmlFor="avatar-upload"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg cursor-pointer transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 border border-black text-black text-[10px] font-medium tracking-widest uppercase hover:bg-black hover:text-white transition-colors cursor-pointer"
                   >
-                    <Camera size={20} />
+                    <Camera size={13} />
                     {formData.avatar ? 'Change Image' : 'Upload Image'}
                   </label>
                   <input
@@ -502,20 +474,19 @@ const Profile = () => {
                     onChange={handleAvatarChange}
                     className="hidden"
                   />
-                  <p className="mt-2 text-sm text-gray-500">
+                  <p className="mt-3 text-[10px] text-gray-400 font-light tracking-wide uppercase">
                     Recommended: Square image, max 2MB
                   </p>
                 </div>
               </div>
-
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-black text-white text-[10px] font-medium tracking-widest uppercase hover:bg-gray-800 transition-colors disabled:opacity-50"
             >
-              <Save size={20} />
+              <Save size={13} />
               {loading ? 'Updating...' : 'Update Avatar'}
             </button>
           </form>

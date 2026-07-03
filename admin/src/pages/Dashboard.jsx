@@ -148,7 +148,7 @@ const Dashboard = () => {
       pending: 'border border-gray-300 text-gray-700 bg-gray-50',
       confirmed: 'border border-black text-black bg-white',
       completed: 'border border-gray-700 text-white bg-gray-800',
-      cancelled: 'border border-red-200 text-red-600 bg-red-50',
+      cancelled: 'border border-gray-200 text-gray-400 bg-gray-50',
     };
     return styles[status] || styles.pending;
   };

@@ -37,7 +37,7 @@ const About = () => {
             aboutText: data.aboutText || "We construct artifacts of intentional identity. VN Fashion serves as a laboratory for sartorial experimentation, where textiles are treated as structural components to redefine the modern silhouette.",
             designerName: data.designerName || "VIDISHA NATEKAR",
             designerTitle: data.designerTitle || "FOUNDER & CREATIVE DIRECTOR",
-            designerBio: data.designerBio || "With a background in architectural texturing and years of apprenticeship under master artisans, VIDISHA NATEKAR brings together the best of both worlds. He creates exquisite pieces that blend traditional craftsmanship with modern aesthetics.",
+            designerBio: data.designerBio || "With a background in architectural texturing and years of apprenticeship under master artisans, Vidisha Natekar brings together the best of both worlds. She creates exquisite pieces that blend traditional craftsmanship with modern aesthetics.",
             designerImage: data.designerImage || "/Me.jpg"
           });
         }
@@ -265,7 +265,7 @@ const About = () => {
 
             {/* Bio with GSAP scroll-triggered text reveal */}
             <p ref={paragraphRef} className="text-xs text-gray-650 leading-relaxed tracking-wide font-light mb-8">
-              {splitTextIntoLetters(aboutData.designerBio || "With a background in architectural texturing and years of apprenticeship under master artisans, VIDISHA NATEKAR brings together the best of both worlds. He creates exquisite pieces that blend traditional craftsmanship with modern aesthetics.")}
+              {splitTextIntoLetters(aboutData.designerBio || "With a background in architectural texturing and years of apprenticeship under master artisans, Vidisha Natekar brings together the best of both worlds. She creates exquisite pieces that blend traditional craftsmanship with modern aesthetics.")}
             </p>
           </div>
 

@@ -205,7 +205,7 @@ const GalleryManagement = () => {
                   </button>
                   <button
                     onClick={() => handleDelete(item._id)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-red-200 text-red-500 text-[10px] font-medium tracking-widest uppercase hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-gray-300 text-gray-500 text-[10px] font-medium tracking-widest uppercase hover:bg-black hover:text-white hover:border-black transition-all duration-200"
                   >
                     <Trash2 size={12} />
                     Delete

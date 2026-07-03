@@ -98,7 +98,7 @@ const BookingsManagement = () => {
   const getStatusStyle = (status) => {
     const styles = {
       confirmed: 'border border-black text-black bg-white',
-      cancelled: 'border border-red-200 text-red-600 bg-red-50',
+      cancelled: 'border border-gray-200 text-gray-400 bg-gray-50',
       completed: 'border border-gray-700 text-white bg-gray-800',
       pending: 'border border-gray-300 text-gray-700 bg-gray-50',
     };
@@ -173,7 +173,7 @@ const BookingsManagement = () => {
                     </button>
                     <button
                       onClick={() => handleDelete(booking._id)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 border border-red-200 text-red-500 text-[10px] font-medium tracking-widest uppercase hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200"
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 text-gray-500 text-[10px] font-medium tracking-widest uppercase hover:bg-black hover:text-white hover:border-black transition-all duration-200"
                     >
                       <Trash2 size={11} /> Delete
                     </button>

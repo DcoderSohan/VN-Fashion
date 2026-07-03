@@ -116,7 +116,7 @@ const ContactsManagement = () => {
                   </div>
                   <button
                     onClick={() => handleDelete(contact._id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 border border-red-200 text-red-500 text-[10px] font-medium tracking-widest uppercase hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200"
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 text-gray-500 text-[10px] font-medium tracking-widest uppercase hover:bg-black hover:text-white hover:border-black transition-all duration-200"
                   >
                     <Trash2 size={12} />
                     Delete
