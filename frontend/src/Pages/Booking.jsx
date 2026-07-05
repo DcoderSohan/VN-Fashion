@@ -79,6 +79,47 @@ const Booking = () => {
     }
   }, [location.state]);
 
+  // Auto-select related service when services load or designCategory changes
+  useEffect(() => {
+    if (services.length > 0 && formData.designCategory && !formData.serviceId) {
+      // 1. Try to find service with matching category (case-insensitive)
+      let match = services.find(s => 
+        s.category?.toLowerCase() === formData.designCategory.toLowerCase()
+      );
+
+      // 2. If no matching category, try substring matching
+      if (!match) {
+        match = services.find(s => 
+          s.title?.toLowerCase().includes(formData.designCategory.toLowerCase()) ||
+          formData.designCategory.toLowerCase().includes(s.title?.toLowerCase())
+        );
+      }
+
+      // 3. Fallback: match couture/tailoring keywords
+      if (!match) {
+        match = services.find(s => 
+          s.title?.toLowerCase().includes('tailor') || 
+          s.category?.toLowerCase().includes('couture')
+        );
+      }
+
+      // 4. Ultimate fallback: first service
+      if (!match) {
+        match = services[0];
+      }
+
+      if (match) {
+        setFormData(prev => ({
+          ...prev,
+          serviceId: prev.serviceId || match._id,
+          serviceTitle: prev.serviceTitle || match.title,
+          servicePrice: prev.servicePrice || match.price || '',
+          serviceCategory: prev.serviceCategory || match.category || '',
+        }));
+      }
+    }
+  }, [services, formData.designCategory, formData.serviceId]);
+
   const today = new Date().toISOString().split('T')[0];
   const maxDate = new Date();
   maxDate.setMonth(maxDate.getMonth() + 3);
@@ -304,14 +345,17 @@ const Booking = () => {
       overflow: hidden;
       border: 1px solid rgba(255,255,255,0.12);
       margin-bottom: 20px;
+      max-height: 380px;
+      width: 100%;
     }
     .b-design-preview img {
       width: 100%;
+      height: 380px;
       object-fit: cover;
       display: block;
       filter: grayscale(0.3);
       transition: transform 0.7s ease;
-      aspect-ratio: 3/4;
+      max-height: 380px;
     }
     .b-design-preview:hover img { transform: scale(1.04); }
     .b-success {
@@ -419,11 +463,6 @@ const Booking = () => {
                     <p style={{ ...serif, fontSize: '1.2rem', fontWeight: 300, color: 'rgba(255,255,255,0.9)', marginBottom: '4px' }}>
                       {formData.designTitle}
                     </p>
-                    {formData.designPrice && (
-                      <p style={{ fontSize: '0.75rem', color: '#b8860b', fontWeight: 500, letterSpacing: '0.1em' }}>
-                        {formatPrice(formData.designPrice)}
-                      </p>
-                    )}
                   </div>
                 )}
                 {formData.serviceTitle && (
@@ -432,11 +471,6 @@ const Booking = () => {
                     <p style={{ ...serif, fontSize: '1.2rem', fontWeight: 300, color: 'rgba(255,255,255,0.9)', marginBottom: '4px' }}>
                       {formData.serviceTitle}
                     </p>
-                    {formData.servicePrice && (
-                      <p style={{ fontSize: '0.75rem', color: '#b8860b', fontWeight: 500, letterSpacing: '0.1em' }}>
-                        {formatPrice(formData.servicePrice)}
-                      </p>
-                    )}
                   </div>
                 )}
               </div>
@@ -489,7 +523,6 @@ const Booking = () => {
                     {bookingDetails && (
                       <div style={{ borderTop: '1px solid #e0dbd3', borderBottom: '1px solid #e0dbd3', padding: '20px 0', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '360px' }}>
                         {[
-                          { label: 'Order ID', value: bookingDetails.bookingId },
                           { label: 'Item', value: bookingDetails.serviceName },
                           { label: 'Date', value: bookingDetails.date },
                           { label: 'Time', value: bookingDetails.time },
@@ -563,7 +596,7 @@ const Booking = () => {
                             <option value="">{formData.designTitle ? 'Add a service (optional)...' : 'Choose a service...'}</option>
                             {services.map((service) => (
                               <option key={service._id} value={service._id}>
-                                {service.title} {service.price ? `— ${formatPrice(service.price)}` : ''}
+                                {service.title}
                               </option>
                             ))}
                           </>

@@ -144,12 +144,7 @@ const ServicesPage = () => {
                     {service.description}
                   </p>
 
-                  {/* Price */}
-                  {service.price && (
-                    <div className="text-xs text-gray-600 font-semibold tracking-wider mb-8">
-                      FROM {formatPrice(service.price)}
-                    </div>
-                  )}
+
                 </div>
 
                 {/* Signature booking button */}

@@ -233,11 +233,11 @@ const About = () => {
           {/* Portrait Container */}
           <div className="w-full relative overflow-hidden bg-gray-100 aspect-[3/4] border border-gray-200/50 shadow-md">
             <img
-              src="/vidisha.jpg"
+              src={getImageUrl(aboutData.designerImage) || "/vidisha.jpg"}
               alt={aboutData.designerName || "Vidisha"}
               className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
               onError={(e) => {
-                e.target.src = getImageUrl(aboutData.designerImage) || "/Me.jpg";
+                e.target.src = "/vidisha.jpg";
                 e.target.onerror = (err) => { err.target.src = "/Me.jpg"; };
               }}
             />
@@ -259,9 +259,16 @@ const About = () => {
             <h3 className="text-3xl font-light text-gray-950 mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
               {aboutData.designerName || "Vidisha"}
             </h3>
-            <p className="text-[8px] tracking-[0.2em] uppercase text-gray-400 mb-6 font-semibold">
-              {aboutData.designerTitle || "FOUNDER & CREATIVE DIRECTOR"}
-            </p>
+            {(() => {
+              const cleanTitle = aboutData.designerTitle && aboutData.designerTitle.toUpperCase() !== 'DOE'
+                ? aboutData.designerTitle
+                : "FOUNDER & CREATIVE DIRECTOR";
+              return (
+                <p className="text-[8px] tracking-[0.2em] uppercase text-gray-400 mb-6 font-semibold">
+                  {cleanTitle}
+                </p>
+              );
+            })()}
 
             {/* Bio with GSAP scroll-triggered text reveal */}
             <p ref={paragraphRef} className="text-xs text-gray-650 leading-relaxed tracking-wide font-light mb-8">

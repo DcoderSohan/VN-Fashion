@@ -20,7 +20,8 @@ import {
   ExternalLink,
   Settings,
   Tv,
-  ChevronRight
+  ChevronRight,
+  Info
 } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import GalleryManagement from './pages/GalleryManagement';
@@ -34,6 +35,7 @@ import ClassBannersManagement from './pages/ClassBannersManagement';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
+import AboutManagement from './pages/AboutManagement';
 
 // Protected Route Component
 function ProtectedRoute({ children }) {
@@ -86,6 +88,7 @@ function DashboardLayout({ children }) {
     { id: 'class-banners', label: 'Class Banners', icon: Tv, path: '/class-banners' },
     { id: 'bookings', label: 'Bookings', icon: Calendar, path: '/bookings' },
     { id: 'contacts', label: 'Contacts', icon: MessageSquare, path: '/contacts' },
+    { id: 'about', label: 'About Page', icon: Info, path: '/about' },
     { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
     { id: 'profile', label: 'Profile', icon: User, path: '/profile' },
   ];
@@ -402,6 +405,13 @@ function App() {
           <ProtectedRoute>
             <DashboardLayout>
               <Profile />
+            </DashboardLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/about" element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <AboutManagement />
             </DashboardLayout>
           </ProtectedRoute>
         } />
