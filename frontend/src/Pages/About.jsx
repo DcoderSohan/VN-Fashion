@@ -148,19 +148,22 @@ const About = () => {
         );
       }
 
-      // Letter-by-letter reveal animation
-      if (lettersRef.current.length > 0) {
-        gsap.to(lettersRef.current, {
-          scrollTrigger: {
-            trigger: paragraphRef.current,
-            start: "top 85%",
-            toggleActions: "play none none reverse",
-          },
-          opacity: 1,
-          duration: 0.04,
-          stagger: 0.01,
-          ease: "power2.out",
-        });
+      // Smooth paragraph fade-in and slide-up animation
+      if (paragraphRef.current) {
+        gsap.fromTo(paragraphRef.current,
+          { opacity: 0, y: 15 },
+          {
+            scrollTrigger: {
+              trigger: paragraphRef.current,
+              start: "top 90%",
+              toggleActions: "play none none reverse",
+            },
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power3.out",
+          }
+        );
       }
     }, aboutRef);
 
@@ -270,9 +273,13 @@ const About = () => {
               );
             })()}
 
-            {/* Bio with GSAP scroll-triggered text reveal */}
-            <p ref={paragraphRef} className="text-xs text-gray-650 leading-relaxed tracking-wide font-light mb-8">
-              {splitTextIntoLetters(aboutData.designerBio || "With a background in architectural texturing and years of apprenticeship under master artisans, Vidisha Natekar brings together the best of both worlds. She creates exquisite pieces that blend traditional craftsmanship with modern aesthetics.")}
+            {/* Bio with smooth scroll-triggered text reveal */}
+            <p
+              ref={paragraphRef}
+              className="text-xs text-gray-650 leading-relaxed tracking-wide font-light mb-8"
+              style={{ opacity: 0 }}
+            >
+              {aboutData.designerBio || "With a background in architectural texturing and years of apprenticeship under master artisans, Vidisha Natekar brings together the best of both worlds. She creates exquisite pieces that blend traditional craftsmanship with modern aesthetics."}
             </p>
           </div>
 

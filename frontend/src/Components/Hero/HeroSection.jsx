@@ -79,7 +79,7 @@ const HeroSection = () => {
             {/* Primary tall image */}
             <div className="hero-img-primary">
               <img
-                src="/VN-1.jpg"
+                src="/vn10.jpeg"
                 alt="VN Fashion editorial — main look"
                 className="hero-img"
                 loading="eager"
@@ -94,7 +94,7 @@ const HeroSection = () => {
             {/* Floating secondary card */}
             <div className="hero-float-card">
               <img
-                src="/VN-2.jpg"
+                src="/vn14.jpeg"
                 alt="VN Fashion — secondary editorial"
                 className="hero-float-img"
                 loading="eager"
