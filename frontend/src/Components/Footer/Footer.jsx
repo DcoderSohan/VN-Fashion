@@ -152,12 +152,26 @@ const Footer = () => {
             © {new Date().getFullYear()} VN Fashion. All rights reserved.
           </p>
           <p className="ft-credit" style={{ fontFamily: SANS }}>
-            Designed &amp; Developed by{" "}
-            <a href="https://sohansarang.vercel.app/"
+            Website Designed & Developed by{" "}
+            <a
+              href="https://sohansarang.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
-              className="ft-credit-link">
+              className="ft-credit-link"
+              style={{ fontFamily: SERIF }}
+            >
               Sohan Sarang
+            </a>
+            <span className="ft-credit-sep">•</span>
+            In Collaboration with{" "}
+            <a
+              href="https://vtrc-technologies-tau.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ft-credit-link"
+              style={{ fontFamily: SERIF }}
+            >
+              VTRC Technologies
             </a>
           </p>
         </div>
@@ -290,51 +304,78 @@ const Footer = () => {
         /* Bottom bar */
         .ft-bottom {
           display: flex;
+          flex-direction: column;
           align-items: center;
-          justify-content: space-between;
-          padding: 1.25rem 0;
+          text-align: center;
+          padding: 1.75rem 0;
           border-top: 1px solid #e5e7eb;
-          gap: 1rem;
-        }
-        @media (max-width: 640px) {
-          .ft-bottom {
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-          }
+          gap: 0.55rem;
         }
         .ft-copy {
-          font-size: 0.55rem;
+          font-size: 0.56rem;
           font-weight: 600;
-          letter-spacing: 0.15em;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
           color: #9ca3af;
           margin: 0;
         }
         .ft-credit {
-          font-size: 0.55rem;
-          font-weight: 600;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
+          font-size: 0.6rem;
+          font-weight: 400;
+          letter-spacing: 0.08em;
           color: #9ca3af;
           margin: 0;
         }
-        .ft-credit-link {
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: inherit;
-          font-weight: 700;
-          letter-spacing: inherit;
-          text-transform: uppercase;
-          color: #0a0a0a;
-          text-decoration: underline;
-          text-underline-offset: 2px;
-          font-family: inherit;
-          padding: 0;
-          transition: color 0.25s;
+        .ft-credit-sep {
+          display: inline-block;
+          margin: 0 0.35rem;
+          color: #c9c9c9;
+          font-size: 0.5rem;
         }
-        .ft-credit-link:hover { color: #b8860b; }
+        .ft-credit-link {
+          position: relative;
+          display: inline-block;
+          font-size: 0.72rem;
+          font-weight: 500;
+          font-style: italic;
+          letter-spacing: 0.01em;
+          text-transform: none;
+          color: #555;
+          text-decoration: none;
+          padding: 0;
+          cursor: pointer;
+          transition: color 0.35s ease;
+        }
+        /* Animated underline via pseudo-element */
+        .ft-credit-link::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          bottom: -1px;
+          width: 0;
+          height: 1px;
+          background: #b8860b;
+          transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .ft-credit-link:hover {
+          color: #b8860b;
+        }
+        .ft-credit-link:hover::after {
+          width: 100%;
+        }
+        @media (max-width: 640px) {
+          .ft-bottom {
+            padding: 1.25rem 0;
+            gap: 0.4rem;
+          }
+          .ft-copy {
+            font-size: 0.5rem;
+          }
+          .ft-credit {
+            font-size: 0.46rem;
+            line-height: 1.6;
+          }
+        }
       `}</style>
     </footer>
   );

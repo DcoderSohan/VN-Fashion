@@ -18,6 +18,21 @@ const Classes = () => {
   const [selectedBanner, setSelectedBanner] = useState(null);
   const navigate = useNavigate();
 
+  // Lock body scroll when modal is open; also handle ESC key to close
+  useEffect(() => {
+    if (selectedBanner) {
+      document.body.style.overflow = 'hidden';
+      const onKey = (e) => { if (e.key === 'Escape') setSelectedBanner(null); };
+      window.addEventListener('keydown', onKey);
+      return () => {
+        document.body.style.overflow = '';
+        window.removeEventListener('keydown', onKey);
+      };
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [selectedBanner]);
+
   useEffect(() => {
     const fetchBanners = async () => {
       setLoading(true);
@@ -287,35 +302,57 @@ const Classes = () => {
       inset: 0;
       z-index: 1000;
       background: rgba(10,10,10,0.88);
+      /* Backdrop is the scrollable container — NOT the modal itself */
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      padding: 20px;
+      /* Safe padding: top accounts for navbar (~70px) + breathing room; sides and bottom fixed */
+      padding: 80px 16px 24px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    /* On larger screens, center the modal vertically when content fits */
+    @media (min-width: 641px) {
+      .cp-modal-bg {
+        align-items: center;
+        padding: 90px 24px 32px;
+      }
     }
     .cp-modal {
       background: #fbfbfa;
       max-width: 900px;
       width: 100%;
-      height: min(600px, 80vh);
+      /* Desktop: fixed height with internal scroll for body */
+      height: min(580px, calc(100vh - 130px));
       display: grid;
       grid-template-columns: 1fr 1fr;
       position: relative;
       overflow: hidden;
+      flex-shrink: 0;
+      /* Prevent modal from shrinking below a sensible size */
+      min-height: 320px;
     }
     @media (max-width: 640px) {
       .cp-modal {
         grid-template-columns: 1fr;
+        /* Let height be driven by content on mobile */
         height: auto;
-        max-height: 90vh;
-        overflow-y: auto;
+        min-height: unset;
+        overflow: visible;
+      }
+      .cp-modal-img-wrap {
+        /* Fixed image height on mobile — portrait-safe aspect ratio */
+        height: 52vw;
+        min-height: 200px;
+        max-height: 280px;
       }
       .cp-modal-img {
-        height: 260px;
-        min-height: 260px;
+        height: 100%;
       }
       .cp-modal-body {
         height: auto !important;
         overflow-y: visible !important;
+        padding: 24px 20px 16px !important;
       }
     }
     .cp-modal-img-wrap {
@@ -333,29 +370,45 @@ const Classes = () => {
       filter: grayscale(0.1);
     }
     .cp-modal-body {
-      padding: 40px 36px;
+      padding: 36px 32px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
+      /* Only the body scrolls on desktop when content overflows */
       overflow-y: auto;
       height: 100%;
+      /* Custom thin scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: #d4af37 transparent;
     }
+    .cp-modal-body::-webkit-scrollbar { width: 4px; }
+    .cp-modal-body::-webkit-scrollbar-track { background: transparent; }
+    .cp-modal-body::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
     .cp-modal-close {
       position: absolute;
-      top: 14px;
-      right: 14px;
-      background: rgba(10,10,10,0.7);
-      border: none;
+      top: -14px;
+      right: -14px;
+      background: #1a1a1a;
+      border: 2px solid rgba(255,255,255,0.15);
       color: #fff;
       cursor: pointer;
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 10;
       transition: background 0.2s;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+    /* On mobile, pin close button inside modal top-right */
+    @media (max-width: 640px) {
+      .cp-modal-close {
+        top: 10px;
+        right: 10px;
+        position: absolute;
+      }
     }
     .cp-modal-close:hover { background: #b8860b; }
     .cp-modal-enroll {
@@ -648,101 +701,105 @@ const Classes = () => {
             transition={{ duration: 0.25 }}
             onClick={e => { if (e.target === e.currentTarget) setSelectedBanner(null); }}
           >
-            <motion.div
-              className="cp-modal"
-              initial={{ opacity: 0, scale: 0.96, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: 10 }}
-              transition={{ duration: 0.35, ease: [0.22, 0.61, 0.36, 1] }}
-            >
-              {selectedBanner.image && (
-                <div className="cp-modal-img-wrap">
-                  <img
-                    src={getImageUrl(selectedBanner.image)}
-                    alt={selectedBanner.title}
-                    className="cp-modal-img"
-                    onError={e => { e.target.parentElement.style.display = 'none'; e.target.style.display = 'none'; }}
-                  />
+            {/* Wrapper gives position:relative context for the close button */}
+            <div style={{ position: 'relative', width: '100%', maxWidth: '900px', flexShrink: 0 }}>
+              <motion.div
+                className="cp-modal"
+                initial={{ opacity: 0, scale: 0.96, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: 10 }}
+                transition={{ duration: 0.35, ease: [0.22, 0.61, 0.36, 1] }}
+              >
+                {selectedBanner.image && (
+                  <div className="cp-modal-img-wrap">
+                    <img
+                      src={getImageUrl(selectedBanner.image)}
+                      alt={selectedBanner.title}
+                      className="cp-modal-img"
+                      onError={e => { e.target.parentElement.style.display = 'none'; e.target.style.display = 'none'; }}
+                    />
+                  </div>
+                )}
+
+                <div className="cp-modal-body">
+                  {selectedBanner.category && (
+                    <p style={{ fontSize: '0.56rem', letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, color: '#b8860b', margin: 0 }}>
+                      {selectedBanner.category}
+                    </p>
+                  )}
+                  <h2 style={{ ...SERIF, fontSize: 'clamp(1.4rem, 5vw, 2rem)', fontWeight: 300, color: '#1a1a1a', lineHeight: 1.1, margin: 0 }}>
+                    {selectedBanner.title}
+                  </h2>
+                  {selectedBanner.subtitle && (
+                    <p style={{ fontSize: '0.85rem', color: '#666', fontWeight: 300, margin: 0 }}>
+                      {selectedBanner.subtitle}
+                    </p>
+                  )}
+                  {selectedBanner.description && (
+                    <p style={{ fontSize: '0.82rem', color: '#777', lineHeight: 1.75, fontWeight: 300, margin: 0 }}>
+                      {selectedBanner.description}
+                    </p>
+                  )}
+
+                  <div>
+                    {selectedBanner.instructor && (
+                      <div className="cp-detail-row">
+                        <div className="cp-detail-icon"><Tag size={12} /></div>
+                        <div>
+                          <p style={{ fontSize: '0.52rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#aaa', fontWeight: 600, marginBottom: '3px' }}>Instructor</p>
+                          <p style={{ fontSize: '0.85rem', color: '#1a1a1a', fontWeight: 300 }}>{selectedBanner.instructor}</p>
+                        </div>
+                      </div>
+                    )}
+                    {selectedBanner.duration && (
+                      <div className="cp-detail-row">
+                        <div className="cp-detail-icon"><Clock size={12} /></div>
+                        <div>
+                          <p style={{ fontSize: '0.52rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#aaa', fontWeight: 600, marginBottom: '3px' }}>Duration</p>
+                          <p style={{ fontSize: '0.85rem', color: '#1a1a1a', fontWeight: 300 }}>{selectedBanner.duration}</p>
+                        </div>
+                      </div>
+                    )}
+                    {selectedBanner.schedule && (
+                      <div className="cp-detail-row">
+                        <div className="cp-detail-icon"><Calendar size={12} /></div>
+                        <div>
+                          <p style={{ fontSize: '0.52rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#aaa', fontWeight: 600, marginBottom: '3px' }}>Schedule</p>
+                          <p style={{ fontSize: '0.85rem', color: '#1a1a1a', fontWeight: 300 }}>{selectedBanner.schedule}</p>
+                        </div>
+                      </div>
+                    )}
+                    {selectedBanner.seats && (
+                      <div className="cp-detail-row">
+                        <div className="cp-detail-icon"><Users size={12} /></div>
+                        <div>
+                          <p style={{ fontSize: '0.52rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#aaa', fontWeight: 600, marginBottom: '3px' }}>Availability</p>
+                          <p style={{ fontSize: '0.85rem', color: '#1a1a1a', fontWeight: 300 }}>{selectedBanner.seats} seats available</p>
+                        </div>
+                      </div>
+                    )}
+                    {selectedBanner.price && (
+                      <div style={{ padding: '16px 0', marginTop: '4px' }}>
+                        <p style={{ fontSize: '0.52rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#aaa', fontWeight: 600, marginBottom: '6px' }}>Investment</p>
+                        <p style={{ fontSize: '1.5rem', fontWeight: 600, color: '#b8860b', ...SERIF }}>{selectedBanner.price}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    className="cp-modal-enroll"
+                    onClick={() => { setSelectedBanner(null); navigate('/booking'); }}
+                  >
+                    Enroll / Book Now <ArrowRight size={13} />
+                  </button>
                 </div>
-              )}
 
-              <div className="cp-modal-body">
-                {selectedBanner.category && (
-                  <p style={{ fontSize: '0.56rem', letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, color: '#b8860b' }}>
-                    {selectedBanner.category}
-                  </p>
-                )}
-                <h2 style={{ ...SERIF, fontSize: '2rem', fontWeight: 300, color: '#1a1a1a', lineHeight: 1.1, margin: 0 }}>
-                  {selectedBanner.title}
-                </h2>
-                {selectedBanner.subtitle && (
-                  <p style={{ fontSize: '0.85rem', color: '#666', fontWeight: 300 }}>
-                    {selectedBanner.subtitle}
-                  </p>
-                )}
-                {selectedBanner.description && (
-                  <p style={{ fontSize: '0.82rem', color: '#777', lineHeight: 1.75, fontWeight: 300 }}>
-                    {selectedBanner.description}
-                  </p>
-                )}
-
-                <div>
-                  {selectedBanner.instructor && (
-                    <div className="cp-detail-row">
-                      <div className="cp-detail-icon"><Tag size={12} /></div>
-                      <div>
-                        <p style={{ fontSize: '0.52rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#aaa', fontWeight: 600, marginBottom: '3px' }}>Instructor</p>
-                        <p style={{ fontSize: '0.85rem', color: '#1a1a1a', fontWeight: 300 }}>{selectedBanner.instructor}</p>
-                      </div>
-                    </div>
-                  )}
-                  {selectedBanner.duration && (
-                    <div className="cp-detail-row">
-                      <div className="cp-detail-icon"><Clock size={12} /></div>
-                      <div>
-                        <p style={{ fontSize: '0.52rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#aaa', fontWeight: 600, marginBottom: '3px' }}>Duration</p>
-                        <p style={{ fontSize: '0.85rem', color: '#1a1a1a', fontWeight: 300 }}>{selectedBanner.duration}</p>
-                      </div>
-                    </div>
-                  )}
-                  {selectedBanner.schedule && (
-                    <div className="cp-detail-row">
-                      <div className="cp-detail-icon"><Calendar size={12} /></div>
-                      <div>
-                        <p style={{ fontSize: '0.52rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#aaa', fontWeight: 600, marginBottom: '3px' }}>Schedule</p>
-                        <p style={{ fontSize: '0.85rem', color: '#1a1a1a', fontWeight: 300 }}>{selectedBanner.schedule}</p>
-                      </div>
-                    </div>
-                  )}
-                  {selectedBanner.seats && (
-                    <div className="cp-detail-row">
-                      <div className="cp-detail-icon"><Users size={12} /></div>
-                      <div>
-                        <p style={{ fontSize: '0.52rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#aaa', fontWeight: 600, marginBottom: '3px' }}>Availability</p>
-                        <p style={{ fontSize: '0.85rem', color: '#1a1a1a', fontWeight: 300 }}>{selectedBanner.seats} seats available</p>
-                      </div>
-                    </div>
-                  )}
-                  {selectedBanner.price && (
-                    <div style={{ padding: '16px 0', marginTop: '4px' }}>
-                      <p style={{ fontSize: '0.52rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#aaa', fontWeight: 600, marginBottom: '6px' }}>Investment</p>
-                      <p style={{ fontSize: '1.5rem', fontWeight: 600, color: '#b8860b', ...SERIF }}>{selectedBanner.price}</p>
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  className="cp-modal-enroll"
-                  onClick={() => { setSelectedBanner(null); navigate('/booking'); }}
-                >
-                  Enroll / Book Now <ArrowRight size={13} />
+                {/* Close button — absolutely positioned inside modal on mobile */}
+                <button className="cp-modal-close" onClick={() => setSelectedBanner(null)} aria-label="Close">
+                  <X size={15} />
                 </button>
-              </div>
-
-              <button className="cp-modal-close" onClick={() => setSelectedBanner(null)}>
-                <X size={15} />
-              </button>
-            </motion.div>
+              </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

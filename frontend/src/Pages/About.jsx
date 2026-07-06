@@ -22,7 +22,7 @@ const About = () => {
     designerName: "VIDISHA NATEKAR",
     designerTitle: "FOUNDER & CREATIVE DIRECTOR",
     designerBio: "With over a decade of experience in traditional handcrafts and contemporary fashion design, Vidisha Natekar brings together the best of both worlds. She creates exquisite pieces that blend traditional craftsmanship with modern aesthetics.",
-    designerImage: "/Me.jpg"
+    designerImage: null
   });
   const [loading, setLoading] = useState(true);
 
@@ -38,7 +38,8 @@ const About = () => {
             designerName: data.designerName || "VIDISHA NATEKAR",
             designerTitle: data.designerTitle || "FOUNDER & CREATIVE DIRECTOR",
             designerBio: data.designerBio || "With a background in architectural texturing and years of apprenticeship under master artisans, Vidisha Natekar brings together the best of both worlds. She creates exquisite pieces that blend traditional craftsmanship with modern aesthetics.",
-            designerImage: data.designerImage || "/Me.jpg"
+            // Only use the uploaded image URL from the database — no local file fallbacks
+            designerImage: data.designerImage && data.designerImage.trim() !== '' ? data.designerImage.trim() : null
           });
         }
 
@@ -178,8 +179,8 @@ const About = () => {
           src="/VN-5.jpg"
           alt=""
           onError={(e) => {
-            e.target.src = getImageUrl(aboutData.designerImage) || "/HeroBg.jpg";
-            e.target.onerror = (err) => { err.target.src = "/HeroBg.jpg"; };
+            e.target.src = "/HeroBg.jpg";
+            e.target.onerror = null;
           }}
         />
       </div>
@@ -235,15 +236,29 @@ const About = () => {
 
           {/* Portrait Container */}
           <div className="w-full relative overflow-hidden bg-gray-100 aspect-[3/4] border border-gray-200/50 shadow-md">
-            <img
-              src={getImageUrl(aboutData.designerImage) || "/vidisha.jpg"}
-              alt={aboutData.designerName || "Vidisha"}
-              className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
-              onError={(e) => {
-                e.target.src = "/vidisha.jpg";
-                e.target.onerror = (err) => { err.target.src = "/Me.jpg"; };
-              }}
-            />
+            {loading ? (
+              // Skeleton placeholder while fetching from API — prevents wrong image flash
+              <div className="w-full h-full bg-gradient-to-br from-gray-200 via-gray-100 to-gray-200 animate-pulse" />
+            ) : aboutData.designerImage ? (
+              <img
+                src={getImageUrl(aboutData.designerImage)}
+                alt={aboutData.designerName || "Designer"}
+                className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
+                onError={(e) => {
+                  // If image fails to load, hide it and show placeholder background
+                  e.target.style.display = 'none';
+                  e.target.onerror = null;
+                }}
+              />
+            ) : (
+              // No image uploaded yet — show a neutral placeholder
+              <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
+            )}
             {/* Warm amber overlay multiply */}
             <div className="absolute inset-0 bg-[rgba(212,175,55,0.04)] mix-blend-multiply opacity-100 group-hover:opacity-0 transition-opacity duration-700 pointer-events-none" />
           </div>

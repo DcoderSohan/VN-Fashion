@@ -6,6 +6,8 @@ import { getImageUrl } from '../utils/helpers';
 const AboutManagement = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [designerTitle, setDesignerTitle] = useState('');
+  const [designerBio, setDesignerBio] = useState('');
   const [designerImage, setDesignerImage] = useState('');
   const [imagePreview, setImagePreview] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -23,6 +25,8 @@ const AboutManagement = () => {
         const nameParts = fullName.trim().split(/\s+/);
         setFirstName(nameParts[0] || '');
         setLastName(nameParts.slice(1).join(' ') || '');
+        setDesignerTitle(data.designerTitle || '');
+        setDesignerBio(data.designerBio || '');
         setDesignerImage(data.designerImage || '');
       } catch (err) {
         showToast('error', 'Failed to load about data.');
@@ -58,7 +62,9 @@ const AboutManagement = () => {
     try {
       setUploading(true);
       const res = await uploadImage(file, 'about');
-      const url = res.data.imageUrl || res.data.url || res.data.path || '';
+      // Backend returns { url: cloudinaryUrl } from imageController
+      const url = res.data.url || res.data.imageUrl || res.data.path || '';
+      if (!url) throw new Error('No URL returned from upload');
       setDesignerImage(url);
       showToast('success', 'Photo uploaded! Click Save Changes to apply.');
     } catch {
@@ -74,13 +80,19 @@ const AboutManagement = () => {
       showToast('error', 'First name cannot be empty.');
       return;
     }
+    if (!designerImage) {
+      showToast('error', 'Please upload a designer photo before saving.');
+      return;
+    }
     try {
       setSaving(true);
       const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+      // Preserve all existing fields — only update what we have values for
       await aboutApi.update({ 
         designerName: fullName, 
         designerImage,
-        designerTitle: '' // Clear any "DOE" placeholder text
+        ...(designerTitle && { designerTitle }),
+        ...(designerBio && { designerBio }),
       });
       showToast('success', 'About page updated successfully!');
     } catch {
