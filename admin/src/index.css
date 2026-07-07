@@ -5,6 +5,44 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── VN Fashion Admin — Design Tokens ───────────────────────── */
+:root {
+  /* Core palette (mirrors frontend) */
+  --color-bg:       #f5f4f2;
+  --color-white:    #ffffff;
+  --color-black:    #0a0a0a;
+  --color-text:     #1a1a1a;
+  --color-muted:    #9ca3af;
+
+  /* Gold accent (from frontend hero heading gradient) */
+  --gold:           #b8860b;
+  --gold-light:     #c9a84c;
+  --gold-dark:      #8b6914;
+  --gold-subtle:    #fdf8ee;
+  --gold-border:    #e8d5a3;
+
+  /* Status palette */
+  --status-pending-bg:    #fdf8ee;
+  --status-pending-text:  #8b6914;
+  --status-pending-border:#e8d5a3;
+
+  --status-confirmed-bg:    #f0fdf4;
+  --status-confirmed-text:  #15803d;
+  --status-confirmed-border:#86efac;
+
+  --status-completed-bg:    #eff6ff;
+  --status-completed-text:  #1d4ed8;
+  --status-completed-border:#93c5fd;
+
+  --status-cancelled-bg:    #fef2f2;
+  --status-cancelled-text:  #b91c1c;
+  --status-cancelled-border:#fca5a5;
+
+  /* Fonts */
+  --font-serif: 'Cormorant Garamond', 'Times New Roman', Georgia, serif;
+  --font-sans:  'Unbounded', system-ui, sans-serif;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -12,50 +50,70 @@
 }
 
 body {
-  font-family: 'Unbounded', system-ui, sans-serif;
-  color: #1a1a1a;
-  background-color: #f5f4f2;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Selection color */
+/* ── Selection ────────────────────────────────────────────────── */
 ::selection {
-  background-color: #0a0a0a;
-  color: #f5f4f2;
+  background-color: var(--color-black);
+  color: var(--color-bg);
 }
 
+/* ── Gold gradient text (matches frontend hero accent) ────────── */
+.gold-text {
+  background: linear-gradient(120deg, var(--gold) 0%, var(--gold-dark) 40%, var(--gold-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-/* Logo Rainbow Animation */
+/* ── Admin sidebar active item ────────────────────────────────── */
+.sidebar-active {
+  background: linear-gradient(135deg, var(--gold-subtle) 0%, #fff8e1 100%);
+  color: var(--gold-dark) !important;
+  border-left: 2px solid var(--gold);
+}
+
+/* ── Status badge helpers ─────────────────────────────────────── */
+.badge-pending {
+  background: var(--status-pending-bg);
+  color: var(--status-pending-text);
+  border: 1px solid var(--status-pending-border);
+}
+.badge-confirmed {
+  background: var(--status-confirmed-bg);
+  color: var(--status-confirmed-text);
+  border: 1px solid var(--status-confirmed-border);
+}
+.badge-completed {
+  background: var(--status-completed-bg);
+  color: var(--status-completed-text);
+  border: 1px solid var(--status-completed-border);
+}
+.badge-cancelled {
+  background: var(--status-cancelled-bg);
+  color: var(--status-cancelled-text);
+  border: 1px solid var(--status-cancelled-border);
+}
+
+/* ── Logo Rainbow Animation ───────────────────────────────────── */
 @keyframes rainbow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
 }
 
-/* Morphing Square Animation (Circular Border Radius) */
+/* ── Morphing square ──────────────────────────────────────────── */
 @keyframes morph-border {
-  0% {
-    border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
-  }
-  25% {
-    border-radius: 60% 40% 40% 60% / 60% 60% 40% 40%;
-  }
-  50% {
-    border-radius: 40% 60% 60% 40% / 60% 40% 40% 60%;
-  }
-  75% {
-    border-radius: 60% 40% 40% 60% / 40% 60% 60% 40%;
-  }
-  100% {
-    border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
-  }
+  0%   { border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%; }
+  25%  { border-radius: 60% 40% 40% 60% / 60% 60% 40% 40%; }
+  50%  { border-radius: 40% 60% 60% 40% / 60% 40% 40% 60%; }
+  75%  { border-radius: 60% 40% 40% 60% / 40% 60% 60% 40%; }
+  100% { border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%; }
 }
 
 .morphing-square {
@@ -64,12 +122,26 @@ body {
   transition: border-radius 0.5s;
 }
 
-/* Modal Scrollbar Hide */
+/* ── Modal Scrollbar Hide ─────────────────────────────────────── */
 .modal-content-scroll {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.modal-content-scroll::-webkit-scrollbar {
+  display: none;
 }
 
-.modal-content-scroll::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+/* ── Gold shimmer divider ─────────────────────────────────────── */
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold-border), transparent);
+}
+
+/* ── Gold accent dot (used in nav logo) ──────────────────────── */
+.gold-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  flex-shrink: 0;
 }

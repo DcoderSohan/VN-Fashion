@@ -26,7 +26,7 @@ import {
   Line
 } from 'recharts';
 
-const THEME_COLORS = ['#1a1a1a', '#555555', '#888888', '#cccccc'];
+const THEME_COLORS = ['#b8860b', '#15803d', '#1d4ed8', '#b91c1c'];
 
 const statCards = (stats) => [
   { label: 'Total Orders', value: stats.totalOrders, icon: Calendar, trend: 'up', note: 'All time' },
@@ -110,10 +110,10 @@ const Dashboard = () => {
   };
 
   const allStatusData = [
-    { name: 'Pending', value: stats.pendingOrders, color: '#1a1a1a' },
-    { name: 'Confirmed', value: stats.confirmedOrders, color: '#555555' },
-    { name: 'Completed', value: stats.completedOrders, color: '#888888' },
-    { name: 'Cancelled', value: stats.cancelledOrders, color: '#cccccc' },
+    { name: 'Pending',   value: stats.pendingOrders,   color: '#b8860b' },
+    { name: 'Confirmed', value: stats.confirmedOrders,  color: '#15803d' },
+    { name: 'Completed', value: stats.completedOrders,  color: '#1d4ed8' },
+    { name: 'Cancelled', value: stats.cancelledOrders,  color: '#b91c1c' },
   ];
   
   const statusData = allStatusData.filter(item => item.value > 0);
@@ -145,10 +145,10 @@ const Dashboard = () => {
 
   const getStatusStyle = (status) => {
     const styles = {
-      pending: 'border border-gray-300 text-gray-700 bg-gray-50',
-      confirmed: 'border border-black text-black bg-white',
-      completed: 'border border-gray-700 text-white bg-gray-800',
-      cancelled: 'border border-gray-200 text-gray-400 bg-gray-50',
+      pending:   'badge-pending',
+      confirmed: 'badge-confirmed',
+      completed: 'badge-completed',
+      cancelled: 'badge-cancelled',
     };
     return styles[status] || styles.pending;
   };
@@ -174,11 +174,14 @@ const Dashboard = () => {
           >
             Dashboard
           </h1>
-          <p className="text-xs text-gray-400 tracking-widest uppercase">Overview & Analytics</p>
+          <p className="text-xs tracking-widest uppercase" style={{ color: '#b8860b' }}>Overview & Analytics</p>
         </div>
         <button
           onClick={fetchData}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-xs font-medium tracking-widest uppercase text-gray-600 hover:bg-black hover:text-white hover:border-black transition-all duration-200"
+          className="flex items-center gap-2 px-4 py-2 text-xs font-medium tracking-widest uppercase transition-all duration-200"
+          style={{ border: '1px solid #e8d5a3', color: '#8b6914', background: '#fdf8ee' }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#b8860b'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#b8860b'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = '#fdf8ee'; e.currentTarget.style.color = '#8b6914'; e.currentTarget.style.borderColor = '#e8d5a3'; }}
         >
           <RefreshCw size={13} />
           Refresh
@@ -189,19 +192,30 @@ const Dashboard = () => {
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
         {cards.map((card, i) => {
           const Icon = card.icon;
+          // Give each card a subtle accent based on index
+          const cardAccents = [
+            { iconColor: '#0a0a0a', trendColor: '#15803d' }, // total
+            { iconColor: '#b8860b', trendColor: '#b8860b' }, // pending
+            { iconColor: '#15803d', trendColor: '#15803d' }, // confirmed
+            { iconColor: '#1d4ed8', trendColor: '#1d4ed8' }, // completed
+            { iconColor: '#b91c1c', trendColor: '#b91c1c' }, // cancelled
+            { iconColor: '#6b7280', trendColor: '#15803d' }, // contacts
+          ];
+          const accent = cardAccents[i] || cardAccents[0];
           return (
             <motion.div
               key={card.label}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07 }}
-              className="bg-white border border-gray-200 p-5 hover:border-black transition-colors duration-200"
+              className="bg-white p-5 hover:shadow-md transition-all duration-200"
+              style={{ border: '1px solid #e8d5a3' }}
             >
               <div className="flex items-start justify-between mb-3">
-                <Icon size={18} className="text-gray-400" />
+                <Icon size={18} style={{ color: accent.iconColor }} />
                 {card.trend === 'up' 
-                  ? <ArrowUpRight size={14} className="text-gray-400" />
-                  : <ArrowDownRight size={14} className="text-gray-400" />
+                  ? <ArrowUpRight size={14} style={{ color: accent.trendColor }} />
+                  : <ArrowDownRight size={14} style={{ color: '#b91c1c' }} />
                 }
               </div>
               <p className="text-3xl font-light text-black mb-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
@@ -221,7 +235,8 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-white border border-gray-200 p-6"
+          className="bg-white p-6"
+          style={{ border: '1px solid #e8d5a3' }}
         >
           <h2 className="text-sm font-medium text-black tracking-widest uppercase mb-6">Orders by Status</h2>
           {statusData.length === 0 ? (
@@ -271,7 +286,8 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="bg-white border border-gray-200 p-6"
+          className="bg-white p-6"
+          style={{ border: '1px solid #e8d5a3' }}
         >
           <h2 className="text-sm font-medium text-black tracking-widest uppercase mb-6">Orders Distribution</h2>
           <ResponsiveContainer width="100%" height={280}>
@@ -295,7 +311,8 @@ const Dashboard = () => {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
-        className="bg-white border border-gray-200 p-6"
+        className="bg-white p-6"
+        style={{ border: '1px solid #e8d5a3' }}
       >
         <h2 className="text-sm font-medium text-black tracking-widest uppercase mb-6">Orders Trend — Last 7 Days</h2>
         <ResponsiveContainer width="100%" height={260}>
@@ -307,10 +324,10 @@ const Dashboard = () => {
             <Line
               type="monotone"
               dataKey="orders"
-              stroke="#1a1a1a"
+              stroke="#b8860b"
               strokeWidth={2}
-              dot={{ fill: '#1a1a1a', r: 4, strokeWidth: 0 }}
-              activeDot={{ r: 6, strokeWidth: 0 }}
+              dot={{ fill: '#b8860b', r: 4, strokeWidth: 0 }}
+              activeDot={{ r: 6, strokeWidth: 0, fill: '#8b6914' }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -321,11 +338,12 @@ const Dashboard = () => {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
-        className="bg-white border border-gray-200"
+        className="bg-white"
+        style={{ border: '1px solid #e8d5a3' }}
       >
-        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
-          <h2 className="text-sm font-medium text-black tracking-widest uppercase">Recent Orders</h2>
-        </div>
+          <div className="flex justify-between items-center px-6 py-4" style={{ borderBottom: '1px solid #e8d5a3' }}>
+            <h2 className="text-sm font-medium text-black tracking-widest uppercase">Recent Orders</h2>
+          </div>
         
         {bookings.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
@@ -336,12 +354,12 @@ const Dashboard = () => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left text-[10px] font-medium tracking-widest uppercase text-gray-400 px-6 py-3">Order ID</th>
-                  <th className="text-left text-[10px] font-medium tracking-widest uppercase text-gray-400 px-4 py-3">Customer</th>
-                  <th className="text-left text-[10px] font-medium tracking-widest uppercase text-gray-400 px-4 py-3">Service</th>
-                  <th className="text-left text-[10px] font-medium tracking-widest uppercase text-gray-400 px-4 py-3">Date</th>
-                  <th className="text-left text-[10px] font-medium tracking-widest uppercase text-gray-400 px-4 py-3">Status</th>
+                <tr className="bg-gray-50" style={{ borderBottom: '1px solid #e8d5a3' }}>
+                  <th className="text-left text-[10px] font-medium tracking-widest uppercase px-6 py-3" style={{ color: '#b8860b' }}>Order ID</th>
+                  <th className="text-left text-[10px] font-medium tracking-widest uppercase px-4 py-3" style={{ color: '#b8860b' }}>Customer</th>
+                  <th className="text-left text-[10px] font-medium tracking-widest uppercase px-4 py-3" style={{ color: '#b8860b' }}>Service</th>
+                  <th className="text-left text-[10px] font-medium tracking-widest uppercase px-4 py-3" style={{ color: '#b8860b' }}>Date</th>
+                  <th className="text-left text-[10px] font-medium tracking-widest uppercase px-4 py-3" style={{ color: '#b8860b' }}>Status</th>
                 </tr>
               </thead>
               <tbody>

@@ -97,10 +97,10 @@ const BookingsManagement = () => {
 
   const getStatusStyle = (status) => {
     const styles = {
-      confirmed: 'border border-black text-black bg-white',
-      cancelled: 'border border-gray-200 text-gray-400 bg-gray-50',
-      completed: 'border border-gray-700 text-white bg-gray-800',
-      pending: 'border border-gray-300 text-gray-700 bg-gray-50',
+      confirmed: 'badge-confirmed',
+      cancelled: 'badge-cancelled',
+      completed: 'badge-completed',
+      pending:   'badge-pending',
     };
     return styles[status] || styles.pending;
   };

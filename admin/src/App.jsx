@@ -133,7 +133,7 @@ function DashboardLayout({ children }) {
     <div className="min-h-screen" style={{ backgroundColor: '#f5f4f2', fontFamily: "'Unbounded', system-ui, sans-serif" }}>
 
       {/* Top Navigation Bar */}
-      <nav className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-4 sm:px-6">
+      <nav className="bg-white fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-4 sm:px-6" style={{ borderBottom: '1px solid #e8d5a3' }}>
         <div className="flex items-center gap-4">
           {/* Mobile Menu Toggle */}
           <button
@@ -145,14 +145,17 @@ function DashboardLayout({ children }) {
 
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <span
-              className="text-xl sm:text-2xl font-bold tracking-[0.2em] text-black uppercase"
-              style={{ fontFamily: "'Cormorant Garamond', 'Times New Roman', serif" }}
-            >
-              VN FASHION
-            </span>
-            <div className="h-4 w-[1px] bg-gray-300 hidden sm:inline" />
-            <span className="text-[10px] sm:text-xs text-gray-400 hidden sm:inline font-medium tracking-widest uppercase">
+            <div className="flex items-center gap-2.5">
+              <span
+                className="text-xl sm:text-2xl font-bold tracking-[0.2em] uppercase"
+                style={{ fontFamily: "'Cormorant Garamond', 'Times New Roman', serif", color: '#0a0a0a' }}
+              >
+                VN FASHION
+              </span>
+              <span className="gold-dot hidden sm:inline-block" />
+            </div>
+            <div className="h-4 w-[1px] hidden sm:inline" style={{ background: '#e8d5a3' }} />
+            <span className="text-[10px] sm:text-xs hidden sm:inline font-medium tracking-widest uppercase" style={{ color: '#b8860b' }}>
               Admin
             </span>
           </div>
@@ -161,7 +164,10 @@ function DashboardLayout({ children }) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => window.open('https://vn-fashion.vercel.app', '_blank')}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-black text-white text-xs font-medium tracking-wider uppercase hover:bg-gray-800 transition-colors duration-200"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs font-medium tracking-wider uppercase transition-all duration-200"
+            style={{ background: 'linear-gradient(135deg, #b8860b 0%, #8b6914 100%)', color: '#fff' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(135deg, #c9a84c 0%, #b8860b 100%)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(135deg, #b8860b 0%, #8b6914 100%)'}
           >
             <ExternalLink size={14} />
             <span className="hidden sm:inline">View Site</span>
@@ -196,7 +202,9 @@ function DashboardLayout({ children }) {
 
       <div className="flex pt-16">
         {/* Sidebar - Desktop */}
-        <aside className="hidden lg:flex flex-col bg-white border-r border-gray-200 w-60 fixed left-0 top-16 h-[calc(100vh-4rem)] overflow-y-auto overflow-x-hidden">
+        <aside className="hidden lg:flex flex-col bg-white w-60 fixed left-0 top-16 h-[calc(100vh-4rem)] overflow-y-auto overflow-x-hidden" style={{ borderRight: '1px solid #e8d5a3' }}>
+          {/* Gold accent bar at top of sidebar */}
+          <div className="gold-divider" />
           <div className="flex-1 py-4 px-3">
             <div className="space-y-0.5">
               {menuItems.map((item) => {
@@ -206,14 +214,15 @@ function DashboardLayout({ children }) {
                   <button
                     key={item.id}
                     onClick={() => handleMenuClick(item.path)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-xs font-medium tracking-wider uppercase transition-all duration-150 rounded-sm ${active
-                      ? 'bg-black text-white'
-                      : 'text-gray-500 hover:bg-gray-100 hover:text-black'
-                      }`}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-xs font-medium tracking-wider uppercase transition-all duration-150 rounded-sm ${
+                      active
+                        ? 'sidebar-active'
+                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                    }`}
                   >
-                    <Icon size={15} />
+                    <Icon size={15} style={active ? { color: '#b8860b' } : {}} />
                     <span>{item.label}</span>
-                    {active && <ChevronRight size={13} className="ml-auto" />}
+                    {active && <ChevronRight size={13} className="ml-auto" style={{ color: '#b8860b' }} />}
                   </button>
                 );
               })}
@@ -221,10 +230,10 @@ function DashboardLayout({ children }) {
           </div>
 
           {/* Sidebar Footer */}
-          <div className="border-t border-gray-200 p-3">
+          <div className="p-3" style={{ borderTop: '1px solid #e8d5a3' }}>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-medium tracking-wider uppercase text-gray-500 hover:bg-gray-100 hover:text-black transition-all duration-150 rounded-sm"
+              className="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-medium tracking-wider uppercase text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-all duration-150 rounded-sm"
             >
               <LogOut size={15} />
               <span>Log Out</span>
@@ -236,9 +245,9 @@ function DashboardLayout({ children }) {
         <main className="flex-1 w-full lg:ml-60 min-h-[calc(100vh-4rem)]">
           {/* Page Header Breadcrumb */}
           {currentPage && (
-            <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-2">
-              <span className="text-xs text-gray-400 tracking-wider uppercase">Admin</span>
-              <ChevronRight size={12} className="text-gray-300" />
+            <div className="bg-white px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-2" style={{ borderBottom: '1px solid #e8d5a3' }}>
+              <span className="text-xs tracking-wider uppercase" style={{ color: '#b8860b' }}>Admin</span>
+              <ChevronRight size={12} style={{ color: '#c9a84c' }} />
               <span className="text-xs text-black font-medium tracking-wider uppercase">{currentPage.label}</span>
             </div>
           )}
@@ -267,20 +276,24 @@ function DashboardLayout({ children }) {
               transition={{ type: 'tween', duration: 0.25 }}
             >
               {/* Mobile Sidebar Header */}
-              <div className="h-16 border-b border-gray-200 flex items-center justify-between px-4">
-                <span
-                  className="text-xl font-bold tracking-[0.2em] text-black uppercase"
-                  style={{ fontFamily: "'Cormorant Garamond', 'Times New Roman', serif" }}
-                >
-                  VN FASHION
-                </span>
+              <div className="h-16 flex items-center justify-between px-4" style={{ borderBottom: '1px solid #e8d5a3' }}>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="text-xl font-bold tracking-[0.2em] uppercase"
+                    style={{ fontFamily: "'Cormorant Garamond', 'Times New Roman', serif", color: '#0a0a0a' }}
+                  >
+                    VN FASHION
+                  </span>
+                  <span className="gold-dot" />
+                </div>
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="p-2 text-gray-500 hover:text-black hover:bg-gray-100 rounded-sm transition-colors"
+                  className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-sm transition-colors"
                 >
                   <X size={18} />
                 </button>
               </div>
+              <div className="gold-divider" />
 
               {/* Mobile Menu Items */}
               <div className="flex-1 overflow-y-auto py-4 px-3">
@@ -292,14 +305,15 @@ function DashboardLayout({ children }) {
                       <button
                         key={item.id}
                         onClick={() => handleMenuClick(item.path)}
-                        className={`w-full flex items-center gap-3 px-3 py-3 text-xs font-medium tracking-wider uppercase transition-all duration-150 rounded-sm ${active
-                          ? 'bg-black text-white'
-                          : 'text-gray-500 hover:bg-gray-100 hover:text-black'
-                          }`}
+                        className={`w-full flex items-center gap-3 px-3 py-3 text-xs font-medium tracking-wider uppercase transition-all duration-150 rounded-sm ${
+                          active
+                            ? 'sidebar-active'
+                            : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                        }`}
                       >
-                        <Icon size={15} />
+                        <Icon size={15} style={active ? { color: '#b8860b' } : {}} />
                         <span>{item.label}</span>
-                        {active && <ChevronRight size={13} className="ml-auto" />}
+                        {active && <ChevronRight size={13} className="ml-auto" style={{ color: '#b8860b' }} />}
                       </button>
                     );
                   })}
@@ -307,10 +321,10 @@ function DashboardLayout({ children }) {
               </div>
 
               {/* Mobile Sidebar Footer */}
-              <div className="border-t border-gray-200 p-3">
+              <div className="p-3" style={{ borderTop: '1px solid #e8d5a3' }}>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-3 py-3 text-xs font-medium tracking-wider uppercase text-gray-500 hover:bg-gray-100 hover:text-black transition-all duration-150 rounded-sm"
+                  className="w-full flex items-center gap-3 px-3 py-3 text-xs font-medium tracking-wider uppercase text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-all duration-150 rounded-sm"
                 >
                   <LogOut size={15} />
                   <span>Log Out</span>

@@ -43,19 +43,25 @@ const Login = () => {
       style={{ backgroundColor: '#f5f4f2', fontFamily: "'Unbounded', system-ui, sans-serif" }}
     >
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-black text-white flex-col items-center justify-center p-16">
+      <div className="hidden lg:flex lg:w-1/2 bg-black text-white flex-col items-center justify-center p-16" style={{ background: '#0a0a0a' }}>
         <div className="max-w-sm text-center">
-          <p className="text-xs tracking-[0.4em] uppercase text-gray-400 mb-6">Admin Portal</p>
+          <p className="text-xs tracking-[0.4em] uppercase mb-6" style={{ color: '#b8860b' }}>Admin Portal</p>
           <h1
             className="text-6xl font-light leading-tight mb-4"
             style={{ fontFamily: "'Cormorant Garamond', 'Times New Roman', serif", letterSpacing: '0.15em' }}
           >
             VN<br />FASHION
           </h1>
-          <div className="w-12 h-px bg-white/30 mx-auto mb-6" />
+          <div className="w-12 h-px mx-auto mb-6" style={{ background: 'linear-gradient(to right, transparent, #b8860b, transparent)' }} />
           <p className="text-sm text-gray-400 leading-relaxed tracking-wide">
             Manage your fashion studio with elegance and precision.
           </p>
+          {/* Gold dot accent */}
+          <div className="flex items-center justify-center gap-2 mt-8">
+            <span style={{ width: 28, height: 1, background: 'linear-gradient(to right, transparent, #b8860b)' }} />
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#b8860b', display: 'inline-block' }} />
+            <span style={{ width: 28, height: 1, background: 'linear-gradient(to left, transparent, #b8860b)' }} />
+          </div>
         </div>
       </div>
 
